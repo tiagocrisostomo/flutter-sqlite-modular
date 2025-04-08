@@ -29,7 +29,7 @@ lib/
 ├── store/
 │   └── usuario_store.dart             # Gerenciamento de estado (Provider)
 ├── screens/
-│   └── home.dart                      # Interface do app
+│   └── usuario_screen.dart            # Interface do app
 ├── main.dart                          # Setup e Provider
 ```
 
