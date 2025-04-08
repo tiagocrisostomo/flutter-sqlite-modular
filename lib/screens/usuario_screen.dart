@@ -3,14 +3,14 @@ import 'package:db_sqlite/store/usuario_store.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
-class Home extends StatefulWidget {
-  const Home({super.key});
+class UsuarioScreen extends StatefulWidget {
+  const UsuarioScreen({super.key});
 
   @override
-  State<Home> createState() => _HomeState();
+  State<UsuarioScreen> createState() => _UsuarioScreenState();
 }
 
-class _HomeState extends State<Home> {
+class _UsuarioScreenState extends State<UsuarioScreen> {
   @override
   void initState() {
     super.initState();
