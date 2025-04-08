@@ -1,15 +1,15 @@
 class Usuario {
   int? id;
   String nome;
-  int idade;
+  String senha;
 
-  Usuario({this.id, required this.nome, required this.idade});
+  Usuario({this.id, required this.nome, required this.senha});
 
   factory Usuario.fromMap(Map<String, dynamic> json) {
-    return Usuario(id: json['id'], nome: json['nome'], idade: json['idade']);
+    return Usuario(id: json['id'], nome: json['nome'], senha: json['senha']);
   }
 
   Map<String, dynamic> toMap() {
-    return {'id': id, 'nome': nome, 'idade': idade};
+    return {'id': id, 'nome': nome, 'senha': senha};
   }
 }

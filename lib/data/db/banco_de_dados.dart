@@ -19,7 +19,7 @@ class BancoDeDados {
       version: 1,
       onCreate: (db, version) async {
         await db.execute(
-          '''CREATE TABLE usuarios (id INTEGER PRIMARY KEY, nome TEXT, idade INTEGER)''',
+          '''CREATE TABLE usuarios (id INTEGER PRIMARY KEY, nome TEXT, senha TEXT)''',
         );
       },
     );

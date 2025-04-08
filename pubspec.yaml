@@ -41,6 +41,7 @@ dependencies:
   provider: ^6.1.2
   path: ^1.8.0
   intl: 
+  crypto: ^3.0.3
   
 
 dev_dependencies:

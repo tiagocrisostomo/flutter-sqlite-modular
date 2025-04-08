@@ -6,7 +6,7 @@ class UsuarioService {
 
   Future<void> salvarOuAtualizarUsuario(Usuario usuario) async {
     if (usuario.id == null) {
-      await _dao.inserir(usuario);
+      await _dao.salvar(usuario);
     } else {
       await _dao.atualizar(usuario);
     }

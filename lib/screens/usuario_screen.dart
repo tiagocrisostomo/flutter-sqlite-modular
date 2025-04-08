@@ -58,7 +58,6 @@ class _UsuarioScreenState extends State<UsuarioScreen> {
                     u.id != null ? Text(u.id.toString()) : Icon(Icons.person),
               ),
               title: Text(u.nome),
-              subtitle: Text("Idade: ${u.idade}"),
               trailing: IconButton(
                 icon: Icon(Icons.delete),
                 onPressed: () => store.removerUsuario(u.id!),
@@ -75,11 +74,89 @@ class _UsuarioScreenState extends State<UsuarioScreen> {
       appBar: AppBar(title: Text('Usuários')),
       body: corpo,
       floatingActionButton: FloatingActionButton(
-        onPressed: () {
-          Usuario novo = Usuario(nome: "Novo", idade: 30);
-          store.adicionarUsuario(novo);
-        },
+        onPressed: () => _abrirBottomSheetCadastro(context),
         child: Icon(Icons.add),
+      ),
+    );
+  }
+
+  _abrirBottomSheetCadastro(BuildContext context) {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true, // para abrir com o teclado
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+      ),
+      builder:
+          (_) => Padding(
+            padding: EdgeInsets.only(
+              bottom: MediaQuery.of(context).viewInsets.bottom,
+              left: 16,
+              right: 16,
+              top: 24,
+            ),
+            child: _FormularioUsuario(),
+          ),
+    );
+  }
+}
+
+class _FormularioUsuario extends StatefulWidget {
+  @override
+  State<_FormularioUsuario> createState() => _FormularioUsuarioState();
+}
+
+class _FormularioUsuarioState extends State<_FormularioUsuario> {
+  final _formKey = GlobalKey<FormState>();
+  final nomeController = TextEditingController();
+  final emailController = TextEditingController();
+  final senhaController = TextEditingController();
+
+  @override
+  Widget build(BuildContext context) {
+    final store = Provider.of<UsuarioStore>(context, listen: false);
+
+    return Form(
+      key: _formKey,
+      child: Column(
+        mainAxisSize: MainAxisSize.min, // tamanho automático
+        children: [
+          Text(
+            'Cadastrar novo usuário',
+            style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+          ),
+          SizedBox(height: 16),
+          TextFormField(
+            controller: nomeController,
+            decoration: InputDecoration(labelText: 'Nome'),
+            validator: (v) => v == null || v.isEmpty ? 'Informe o nome' : null,
+          ),
+          TextFormField(
+            controller: senhaController,
+            decoration: InputDecoration(labelText: 'Senha'),
+            obscureText: true,
+            validator:
+                (v) => v == null || v.length < 4 ? 'Mínimo 4 caracteres' : null,
+          ),
+          SizedBox(height: 16),
+          ElevatedButton.icon(
+            icon: Icon(Icons.save),
+            label: Text('Salvar'),
+            onPressed: () async {
+              if (_formKey.currentState!.validate()) {
+                await store.adicionarUsuario(
+                  Usuario(
+                    nome: nomeController.text,
+                    senha: senhaController.text,
+                  ),
+                );
+
+                Navigator.pop(context); // fecha o BottomSheet
+              }
+            },
+          ),
+          SizedBox(height: 12),
+        ],
       ),
     );
   }
