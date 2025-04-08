@@ -1,4 +1,4 @@
-import 'package:db_sqlite/auth/auth_store.dart';
+import 'package:db_sqlite/store/auth_store.dart';
 import 'package:db_sqlite/screens/login_screen.dart';
 
 import 'package:db_sqlite/store/usuario_store.dart';

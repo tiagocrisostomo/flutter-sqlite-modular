@@ -1,23 +1,39 @@
+// ignore_for_file: use_build_context_synchronously
+
 import 'package:db_sqlite/screens/usuario_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import '../auth/auth_store.dart';
+import '../store/auth_store.dart';
 
 class LoginScreen extends StatelessWidget {
   final emailController = TextEditingController();
   final senhaController = TextEditingController();
 
+  LoginScreen({super.key});
+
   @override
   Widget build(BuildContext context) {
     final store = Provider.of<AuthStore>(context);
 
-    if (store.estado == EstadoAuth.sucesso) {
+    if (store.estadoAuth == EstadoAuth.erro && store.mensagemErro != null) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(store.mensagemErro!),
+            backgroundColor: Colors.red,
+          ),
+        );
+        store.limparErro();
+      });
+    } else if (store.estadoAuth == EstadoAuth.sucesso) {
       Future.microtask(() {
         Navigator.pushReplacement(
           context,
           MaterialPageRoute(builder: (_) => UsuarioScreen()),
         );
       });
+    } else if (store.estadoAuth == EstadoAuth.carregando) {
+      return Center(child: CircularProgressIndicator());
     }
 
     return Scaffold(
@@ -36,20 +52,12 @@ class LoginScreen extends StatelessWidget {
               obscureText: true,
             ),
             SizedBox(height: 16),
-            if (store.estado == EstadoAuth.carregando)
-              CircularProgressIndicator()
-            else
-              ElevatedButton(
-                onPressed: () {
-                  store.login(emailController.text, senhaController.text);
-                },
-                child: Text('Entrar'),
-              ),
-            if (store.estado == EstadoAuth.erro && store.erro != null)
-              Padding(
-                padding: const EdgeInsets.only(top: 12),
-                child: Text(store.erro!, style: TextStyle(color: Colors.red)),
-              ),
+            ElevatedButton(
+              onPressed: () {
+                store.login(emailController.text, senhaController.text);
+              },
+              child: Text('Entrar'),
+            ),
           ],
         ),
       ),

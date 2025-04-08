@@ -1,5 +1,5 @@
 import 'package:db_sqlite/data/model/usuario.dart';
-import 'package:db_sqlite/services/usuario_service.dart';
+import 'package:db_sqlite/data/services/usuario_service.dart';
 import 'package:flutter/material.dart';
 
 enum EstadoUsuario { inicial, carregando, carregado, erro }
@@ -34,6 +34,8 @@ class UsuarioStore extends ChangeNotifier {
   Future<void> adicionarUsuario(Usuario usuario) async {
     try {
       await _service.salvarOuAtualizarUsuario(usuario);
+
+      // Atualiza a lista de usuários após adicionar
       await carregarUsuarios();
     } catch (e) {
       _estado = EstadoUsuario.erro;
@@ -45,6 +47,8 @@ class UsuarioStore extends ChangeNotifier {
   Future<void> removerUsuario(int id) async {
     try {
       await _service.deletarUsuario(id);
+
+      // Atualiza a lista de usuários após remover
       await carregarUsuarios();
     } catch (e) {
       _estado = EstadoUsuario.erro;

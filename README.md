@@ -17,20 +17,37 @@ Este projeto é um exemplo de aplicação Flutter modular, utilizando `SQLite` p
 
 ```bash
 lib/
+│
+├── main.dart
+│
 ├── data/
 │   ├── db/
-│   │   └── banco_de_dados.dart        # Instância única do banco
+│   │   └── banco_de_dados.dart        # Instância do SQLite
 │   ├── dao/
-│   │   └── usuario_dao.dart           # CRUD direto com SQLite
-│   └── model/
-│       └── usuario.dart               # Modelo de dados
-├── services/
-│   └── usuario_service.dart           # Lógica de negócio sobre os dados
+│   │   └── usuario_dao.dart           # CRUD da entidade Usuario
+│   ├── model/
+│   │   └── usuario.dart               # Classe Usuario
+│   └── service/
+│       ├── usuario_service.dart       # Service da entidade Usuario
+│       └── auth_service.dart          # 🔐 Service responsável pela autenticação
+│
 ├── store/
-│   └── usuario_store.dart             # Gerenciamento de estado (Provider)
+│   ├── usuario_store.dart             # Store da lista de usuários
+│   └── auth_store.dart                # Store que lida com login/logout
+│
+├── auth/                              # Módulo de autenticação (UI)
+│   ├── login_screen.dart              # Tela de login
+│   ├── login_form.dart                # (opcional) Widget de formulário
+│
 ├── screens/
-│   └── usuario_screen.dart            # Interface do app
-├── main.dart                          # Setup e Provider
+│   └── usuario_screen.dart            # Tela principal (usuários)
+│
+├── utils/
+│   ├── seguranca.dart                 # Criptografia de senha com SHA-256
+│   └── seed.dart                      # Criação de usuário padrão ao iniciar
+│
+└── widgets/
+    └── formulario_usuario.dart
 ```
 
 ## 🧠 Conceitos Aplicados
