@@ -9,7 +9,7 @@ import 'package:provider/provider.dart';
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
-  await inicializarBancoComUsuarioPadrao();
+  await inicializarBancoComDadosPadrao();
   runApp(
     MultiProvider(
       providers: [

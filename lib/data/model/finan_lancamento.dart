@@ -15,8 +15,8 @@ class FinanLancamento {
     required this.tipoId,
     required this.categoriaId,
     required this.usuarioId,
-  }); 
-  
+  });
+
   factory FinanLancamento.fromMap(Map<String, dynamic> json) {
     return FinanLancamento(
       id: json['id'],
@@ -40,6 +40,4 @@ class FinanLancamento {
       'usuarioId': usuarioId,
     };
   }
-
- 
 }

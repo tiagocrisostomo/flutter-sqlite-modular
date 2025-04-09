@@ -1,6 +1,7 @@
 // ignore_for_file: use_build_context_synchronously
 
-import 'package:db_sqlite/screens/usuario_screen.dart';
+import 'package:db_sqlite/screens/home.dart';
+// import 'package:db_sqlite/screens/usuario_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../store/auth_store.dart';
@@ -29,7 +30,7 @@ class LoginScreen extends StatelessWidget {
       Future.microtask(() {
         Navigator.pushReplacement(
           context,
-          MaterialPageRoute(builder: (_) => UsuarioScreen()),
+          MaterialPageRoute(builder: (_) => HomePage()),
         );
       });
     } else if (store.estadoAuth == EstadoAuth.carregando) {
