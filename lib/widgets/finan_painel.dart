@@ -1,41 +1,73 @@
+import 'package:db_sqlite/store/finan_lancamento_store.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
 class PainelFinanceiro extends StatelessWidget {
   const PainelFinanceiro({super.key});
 
   @override
   Widget build(BuildContext context) {
-    // Exemplo fixo, você pode trocar por store ou service depois
-    final totalReceitas = 2500.0;
-    final totalDespesas = 1800.0;
-    final saldo = totalReceitas - totalDespesas;
+    final store = context.watch<LancamentoStore>();
 
     return Padding(
       padding: const EdgeInsets.all(16),
       child: Column(
         children: [
-          _infoTile('Receitas', totalReceitas, Colors.green),
+          _infoTile(
+            'Receitas',
+            store.receitas,
+            Colors.green,
+            Icon(Icons.monetization_on, color: Colors.green),
+          ),
           const SizedBox(height: 8),
-          _infoTile('Despesas', totalDespesas, Colors.red),
+          _infoTile(
+            'Despesas',
+            store.despesas,
+            Colors.red,
+            Icon(Icons.monetization_on, color: Colors.red),
+          ),
           const SizedBox(height: 8),
-          _infoTile('Saldo', saldo, saldo >= 0 ? Colors.blue : Colors.orange),
+          _infoTile(
+            'Saldo',
+            store.saldo,
+            store.saldo >= 0 ? Colors.blue : Colors.orange,
+            Icon(
+              Icons.monetization_on,
+              color: store.saldo >= 0 ? Colors.blue : Colors.orange,
+            ),
+          ),
+          Divider(color: Colors.grey.shade300, thickness: 4, height: 32),
+          _infoTile(
+            'Tipo Geral',
+            store.tipoGeral,
+            Colors.purple,
+            Icon(Icons.credit_card, color: Colors.purple),
+          ),
+          const SizedBox(height: 8),
+          _infoTile(
+            'Tipo Pessoal',
+            store.tipoPessoal,
+            Colors.teal,
+            Icon(Icons.credit_card, color: Colors.teal),
+          ),
+          const SizedBox(height: 8),
         ],
       ),
     );
   }
 
-  Widget _infoTile(String label, double valor, Color cor) {
+  Widget _infoTile(String label, double valor, Color cor, Icon icone) {
     return Card(
-      elevation: 2,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+      elevation: 2,
       child: ListTile(
-        leading: Icon(Icons.monetization_on, color: cor),
+        leading: icone,
         title: Text(label),
         trailing: Text(
           'R\$ ${valor.toStringAsFixed(2)}',
           style: TextStyle(
-            fontSize: 16,
             color: cor,
+            fontSize: 16,
             fontWeight: FontWeight.bold,
           ),
         ),

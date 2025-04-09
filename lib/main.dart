@@ -1,5 +1,6 @@
 import 'package:db_sqlite/store/auth_store.dart';
 import 'package:db_sqlite/screens/login_screen.dart';
+import 'package:db_sqlite/store/finan_lancamento_store.dart';
 
 import 'package:db_sqlite/store/usuario_store.dart';
 import 'package:db_sqlite/utils/seed.dart';
@@ -15,6 +16,7 @@ void main() async {
       providers: [
         ChangeNotifierProvider(create: (_) => AuthStore()),
         ChangeNotifierProvider(create: (_) => UsuarioStore()),
+        ChangeNotifierProvider(create: (_) => LancamentoStore()),
       ],
       child: MaterialApp(home: LoginScreen(), title: 'Login local'),
     ),
