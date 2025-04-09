@@ -1,5 +1,6 @@
 import 'package:db_sqlite/data/db/banco_de_dados.dart';
 import 'package:db_sqlite/utils/seguranca.dart';
+import 'package:flutter/foundation.dart';
 
 Future<void> inicializarBancoComUsuarioPadrao() async {
   final db = await BancoDeDados.banco;
@@ -10,6 +11,6 @@ Future<void> inicializarBancoComUsuarioPadrao() async {
       'nome': 'admin',
       'senha': Seguranca.hashSenha('1234'),
     });
-    print('✅ Usuário padrão criado: admin / 1234');
+    debugPrint('✅ Usuário padrão criado: admin / 1234');
   }
 }

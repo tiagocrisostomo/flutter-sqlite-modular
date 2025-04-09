@@ -55,6 +55,7 @@ class FormularioUsuarioState extends State<FormularioUsuario> {
                   ),
                 );
 
+                // ignore: use_build_context_synchronously
                 Navigator.pop(context); // fecha o BottomSheet
               }
             },

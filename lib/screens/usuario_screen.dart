@@ -17,6 +17,7 @@ class _UsuarioScreenState extends State<UsuarioScreen> {
     // carregar os usuários ao iniciar o aplicativo
     Future.microtask(
       () =>
+          // ignore: use_build_context_synchronously
           Provider.of<UsuarioStore>(context, listen: false).carregarUsuarios(),
     );
   }
@@ -60,7 +61,8 @@ class _UsuarioScreenState extends State<UsuarioScreen> {
               title: Text(u.nome),
               trailing: IconButton(
                 icon: Icon(Icons.delete),
-                onPressed: () => store.removerUsuario(u.id!),
+                onPressed: () => _confirmarExclusaoUsuario(context, u.id!),
+                
               ),
             );
           },
@@ -80,7 +82,7 @@ class _UsuarioScreenState extends State<UsuarioScreen> {
     );
   }
 
-  _abrirBottomSheetCadastro(BuildContext context) {
+  void _abrirBottomSheetCadastro(BuildContext context) {
     showModalBottomSheet(
       context: context,
       isScrollControlled: true, // para abrir com o teclado
@@ -99,4 +101,34 @@ class _UsuarioScreenState extends State<UsuarioScreen> {
           ),
     );
   }
+
+  void _confirmarExclusaoUsuario(BuildContext context, int id) {
+    showDialog(
+      context: context,
+      builder: (_) => AlertDialog(
+        title: Text('Excluir usuário'),
+        content: Text('Deseja realmente excluir o usuário?'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(),
+            child: Text('Cancelar'),
+          ),
+          TextButton(
+            onPressed: () {
+              Provider.of<UsuarioStore>(context, listen: false)
+                  .removerUsuario(id);
+              Navigator.of(context).pop();
+            },
+            child: Text('Excluir'),
+          ),
+        ],
+      ),
+    );
+  }
+
+
+
+  
+
+  
 }
