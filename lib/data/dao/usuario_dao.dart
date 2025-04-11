@@ -67,4 +67,35 @@ class UsuarioDao {
     }
     return null;
   }
+
+  Future<bool> verificarUso(int id) async {
+    final db = await BancoDeDados.banco;
+    final resultado = await db.rawQuery(
+      'SELECT COUNT(*) FROM finan_lancamentos WHERE usuarioId = ?',
+      [id],
+    );
+
+    // debugPrint('Resultado  USO: $resultado');
+
+    if (resultado.isNotEmpty) {
+      final count = Sqflite.firstIntValue(resultado);
+      return count != null && count > 0;
+    }
+    return false;
+  }
+
+  Future<bool> verificarPadrao(int? id) async {
+    final db = await BancoDeDados.banco;
+
+    final resultado = await db.query(
+      'usuarios',
+      where: 'id = ? OR nome = ?',
+      whereArgs: [1, 'admin'],
+    );
+
+    bool padrao = resultado.any((row) => row['id'] == id);
+    // debugPrint('Resultado PADRAO: $padrao');
+
+    return padrao;
+  }
 }

@@ -47,8 +47,6 @@ class UsuarioStore extends ChangeNotifier {
   Future<void> removerUsuario(int id) async {
     try {
       await _service.deletarUsuario(id);
-
-      // Atualiza a lista de usuários após remover
       await carregarUsuarios();
     } catch (e) {
       _estado = EstadoUsuario.erro;
@@ -61,5 +59,6 @@ class UsuarioStore extends ChangeNotifier {
     _mensagemErro = null;
     _estado = EstadoUsuario.inicial;
     notifyListeners();
+    carregarUsuarios();
   }
 }

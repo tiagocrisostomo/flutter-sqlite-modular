@@ -28,6 +28,19 @@ class FinanLancamentoDAO {
     return maps.map((map) => FinanLancamento.fromMap(map)).toList();
   }
 
+  Future<FinanLancamento?> buscarPorId(int id) async {
+    final db = await BancoDeDados.banco;
+    final resultado = await db.query(
+      'finan_lancamentos',
+      where: 'id = ?',
+      whereArgs: [id],
+    );
+    if (resultado.isNotEmpty) {
+      return FinanLancamento.fromMap(resultado.first);
+    }
+    return null;
+  }
+
   Future<double> totalPorCategoria(int categoriaId) async {
     final db = await BancoDeDados.banco;
     final result = await db.rawQuery(

@@ -1,59 +1,98 @@
 import 'package:db_sqlite/data/model/finan_lancamento.dart';
-import 'package:db_sqlite/data/services/finan_lancamento_service.dart';
+import 'package:db_sqlite/store/finan_categoria_store.dart';
 import 'package:db_sqlite/store/finan_lancamento_store.dart';
+import 'package:db_sqlite/store/finan_tipo_store.dart';
+import 'package:db_sqlite/store/usuario_store.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:intl/intl.dart';
 
-class FormLancamento extends StatefulWidget {
-  const FormLancamento({super.key});
+class FinanLancamentoForm extends StatefulWidget {
+  final FinanLancamento? lancamento;
+
+  const FinanLancamentoForm({super.key, this.lancamento});
 
   @override
-  State<FormLancamento> createState() => _FormLancamentoState();
+  State<FinanLancamentoForm> createState() => _FinanLancamentoFormState();
 }
 
-class _FormLancamentoState extends State<FormLancamento> {
+class _FinanLancamentoFormState extends State<FinanLancamentoForm> {
   final _formKey = GlobalKey<FormState>();
 
-  final _descricaoController = TextEditingController();
-  final _valorController = TextEditingController();
-  int tipoId = 1;
-  int categoriaId = 1;
-  int usuarioId = 1;
-  DateTime _dataSelecionada = DateTime.now();
+  late TextEditingController _descricaoController;
+  late TextEditingController _valorController;
+  late DateTime _dataSelecionada;
 
-  Future<void> _salvarLancamento() async {
-    if (_formKey.currentState!.validate()) {
-      final lancamento = FinanLancamento(
-        descricao: _descricaoController.text,
-        valor: double.parse(_valorController.text),
-        data: _dataSelecionada.toString(),
-        tipoId: tipoId,
-        categoriaId: categoriaId,
-        usuarioId: usuarioId,
-      );
+  int? _tipoId;
+  int? _categoriaId;
+  int? _usuarioId;
 
-      await LancamentoService().salvarOuAtualizarFinanLancamento(lancamento);
+  @override
+  void initState() {
+    super.initState();
 
-      if (!mounted) return;
-      await context.read<LancamentoStore>().carregarPainel();
+    final tipoStore = Provider.of<FinanTipoStore>(context, listen: false);
+    final categoriaStore = Provider.of<FinanCategoriaStore>(
+      context,
+      listen: false,
+    );
+    final usuarioStore = Provider.of<UsuarioStore>(context, listen: false);
 
-      Navigator.pop(context); // fecha o modal
+    Future.microtask(() {
+      tipoStore.carregarTipos();
+      categoriaStore.carregarCategorias();
+      usuarioStore.carregarUsuarios();
+    });
 
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Lançamento salvo com sucesso!'),
-          backgroundColor: Colors.green,
-        ),
-      );
+    final lancamento = widget.lancamento;
+    _descricaoController = TextEditingController(
+      text: lancamento?.descricao ?? '',
+    );
+    _valorController = TextEditingController(
+      text: lancamento?.valor.toString() ?? '',
+    );
+    _dataSelecionada = lancamento?.data ?? DateTime.now();
+    _tipoId = lancamento?.tipoId;
+    _categoriaId = lancamento?.categoriaId;
+    _usuarioId = lancamento?.usuarioId;
+  }
+
+  @override
+  void dispose() {
+    _descricaoController.dispose();
+    _valorController.dispose();
+    super.dispose();
+  }
+
+  Future<void> _selecionarData() async {
+    final data = await showDatePicker(
+      context: context,
+      initialDate: _dataSelecionada,
+      firstDate: DateTime(2000),
+      lastDate: DateTime(2100),
+    );
+    if (data != null) {
+      setState(() {
+        _dataSelecionada = data;
+      });
     }
   }
 
   @override
   Widget build(BuildContext context) {
+    final lancamentoStore = Provider.of<FinanLancamentoStore>(context);
+    final tipoStore = Provider.of<FinanTipoStore>(context);
+    final categoriaStore = Provider.of<FinanCategoriaStore>(context);
+    final usuarioStore = Provider.of<UsuarioStore>(context);
+
     return Scaffold(
-      appBar: AppBar(title: const Text('Novo Lançamento')),
+      appBar: AppBar(
+        title: Text(
+          widget.lancamento == null ? 'Novo Lançamento' : 'Editar Lançamento',
+        ),
+      ),
       body: Padding(
-        padding: const EdgeInsets.all(16),
+        padding: const EdgeInsets.all(16.0),
         child: Form(
           key: _formKey,
           child: ListView(
@@ -67,75 +106,89 @@ class _FormLancamentoState extends State<FormLancamento> {
                             ? 'Informe a descrição'
                             : null,
               ),
-              const SizedBox(height: 12),
               TextFormField(
                 controller: _valorController,
-                decoration: const InputDecoration(labelText: 'Valor'),
                 keyboardType: TextInputType.number,
+                decoration: const InputDecoration(labelText: 'Valor (R\$)'),
                 validator:
                     (value) =>
-                        value == null || double.tryParse(value) == null
-                            ? 'Valor inválido'
+                        value == null || value.isEmpty
+                            ? 'Informe o valor'
                             : null,
               ),
-              const SizedBox(height: 12),
+              const SizedBox(height: 16),
+              Text(
+                'Data: ${DateFormat('dd/MM/yyyy').format(_dataSelecionada)}',
+              ),
+              ElevatedButton(
+                onPressed: _selecionarData,
+                child: const Text('Selecionar Data'),
+              ),
+              const SizedBox(height: 16),
               DropdownButtonFormField<int>(
-                value: tipoId,
-                items: const [
-                  DropdownMenuItem(value: 1, child: Text('Pessoal')),
-                  DropdownMenuItem(value: 2, child: Text('Geral')),
-                ],
-                onChanged: (value) => setState(() => tipoId = value!),
+                value: _tipoId,
+                items:
+                    tipoStore.finanTipos.map((tipo) {
+                      return DropdownMenuItem(
+                        value: tipo.id,
+                        child: Text(tipo.descricao!),
+                      );
+                    }).toList(),
+                onChanged: (val) => setState(() => _tipoId = val),
                 decoration: const InputDecoration(labelText: 'Tipo'),
+                validator: (value) => value == null ? 'Selecione o tipo' : null,
               ),
-              const SizedBox(height: 12),
               DropdownButtonFormField<int>(
-                value: categoriaId,
-                items: const [
-                  DropdownMenuItem(value: 1, child: Text('A Pagar')),
-                  DropdownMenuItem(value: 2, child: Text('A Receber')),
-                ],
-                onChanged: (value) => setState(() => categoriaId = value!),
-                decoration: const InputDecoration(labelText: 'Tipo'),
+                value: _categoriaId,
+                items:
+                    categoriaStore.finanCategorias.map((cat) {
+                      return DropdownMenuItem(
+                        value: cat.id,
+                        child: Text(cat.descricao!),
+                      );
+                    }).toList(),
+                onChanged: (val) => setState(() => _categoriaId = val),
+                decoration: const InputDecoration(labelText: 'Categoria'),
+                validator:
+                    (value) => value == null ? 'Selecione a categoria' : null,
               ),
-              const SizedBox(height: 12),
-              ListTile(
-                contentPadding: EdgeInsets.zero,
-                title: Text('Data: ${_formatarData(_dataSelecionada)}'),
-                trailing: IconButton(
-                  icon: const Icon(Icons.calendar_today),
-                  onPressed: _selecionarData,
-                ),
+              DropdownButtonFormField<int>(
+                value: _usuarioId,
+                items:
+                    usuarioStore.usuarios.map((u) {
+                      return DropdownMenuItem(value: u.id, child: Text(u.nome));
+                    }).toList(),
+                onChanged: (val) => setState(() => _usuarioId = val),
+                decoration: const InputDecoration(labelText: 'Usuário'),
+                validator:
+                    (value) => value == null ? 'Selecione o usuário' : null,
               ),
-              const SizedBox(height: 20),
-              ElevatedButton.icon(
-                onPressed: _salvarLancamento,
-                icon: const Icon(Icons.save),
-                label: const Text('Salvar'),
+              const SizedBox(height: 24),
+              ElevatedButton(
+                onPressed: () async {
+                  if (_formKey.currentState!.validate()) {
+                    final lancamento = FinanLancamento(
+                      id: widget.lancamento?.id,
+                      descricao: _descricaoController.text,
+                      valor: double.tryParse(_valorController.text) ?? 0,
+                      data: _dataSelecionada,
+                      tipoId: _tipoId!,
+                      categoriaId: _categoriaId!,
+                      usuarioId: _usuarioId!,
+                    );
+
+                    await lancamentoStore.adicionarOuEditarLancamento(
+                      lancamento,
+                    );
+                    if (context.mounted) Navigator.pop(context);
+                  }
+                },
+                child: const Text('Salvar'),
               ),
             ],
           ),
         ),
       ),
     );
-  }
-
-  Future<void> _selecionarData() async {
-    final dataEscolhida = await showDatePicker(
-      context: context,
-      initialDate: _dataSelecionada,
-      firstDate: DateTime(2000),
-      lastDate: DateTime.now().add(const Duration(days: 365)),
-    );
-
-    if (dataEscolhida != null) {
-      setState(() {
-        _dataSelecionada = dataEscolhida;
-      });
-    }
-  }
-
-  String _formatarData(DateTime data) {
-    return '${data.day.toString().padLeft(2, '0')}/${data.month.toString().padLeft(2, '0')}/${data.year}';
   }
 }

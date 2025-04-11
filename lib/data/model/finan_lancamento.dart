@@ -2,7 +2,7 @@ class FinanLancamento {
   int? id;
   String? descricao;
   double? valor;
-  String? data;
+  DateTime? data;
   int? tipoId; // "Geral" ou "Pessoal"
   int? categoriaId; // "A Pagar" ou "A Receber"
   int? usuarioId; // ID do usuário associado a este lançamento
@@ -22,7 +22,7 @@ class FinanLancamento {
       id: json['id'],
       descricao: json['descricao'],
       valor: json['valor'],
-      data: json['data'],
+      data: json['data'] != null ? DateTime.parse(json['data']) : null,
       tipoId: json['tipoId'],
       categoriaId: json['categoriaId'],
       usuarioId: json['usuarioId'],
@@ -34,7 +34,7 @@ class FinanLancamento {
       'id': id,
       'descricao': descricao,
       'valor': valor,
-      'data': data,
+      'data': data?.toIso8601String(),
       'tipoId': tipoId,
       'categoriaId': categoriaId,
       'usuarioId': usuarioId,

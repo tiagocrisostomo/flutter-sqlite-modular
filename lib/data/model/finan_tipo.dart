@@ -14,12 +14,6 @@ class FinanTipo {
   }
 
   Map<String, dynamic> toMap() {
-    return {
-      'id': id,
-      'descricao': descricao,
-      'cor': cor,
-    };
+    return {'id': id, 'descricao': descricao, 'cor': cor};
   }
-
-
 }

@@ -60,9 +60,8 @@ class _UsuarioScreenState extends State<UsuarioScreen> {
               ),
               title: Text(u.nome),
               trailing: IconButton(
-                icon: Icon(Icons.delete),
+                icon: Icon(Icons.delete_forever_outlined, color: Colors.red),
                 onPressed: () => _confirmarExclusaoUsuario(context, u.id!),
-                
               ),
             );
           },
@@ -73,62 +72,48 @@ class _UsuarioScreenState extends State<UsuarioScreen> {
     }
 
     return Scaffold(
-      appBar: AppBar(title: Text('Usuários')),
-      body: corpo,
-      floatingActionButton: FloatingActionButton(
-        onPressed: () => _abrirBottomSheetCadastro(context),
-        child: Icon(Icons.add),
-      ),
-    );
-  }
-
-  void _abrirBottomSheetCadastro(BuildContext context) {
-    showModalBottomSheet(
-      context: context,
-      isScrollControlled: true, // para abrir com o teclado
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
-      ),
-      builder:
-          (_) => Padding(
-            padding: EdgeInsets.only(
-              bottom: MediaQuery.of(context).viewInsets.bottom,
-              left: 16,
-              right: 16,
-              top: 24,
-            ),
-            child: FormularioUsuario(),
+      appBar: AppBar(
+        title: Text('Usuários'),
+        actions: [
+          IconButton(
+            icon: Icon(Icons.add, color: Colors.green, applyTextScaling: true),
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => FormularioUsuario()),
+              );
+            },
           ),
+        ],
+      ),
+      body: corpo,
     );
   }
 
   void _confirmarExclusaoUsuario(BuildContext context, int id) {
     showDialog(
       context: context,
-      builder: (_) => AlertDialog(
-        title: Text('Excluir usuário'),
-        content: Text('Deseja realmente excluir o usuário?'),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.of(context).pop(),
-            child: Text('Cancelar'),
+      builder:
+          (_) => AlertDialog(
+            title: Text('Excluir usuário'),
+            content: Text('Deseja realmente excluir o usuário?'),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.of(context).pop(),
+                child: Text('Cancelar'),
+              ),
+              TextButton(
+                onPressed: () {
+                  Provider.of<UsuarioStore>(
+                    context,
+                    listen: false,
+                  ).removerUsuario(id);
+                  Navigator.of(context).pop();
+                },
+                child: Text('Excluir'),
+              ),
+            ],
           ),
-          TextButton(
-            onPressed: () {
-              Provider.of<UsuarioStore>(context, listen: false)
-                  .removerUsuario(id);
-              Navigator.of(context).pop();
-            },
-            child: Text('Excluir'),
-          ),
-        ],
-      ),
     );
   }
-
-
-
-  
-
-  
 }

@@ -11,7 +11,7 @@ class UsuarioService {
       await _dao.atualizar(usuario);
     }
   }
-  
+
   Future<Usuario?> buscarUsuarioPorId(int id) async {
     return await _dao.buscarPorId(id);
   }
@@ -21,6 +21,18 @@ class UsuarioService {
   }
 
   Future<void> deletarUsuario(int id) async {
+    // Verifica se a categoria está em usome/ou é padrão
+    final emUso = await _dao.verificarUso(id);
+    final catPadrao = await _dao.verificarPadrao(id);
+
+    if (catPadrao) {
+      throw Exception('Usuário padrão não pode ser deletado.');
+    }
+    if (emUso) {
+      throw Exception(
+        'Usuário em vinculado à lançamentos não pode ser deletado.',
+      );
+    }
     await _dao.deletar(id);
   }
 }
