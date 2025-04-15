@@ -8,7 +8,7 @@ class PainelFinanceiro extends StatefulWidget {
   const PainelFinanceiro({super.key});
 
   @override
-  _PainelFinanceiroState createState() => _PainelFinanceiroState();
+  State<PainelFinanceiro> createState() => _PainelFinanceiroState();
 }
 
 class _PainelFinanceiroState extends State<PainelFinanceiro> {
