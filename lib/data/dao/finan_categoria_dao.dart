@@ -5,19 +5,19 @@ import 'package:sqflite/sqflite.dart';
 class FinanCategoriaDao {
   Future<void> salvar(FinanCategoria finanCategoria) async {
     final db = await BancoDeDados.banco;
-    await db.insert('finan_categorias', finanCategoria.toMap());
+    await db.insert('finan_categoria', finanCategoria.toMap());
   }
 
   Future<List<FinanCategoria>> listarTodos() async {
     final db = await BancoDeDados.banco;
-    final resultado = await db.query('finan_categorias');
+    final resultado = await db.query('finan_categoria');
     return resultado.map((e) => FinanCategoria.fromMap(e)).toList();
   }
 
   Future<int> atualizar(FinanCategoria finanCategoria) async {
     final db = await BancoDeDados.banco;
     return await db.update(
-      'finan_categorias',
+      'finan_categoria',
       finanCategoria.toMap(),
       where: 'id = ?',
       whereArgs: [finanCategoria.id],
@@ -26,17 +26,13 @@ class FinanCategoriaDao {
 
   Future<int> deletar(int id) async {
     final db = await BancoDeDados.banco;
-    return await db.delete(
-      'finan_categorias',
-      where: 'id = ?',
-      whereArgs: [id],
-    );
+    return await db.delete('finan_categoria', where: 'id = ?', whereArgs: [id]);
   }
 
   Future<FinanCategoria?> buscarPorId(int id) async {
     final db = await BancoDeDados.banco;
     final resultado = await db.query(
-      'finan_tipos',
+      'finan_tipo',
       where: 'id = ?',
       whereArgs: [id],
     );
@@ -49,7 +45,7 @@ class FinanCategoriaDao {
   Future<bool> verificarUso(int id) async {
     final db = await BancoDeDados.banco;
     final resultado = await db.rawQuery(
-      'SELECT COUNT(*) FROM finan_lancamentos WHERE categoriaId = ?',
+      'SELECT COUNT(*) FROM finan_lancamento WHERE categoriaId = ?',
       [id],
     );
 
@@ -66,7 +62,7 @@ class FinanCategoriaDao {
     final db = await BancoDeDados.banco;
 
     final resultado = await db.query(
-      'finan_categorias',
+      'finan_categoria',
       where: 'id IN (?, ?) OR descricao IN (?, ?)',
       whereArgs: [1, 2, 'A Pagar', 'A Receber'],
     );

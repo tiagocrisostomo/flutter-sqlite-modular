@@ -21,15 +21,15 @@ class BancoDeDados {
       version: 1,
       onCreate: (db, version) async {
         await db.execute(
-          '''CREATE TABLE usuarios (id INTEGER PRIMARY KEY, nome TEXT, senha TEXT)''',
+          '''CREATE TABLE usuario (id INTEGER PRIMARY KEY, nome TEXT, senha TEXT)''',
         );
         await db.execute(
-          '''CREATE TABLE finan_categorias (id INTEGER PRIMARY KEY, descricao TEXT, cor TEXT)''',
+          '''CREATE TABLE finan_categoria (id INTEGER PRIMARY KEY, descricao TEXT, cor TEXT)''',
         );
         await db.execute(
-          '''CREATE TABLE finan_tipos (id INTEGER PRIMARY KEY, descricao TEXT, cor TEXT)''',
+          '''CREATE TABLE finan_tipo (id INTEGER PRIMARY KEY, descricao TEXT, cor TEXT)''',
         );
-        await db.execute('''CREATE TABLE finan_lancamentos 
+        await db.execute('''CREATE TABLE finan_lancamento 
           (id INTEGER PRIMARY KEY, descricao TEXT, valor REAL, data TEXT, 
           tipoId INTEGER, categoriaId INTEGER, usuarioId INTEGER, 
           FOREIGN KEY(tipoId) REFERENCES finan_tipos(id), 

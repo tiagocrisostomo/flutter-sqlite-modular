@@ -5,19 +5,19 @@ import 'package:sqflite/sqflite.dart';
 class FinanTipoDao {
   Future<void> salvar(FinanTipo finanTipo) async {
     final db = await BancoDeDados.banco;
-    await db.insert('finan_tipos', finanTipo.toMap());
+    await db.insert('finan_tipo', finanTipo.toMap());
   }
 
   Future<List<FinanTipo>> listarTodos() async {
     final db = await BancoDeDados.banco;
-    final resultado = await db.query('finan_tipos');
+    final resultado = await db.query('finan_tipo');
     return resultado.map((e) => FinanTipo.fromMap(e)).toList();
   }
 
   Future<int> atualizar(FinanTipo finanTipo) async {
     final db = await BancoDeDados.banco;
     return await db.update(
-      'finan_tipos',
+      'finan_tipo',
       finanTipo.toMap(),
       where: 'id = ?',
       whereArgs: [finanTipo.id],
@@ -26,13 +26,13 @@ class FinanTipoDao {
 
   Future<int> deletar(int id) async {
     final db = await BancoDeDados.banco;
-    return await db.delete('finan_tipos', where: 'id = ?', whereArgs: [id]);
+    return await db.delete('finan_tipo', where: 'id = ?', whereArgs: [id]);
   }
 
   Future<FinanTipo?> buscarPorId(int id) async {
     final db = await BancoDeDados.banco;
     final resultado = await db.query(
-      'finan_tipos',
+      'finan_tipo',
       where: 'id = ?',
       whereArgs: [id],
     );
@@ -45,7 +45,7 @@ class FinanTipoDao {
   Future<bool> verificarUso(int id) async {
     final db = await BancoDeDados.banco;
     final resultado = await db.rawQuery(
-      'SELECT COUNT(*) FROM finan_lancamentos WHERE tipoId = ?',
+      'SELECT COUNT(*) FROM finan_lancamento WHERE tipoId = ?',
       [id],
     );
 
@@ -62,7 +62,7 @@ class FinanTipoDao {
     final db = await BancoDeDados.banco;
 
     final resultado = await db.query(
-      'finan_tipos',
+      'finan_tipo',
       where: 'id IN (?, ?) OR descricao IN (?, ?)',
       whereArgs: [1, 2, 'Geral', 'Pessoal'],
     );

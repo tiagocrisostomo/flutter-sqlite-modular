@@ -13,7 +13,7 @@ class UsuarioDao {
     );
 
     await db.insert(
-      'usuarios',
+      'usuario',
       usuarioComSenhaHash.toMap(),
       conflictAlgorithm: ConflictAlgorithm.replace,
     );
@@ -21,14 +21,14 @@ class UsuarioDao {
 
   Future<List<Usuario>> listarTodos() async {
     final db = await BancoDeDados.banco;
-    final resultado = await db.query('usuarios');
+    final resultado = await db.query('usuario');
     return resultado.map((e) => Usuario.fromMap(e)).toList();
   }
 
   Future<int> atualizar(Usuario usuario) async {
     final db = await BancoDeDados.banco;
     return await db.update(
-      'usuarios',
+      'usuario',
       usuario.toMap(),
       where: 'id = ?',
       whereArgs: [usuario.id],
@@ -37,13 +37,13 @@ class UsuarioDao {
 
   Future<int> deletar(int id) async {
     final db = await BancoDeDados.banco;
-    return await db.delete('usuarios', where: 'id = ?', whereArgs: [id]);
+    return await db.delete('usuario', where: 'id = ?', whereArgs: [id]);
   }
 
   Future<Usuario?> buscarPorId(int id) async {
     final db = await BancoDeDados.banco;
     final resultado = await db.query(
-      'usuarios',
+      'usuario',
       where: 'id = ?',
       whereArgs: [id],
     );
@@ -58,7 +58,7 @@ class UsuarioDao {
     final senhaHash = Seguranca.hashSenha(senha);
 
     final maps = await db.query(
-      'usuarios',
+      'usuario',
       where: 'nome = ? AND senha = ?',
       whereArgs: [nome, senhaHash],
     );
@@ -71,7 +71,7 @@ class UsuarioDao {
   Future<bool> verificarUso(int id) async {
     final db = await BancoDeDados.banco;
     final resultado = await db.rawQuery(
-      'SELECT COUNT(*) FROM finan_lancamentos WHERE usuarioId = ?',
+      'SELECT COUNT(*) FROM finan_lancamento WHERE usuarioId = ?',
       [id],
     );
 
@@ -88,7 +88,7 @@ class UsuarioDao {
     final db = await BancoDeDados.banco;
 
     final resultado = await db.query(
-      'usuarios',
+      'usuario',
       where: 'id = ? OR nome = ?',
       whereArgs: [1, 'admin'],
     );

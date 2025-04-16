@@ -15,9 +15,15 @@ class _FinanLancamentoScreenState extends State<FinanLancamentoScreen> {
   @override
   void initState() {
     super.initState();
-    Future.microtask(() {
+    // Future.microtask(() {
+    //   Provider.of<FinanLancamentoStore>(
+    //     // ignore: use_build_context_synchronously
+    //     context,
+    //     listen: false,
+    //   ).carregarLancamentos();
+    // });
+    WidgetsBinding.instance.addPostFrameCallback((_) {
       Provider.of<FinanLancamentoStore>(
-        // ignore: use_build_context_synchronously
         context,
         listen: false,
       ).carregarLancamentos();

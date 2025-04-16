@@ -16,6 +16,9 @@ class FinanLancamentoStore extends ChangeNotifier {
   String? _mensagemErro;
   String? get mensagemErro => _mensagemErro;
 
+  Map<String, double> _totaisPorCategoria = {};
+  Map<String, double> get totaisPorCategoria => _totaisPorCategoria;
+
   Future<void> carregarLancamentos() async {
     _estado = EstadoLancamento.carregando;
     notifyListeners();
@@ -49,6 +52,17 @@ class FinanLancamentoStore extends ChangeNotifier {
     } catch (e) {
       _estado = EstadoLancamento.erro;
       _mensagemErro = "Erro ao remover lançamento: $e";
+      notifyListeners();
+    }
+  }
+
+  Future<void> buscarTotaisPorCategoria() async {
+    try {
+      _totaisPorCategoria = await _service.totalPorCategoria();
+      notifyListeners();
+    } catch (e) {
+      _estado = EstadoLancamento.erro;
+      _mensagemErro = "Erro ao buscar totais por categoria: $e";
       notifyListeners();
     }
   }

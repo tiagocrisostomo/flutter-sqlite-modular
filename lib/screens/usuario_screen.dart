@@ -15,11 +15,15 @@ class _UsuarioScreenState extends State<UsuarioScreen> {
   void initState() {
     super.initState();
     // carregar os usuários ao iniciar o aplicativo
-    Future.microtask(
-      () =>
-          // ignore: use_build_context_synchronously
-          Provider.of<UsuarioStore>(context, listen: false).carregarUsuarios(),
-    );
+    // Future.microtask(
+    //   () =>
+    //       // ignore: use_build_context_synchronously
+    //       Provider.of<UsuarioStore>(context, listen: false).carregarUsuarios(),
+    // );
+
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      Provider.of<UsuarioStore>(context, listen: false).carregarUsuarios();
+    });
   }
 
   @override

@@ -23,4 +23,18 @@ class FinanLancamentoService {
   Future<void> deletarLancamento(int id) async {
     await _dao.deletar(id);
   }
+
+  Future<Map<String, double>> totalPorCategoria() async {
+    final lancamentos = await _dao.totalPorCategoria();
+    final Map<String, double> totalPorCategoria = {};
+
+    for (var lancamento in lancamentos) {
+      final categoria = lancamento['categoria'] as String;
+      final total = lancamento['total'] as double;
+      totalPorCategoria[categoria] = total;
+    }
+    if (totalPorCategoria.isNotEmpty) return totalPorCategoria;
+
+    return {'Sem Categoria': 0.00};
+  }
 }

@@ -14,11 +14,14 @@ class _FinanTipoScreenState extends State<FinanTipoScreen> {
   @override
   void initState() {
     super.initState();
-    Future.microtask(
-      () =>
-          // ignore: use_build_context_synchronously
-          Provider.of<FinanTipoStore>(context, listen: false).carregarTipos(),
-    );
+    // Future.microtask(
+    //   () =>
+    //       // ignore: use_build_context_synchronously
+    //       Provider.of<FinanTipoStore>(context, listen: false).carregarTipos(),
+    // );
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      Provider.of<FinanTipoStore>(context, listen: false).carregarTipos();
+    });
   }
 
   @override
