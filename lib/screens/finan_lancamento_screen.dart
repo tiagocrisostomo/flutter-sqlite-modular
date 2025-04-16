@@ -61,7 +61,7 @@ class _FinanLancamentoScreenState extends State<FinanLancamentoScreen> {
             return ListTile(
               title: Text(lanc.descricao.toString()),
               subtitle: Text(
-                'R\$ ${lanc.valor?.toStringAsFixed(2)} - ${DateFormat('dd/MM/yyyy').format(lanc.data as DateTime)}',
+                'R\$ ${lanc.valor.toStringAsFixed(2)} - ${DateFormat('dd/MM/yyyy').format(lanc.data as DateTime)}',
               ),
               trailing: Row(
                 mainAxisSize: MainAxisSize.min,

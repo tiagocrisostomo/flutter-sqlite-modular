@@ -10,6 +10,9 @@ class FinanCategoriaStore extends ChangeNotifier {
   List<FinanCategoria> _finanCategorias = [];
   List<FinanCategoria> get finanCategorias => _finanCategorias;
 
+  List<FinanCategoria> _finanCategoria = [];
+  List<FinanCategoria> get finanCategoria => _finanCategoria;
+
   EstadoFinanCategoria _estado = EstadoFinanCategoria.inicial;
   EstadoFinanCategoria get estado => _estado;
 
@@ -51,6 +54,18 @@ class FinanCategoriaStore extends ChangeNotifier {
     } catch (e) {
       _estado = EstadoFinanCategoria.erro;
       _mensagemErro = "Erro ao remover categoria: $e";
+      notifyListeners();
+    }
+  }
+
+  Future<void> buscarCategoriaId(int id) async {
+
+    try {
+      _finanCategoria = await _service.buscarCategoriaPorId(id);
+      notifyListeners();
+    } catch (e) {
+      _estado = EstadoFinanCategoria.erro;
+      _mensagemErro = "Erro ao consultar categoria: $e";
       notifyListeners();
     }
   }

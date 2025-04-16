@@ -56,19 +56,6 @@ class FinanLancamentoDAO {
     return result;
   }
 
-  Future<double> totalPorTipo(int tipoId, int categoriaId) async {
-    final db = await BancoDeDados.banco;
-    final result = await db.rawQuery(
-      '''SELECT SUM(valor) as total FROM finan_lancamento
-      WHERE tipoId = ? AND categoriaId = ?''',
-
-      [tipoId, categoriaId],
-    );
-    return result.first['total'] == null
-        ? 0.0
-        : (result.first['total'] as num).toDouble();
-  }
-
   Future<List<FinanLancamento>> buscarPorUsuario(int usuarioId) async {
     final db = await BancoDeDados.banco;
     final maps = await db.query(

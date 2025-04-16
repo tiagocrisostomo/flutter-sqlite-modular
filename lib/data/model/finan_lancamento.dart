@@ -1,14 +1,14 @@
 class FinanLancamento {
   int? id;
   String? descricao;
-  double? valor;
+  double valor = 0.00;
   DateTime? data;
   int? tipoId; // "Geral" ou "Pessoal"
   int? categoriaId; // "A Pagar" ou "A Receber"
   int? usuarioId; // ID do usuário associado a este lançamento
 
   FinanLancamento({
-    this.id,
+    required this.id,
     required this.descricao,
     required this.valor,
     required this.data,

@@ -11,7 +11,7 @@ class FinanCategoriaService {
     }
   }
 
-  Future<FinanCategoria?> buscarCategoriaPorId(int id) async {
+  Future<List<FinanCategoria>> buscarCategoriaPorId(int id) async {
     return await _dao.buscarPorId(id);
   }
 
