@@ -55,21 +55,22 @@ class _PainelFinanceiroState extends State<PainelFinanceiro>
             _buildCards('A Receber', store.totalAreceber),
             _buildCards('A Pagar', store.totalApagar),
             _buildCards('Saldo', store.saldoTotal),
-            const SizedBox(height: 16),
             Container(
               decoration: BoxDecoration(
                 color: Colors.grey[100],
                 borderRadius: BorderRadius.circular(12),
               ),
-              child: TabBar(
-                controller: _tabController,
-                tabs: _tabs,
-                labelColor: Theme.of(context).primaryColor,
-                unselectedLabelColor: Colors.black,
-                indicatorColor: Theme.of(context).primaryColor,
+              child: Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: TabBar(
+                  controller: _tabController,
+                  tabs: _tabs,
+                  labelColor: Theme.of(context).primaryColor,
+                  unselectedLabelColor: Colors.black,
+                  indicatorColor: Theme.of(context).primaryColor,
+                ),
               ),
             ),
-            const SizedBox(height: 16),
             SizedBox(
               height: 300,
               child: TabBarView(
@@ -89,9 +90,9 @@ class _PainelFinanceiroState extends State<PainelFinanceiro>
   Widget _buildCards(String titulo, double valor) {
     return Card(
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-      elevation: 4,
+      elevation: 6,
       child: Padding(
-        padding: const EdgeInsets.all(20),
+        padding: const EdgeInsets.all(16),
         child: Row(
           children: [
             Icon(
