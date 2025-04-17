@@ -18,6 +18,15 @@ Este projeto é um exemplo de aplicação Flutter modular, utilizando `SQLite` p
 ## 📂 Estrutura de Pastas
 
 ```bash
+flutter-sqlite-modular/
+├── screenshots/
+│   ├── login.png
+│   ├── painel.png
+│   ├── categorias.png
+│   ├── tipos.png
+│   ├── lancamentos.png
+│   └── usuarios.dart
+│
 lib/
 │
 ├── main.dart
