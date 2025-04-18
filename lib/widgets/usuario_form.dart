@@ -14,6 +14,7 @@ class FormularioUsuarioState extends State<FormularioUsuario> {
   final _formKey = GlobalKey<FormState>();
   final nomeController = TextEditingController();
   final senhaController = TextEditingController();
+  final emailController = TextEditingController();
 
   @override
   Widget build(BuildContext context) {
@@ -49,6 +50,13 @@ class FormularioUsuarioState extends State<FormularioUsuario> {
                             ? 'Mínimo 4 caracteres'
                             : null,
               ),
+              TextFormField(
+                controller: emailController,
+                decoration: InputDecoration(labelText: 'Email'),
+                validator: (v) => v == null || !v.contains('@')
+                    ? 'Informe um email válido'
+                    : null,
+              ),
               SizedBox(height: 16),
               ElevatedButton.icon(
                 icon: Icon(Icons.save),
@@ -58,6 +66,7 @@ class FormularioUsuarioState extends State<FormularioUsuario> {
                     await store.adicionarUsuario(
                       Usuario(
                         nome: nomeController.text,
+                        email: emailController.text,
                         senha: senhaController.text,
                       ),
                     );

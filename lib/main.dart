@@ -14,8 +14,9 @@ void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
   await inicializarBancoComDadosPadrao();
-  runApp(
-    MultiProvider(
+  
+  runApp(    
+    MultiProvider(      
       providers: [
         ChangeNotifierProvider(create: (_) => AuthStore()),
         ChangeNotifierProvider(create: (_) => UsuarioStore()),
@@ -23,7 +24,13 @@ void main() async {
         ChangeNotifierProvider(create: (_) => FinanCategoriaStore()),
         ChangeNotifierProvider(create: (_) => FinanLancamentoStore()),
       ],
-      child: MaterialApp(home: LoginScreen(), title: 'Login'),
-    ),
-  );
+      child: MaterialApp(home: LoginScreen(), title: 'Login',
+        theme: ThemeData(
+          useMaterial3: true,
+          colorScheme: ColorScheme.fromSeed(seedColor: Colors.blue),
+          primaryColor: Colors.blue,              
+          ),
+      )
+    )
+   );
 }

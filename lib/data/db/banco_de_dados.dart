@@ -21,7 +21,7 @@ class BancoDeDados {
       version: 1,
       onCreate: (db, version) async {
         await db.execute(
-          '''CREATE TABLE usuario (id INTEGER PRIMARY KEY, nome TEXT, senha TEXT)''',
+          '''CREATE TABLE usuario (id INTEGER PRIMARY KEY, nome TEXT, senha TEXT, email TEXT)''',
         );
         await db.execute(
           '''CREATE TABLE finan_categoria (id INTEGER PRIMARY KEY, descricao TEXT, cor TEXT)''',

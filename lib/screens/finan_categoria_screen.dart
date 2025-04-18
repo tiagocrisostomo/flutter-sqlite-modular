@@ -14,14 +14,7 @@ class _FinanCategoriaScreenState extends State<FinanCategoriaScreen> {
   @override
   void initState() {
     super.initState();
-    // Future.microtask(
-    //   () =>
-    //       Provider.of<FinanCategoriaStore>(
-    //         // ignore: use_build_context_synchronously
-    //         context,
-    //         listen: false,
-    //       ).carregarCategorias(),
-    // );
+
     WidgetsBinding.instance.addPostFrameCallback((_) {
       Provider.of<FinanCategoriaStore>(
         context,
