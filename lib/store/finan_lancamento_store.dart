@@ -1,9 +1,11 @@
 import 'package:db_sqlite/data/model/finan_categoria.dart';
 import 'package:db_sqlite/data/model/finan_lancamento.dart';
 import 'package:db_sqlite/data/model/finan_tipo.dart';
+import 'package:db_sqlite/data/model/usuario.dart';
 import 'package:db_sqlite/data/services/finan_categoria_service.dart';
 import 'package:db_sqlite/data/services/finan_lancamento_service.dart';
 import 'package:db_sqlite/data/services/finan_tipo_service.dart';
+import 'package:db_sqlite/data/services/usuario_service.dart';
 import 'package:flutter/material.dart';
 
 enum EstadoLancamento { inicial, carregando, carregado, erro }
@@ -12,6 +14,7 @@ class FinanLancamentoStore extends ChangeNotifier {
   final FinanLancamentoService service = FinanLancamentoService();
   List<FinanTipo> _tipos = [];
   List<FinanCategoria> _categorias = [];
+  List<Usuario> _usuarios = [];
 
   List<FinanLancamento> _lancamentos = [];
   List<FinanLancamento> get lancamentos => _lancamentos;
@@ -77,6 +80,10 @@ class FinanLancamentoStore extends ChangeNotifier {
     _categorias = await FinanCategoriaService().buscarCategorias();
   }
 
+  Future<void> carregarUsuarios() async {
+    _usuarios = await UsuarioService().buscarUsuarios();
+  }
+
   Map<String, double> totaisPorTipoDescricao() {
     carregarTipos();
     final Map<String, double> totais = {};
@@ -109,6 +116,20 @@ class FinanLancamentoStore extends ChangeNotifier {
       );
       totais[categoria.descricao.toString()] =
           (totais[categoria.descricao] ?? 0) + t.valor;
+    }
+    // debugPrint(totais.toString());
+    return totais;
+  }
+
+  Map<String, dynamic> totaisPorUsuarioNome() {
+    carregarUsuarios();
+    final Map<String, dynamic> totais = {};
+    for (var t in _lancamentos) {
+      final usuario = _usuarios.firstWhere(
+        (u) => u.id == t.usuarioId,
+        orElse: () => Usuario(id: t.usuarioId, nome: 'Usuário ${t.usuarioId}', senha: 'senha', email: 'email'),
+      );
+      totais[usuario.nome.toString()] = (totais[usuario.nome] ?? 0) + t.valor;
     }
     // debugPrint(totais.toString());
     return totais;

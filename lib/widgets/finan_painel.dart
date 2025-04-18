@@ -17,6 +17,7 @@ class _PainelFinanceiroState extends State<PainelFinanceiro>
   final List<Tab> _tabs = const [
     Tab(text: 'Por Tipo'),
     Tab(text: 'Por Categoria'),
+    Tab(text: 'Por Titular'),
   ];
 
   @override
@@ -29,14 +30,18 @@ class _PainelFinanceiroState extends State<PainelFinanceiro>
         context,
         listen: false,
       ).carregarLancamentos();
+
       Provider.of<FinanLancamentoStore>(
         context,
         listen: false,
       ).totaisPorCategoriaDescricao();
+      
       Provider.of<FinanLancamentoStore>(
         context,
         listen: false,
       ).totaisPorTipoDescricao();
+
+      Provider.of<FinanLancamentoStore>(context, listen: false);
     });
   }
 
@@ -78,6 +83,7 @@ class _PainelFinanceiroState extends State<PainelFinanceiro>
                 children: [
                   _buildGraficoPizzaPorTipo(store),
                   _buildGraficoBarraPorCategoria(store),
+                  _buildGraficoPizzaPorTitular(store),
                 ],
               ),
             ),
@@ -156,7 +162,7 @@ class _PainelFinanceiroState extends State<PainelFinanceiro>
                 final percent = (entry.value / total) * 100;
                 return PieChartSectionData(
                   value: entry.value,
-                  title: '${percent.toStringAsFixed(1)}%',
+                  title: '${entry.key} \n ${percent.toStringAsFixed(1)}%',
                   color: _corAleatoria(entry.key),
                   radius: 60,
                   titleStyle: const TextStyle(
@@ -188,9 +194,9 @@ class _PainelFinanceiroState extends State<PainelFinanceiro>
       child: BarChart(
         BarChartData(
           alignment: BarChartAlignment.spaceAround,
-          maxY: max * 1.2,
+          maxY: max * 1.7,
           titlesData: FlTitlesData(
-            bottomTitles: AxisTitles(
+            bottomTitles: AxisTitles(               
               sideTitles: SideTitles(
                 showTitles: true,
                 getTitlesWidget: (value, meta) {
@@ -198,7 +204,7 @@ class _PainelFinanceiroState extends State<PainelFinanceiro>
                   if (index >= 0 && index < keys.length) {
                     return SideTitleWidget(
                       axisSide: meta.axisSide,
-                      child: Text(keys[index], style: TextStyle(fontSize: 10)),
+                      child: Text(keys[index], style: TextStyle(fontSize: 12)),
                     );
                   }
                   return const SizedBox.shrink();
@@ -218,7 +224,7 @@ class _PainelFinanceiroState extends State<PainelFinanceiro>
                   fromY: 0,
                   toY: data[keys[i]]!,
                   color: _corAleatoria(keys[i]),
-                  width: 16,
+                  width: 8,
                   borderRadius: BorderRadius.circular(4),
                 ),
               ],
@@ -229,8 +235,45 @@ class _PainelFinanceiroState extends State<PainelFinanceiro>
     );
   }
 
+  Widget _buildGraficoPizzaPorTitular(FinanLancamentoStore store) {    
+    final data = store.totaisPorUsuarioNome();
+    final total = data.values.fold(0.0, (a, b) => a + b);
+
+    if (data.isEmpty) {
+      return const Center(child: Text('Nenhum dado disponível'));
+    }
+
+    return AnimatedSwitcher(            
+      duration: const Duration(milliseconds: 300),
+      child: PieChart(                
+        PieChartData(
+          sections:
+              data.entries.map((entry) {
+                final percent = (entry.value / total) * 100;
+                return PieChartSectionData(                                    
+                  value: entry.value,
+                  title: '${entry.key} \n ${percent.toStringAsFixed(2)}%',
+                  color: _corAleatoria(entry.key),
+                  radius: 60,
+                  titleStyle: const TextStyle(
+                    fontSize: 14,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.white,
+                  ),
+                );
+              }).toList(),
+          sectionsSpace: 4,
+          centerSpaceRadius: 30,
+        ),
+      ),
+    );
+  
+  }
+
   Color _corAleatoria(String chave) {
     final hash = chave.hashCode;
     return Color((0xFF000000 + (hash & 0x00FFFFFF))).withValues(alpha: 1.0);
   }
+  
+  
 }
