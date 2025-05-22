@@ -17,7 +17,7 @@ class _FinanCategoriaScreenState extends State<FinanCategoriaScreen> {
     // Future.microtask(
     //   () =>
     //       Provider.of<FinanCategoriaStore>(
-    //         // ignore: use_build_context_synchronously
+            
     //         context,
     //         listen: false,
     //       ).carregarCategorias(),

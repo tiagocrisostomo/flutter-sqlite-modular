@@ -59,7 +59,6 @@ class FinanCategoriaStore extends ChangeNotifier {
   }
 
   Future<void> buscarCategoriaId(int id) async {
-
     try {
       _finanCategoria = await _service.buscarCategoriaPorId(id);
       notifyListeners();
