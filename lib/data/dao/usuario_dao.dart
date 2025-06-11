@@ -9,6 +9,7 @@ class UsuarioDao {
     final usuarioComSenhaHash = Usuario(
       id: usuario.id,
       nome: usuario.nome,
+      email: usuario.email,
       senha: Seguranca.hashSenha(usuario.senha),
     );
 

@@ -14,19 +14,8 @@ class _FinanCategoriaScreenState extends State<FinanCategoriaScreen> {
   @override
   void initState() {
     super.initState();
-    // Future.microtask(
-    //   () =>
-    //       Provider.of<FinanCategoriaStore>(
-            
-    //         context,
-    //         listen: false,
-    //       ).carregarCategorias(),
-    // );
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      Provider.of<FinanCategoriaStore>(
-        context,
-        listen: false,
-      ).carregarCategorias();
+      Provider.of<FinanCategoriaStore>(context, listen: false).carregarCategorias();
     });
   }
 
@@ -35,15 +24,9 @@ class _FinanCategoriaScreenState extends State<FinanCategoriaScreen> {
     final store = Provider.of<FinanCategoriaStore>(context);
 
     // Exibe snackbar se houver erro
-    if (store.estado == EstadoFinanCategoria.erro &&
-        store.mensagemErro != null) {
+    if (store.estado == EstadoFinanCategoria.erro && store.mensagemErro != null) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(store.mensagemErro!),
-            backgroundColor: Colors.red,
-          ),
-        );
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(store.mensagemErro!), backgroundColor: Colors.red));
         store.limparErro();
       });
     }
@@ -64,14 +47,8 @@ class _FinanCategoriaScreenState extends State<FinanCategoriaScreen> {
             final cat = store.finanCategorias[index];
             return ListTile(
               leading: CircleAvatar(
-                backgroundColor:
-                    cat.cor != null
-                        ? Color(int.parse(cat.cor!.replaceAll("#", "0xFF")))
-                        : Colors.grey,
-                child:
-                    cat.id != null
-                        ? Text(cat.id.toString())
-                        : Icon(Icons.playlist_add_check_circle_sharp),
+                backgroundColor: cat.cor != null ? Color(int.parse(cat.cor!.replaceAll("#", "0xFF"))) : Colors.grey,
+                child: cat.id != null ? Text(cat.id.toString()) : Icon(Icons.playlist_add_check_circle_sharp),
               ),
               title: Text(cat.descricao!),
               subtitle: Text(cat.cor ?? 'Cor não definida'),
@@ -82,21 +59,11 @@ class _FinanCategoriaScreenState extends State<FinanCategoriaScreen> {
                     IconButton(
                       icon: const Icon(Icons.edit, color: Colors.blue),
                       onPressed: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder:
-                                (context) =>
-                                    FormularioFinanCategoria(categoria: cat),
-                          ),
-                        );
+                        Navigator.push(context, MaterialPageRoute(builder: (context) => FormularioFinanCategoria(categoria: cat)));
                       },
                     ),
                     IconButton(
-                      icon: Icon(
-                        Icons.delete_forever_outlined,
-                        color: Colors.red,
-                      ),
+                      icon: Icon(Icons.delete_forever_outlined, color: Colors.red),
                       onPressed: () {
                         _confirmarExclusaoCategoria(context, cat.id!);
                       },
@@ -109,9 +76,7 @@ class _FinanCategoriaScreenState extends State<FinanCategoriaScreen> {
         );
         break;
       default:
-        corpo = const Center(
-          child: Text('DEU ERRO E TA SEM TRATAMNTO AQUI NESSA TELA.'),
-        );
+        corpo = const Center(child: Text('DEU ERRO E TA SEM TRATAMNTO AQUI NESSA TELA.'));
     }
     return Scaffold(
       appBar: AppBar(
@@ -120,12 +85,7 @@ class _FinanCategoriaScreenState extends State<FinanCategoriaScreen> {
           IconButton(
             icon: Icon(Icons.add, color: Colors.green, applyTextScaling: true),
             onPressed: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => FormularioFinanCategoria(),
-                ),
-              );
+              Navigator.push(context, MaterialPageRoute(builder: (context) => FormularioFinanCategoria()));
             },
           ),
         ],
@@ -144,10 +104,7 @@ class _FinanCategoriaScreenState extends State<FinanCategoriaScreen> {
             title: Text('Excluir Categoria'),
             content: Text('Deseja realmente excluir a Categoria?'),
             actions: [
-              TextButton(
-                onPressed: () => Navigator.of(context).pop(),
-                child: Text('Cancelar'),
-              ),
+              TextButton(onPressed: () => Navigator.of(context).pop(), child: Text('Cancelar')),
               TextButton(
                 onPressed: () async {
                   await store.removerCategoria(id);

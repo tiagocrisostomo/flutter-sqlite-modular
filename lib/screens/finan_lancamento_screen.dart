@@ -15,13 +15,6 @@ class _FinanLancamentoScreenState extends State<FinanLancamentoScreen> {
   @override
   void initState() {
     super.initState();
-    // Future.microtask(() {
-    //   Provider.of<FinanLancamentoStore>(
-    //     // ignore: use_build_context_synchronously
-    //     context,
-    //     listen: false,
-    //   ).carregarLancamentos();
-    // });
     WidgetsBinding.instance.addPostFrameCallback((_) {
       Provider.of<FinanLancamentoStore>(
         context,
@@ -54,11 +47,15 @@ class _FinanLancamentoScreenState extends State<FinanLancamentoScreen> {
         corpo = const Center(child: CircularProgressIndicator());
         break;
       case EstadoLancamento.carregado:
-        corpo = ListView.builder(
+        corpo = ListView.separated(
+          padding: EdgeInsets.all(8),
+          separatorBuilder: (context, index) => Divider(color: Colors.blueGrey,),  
           itemCount: store.lancamentos.length,
           itemBuilder: (_, index) {
             final lanc = store.lancamentos[index];
             return ListTile(
+              isThreeLine: false,
+              dense: true,
               title: Text(lanc.descricao.toString()),
               subtitle: Text(
                 'R\$ ${lanc.valor.toStringAsFixed(2)} - ${DateFormat('dd/MM/yyyy').format(lanc.data as DateTime)}',
@@ -67,7 +64,7 @@ class _FinanLancamentoScreenState extends State<FinanLancamentoScreen> {
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   IconButton(
-                    icon: const Icon(Icons.edit, color: Colors.blue),
+                    icon: const Icon(Icons.edit, color: Colors.blue, size: 16),
                     onPressed: () {
                       Navigator.push(
                         context,
@@ -78,7 +75,7 @@ class _FinanLancamentoScreenState extends State<FinanLancamentoScreen> {
                     },
                   ),
                   IconButton(
-                    icon: const Icon(Icons.delete, color: Colors.red),
+                    icon: const Icon(Icons.delete_forever_outlined, color: Colors.red, size: 16,),
                     onPressed: () {
                       _confirmarExclusao(context, lanc.id!);
                     },

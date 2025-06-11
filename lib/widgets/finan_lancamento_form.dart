@@ -159,9 +159,9 @@ class _FinanLancamentoFormState extends State<FinanLancamentoForm> {
                       return DropdownMenuItem(value: u.id, child: Text(u.nome));
                     }).toList(),
                 onChanged: (val) => setState(() => _usuarioId = val),
-                decoration: const InputDecoration(labelText: 'Usuário'),
+                decoration: const InputDecoration(labelText: 'Titular'),
                 validator:
-                    (value) => value == null ? 'Selecione o usuário' : null,
+                    (value) => value == null ? 'Selecione o dono da despesa/receita' : null,
               ),
               const SizedBox(height: 24),
               ElevatedButton(
@@ -176,7 +176,7 @@ class _FinanLancamentoFormState extends State<FinanLancamentoForm> {
                       categoriaId: _categoriaId!,
                       usuarioId: _usuarioId!,
                     );
-
+        
                     await lancamentoStore.adicionarOuEditarLancamento(
                       lancamento,
                     );

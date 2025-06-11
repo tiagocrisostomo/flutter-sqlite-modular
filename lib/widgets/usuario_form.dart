@@ -13,14 +13,17 @@ class FormularioUsuario extends StatefulWidget {
 
 class FormularioUsuarioState extends State<FormularioUsuario> {
   final _formKey = GlobalKey<FormState>();
+
   late TextEditingController _nomeController;
   late TextEditingController _senhaController;
+  late TextEditingController _emailController;
 
   @override
   void initState() {
     super.initState();
     _nomeController = TextEditingController(text: widget.usuario?.nome ?? '');
     _senhaController = TextEditingController(text: '');
+    _emailController = TextEditingController(text: widget.usuario?.email ?? '');
   }
 
   @override
@@ -47,13 +50,18 @@ class FormularioUsuarioState extends State<FormularioUsuario> {
                 obscureText: false,
                 validator: (v) => v == null || v.length < 4 ? 'Mínimo 4 caracteres' : null,
               ),
+              TextFormField(
+                controller: _emailController,
+                decoration: InputDecoration(labelText: 'Email'),
+                validator: (v) => v == null || !v.contains('@') ? 'Informe um email válido' : null,
+              ),
               SizedBox(height: 16),
               ElevatedButton.icon(
                 icon: Icon(Icons.save),
                 label: Text('Salvar'),
                 onPressed: () async {
                   if (_formKey.currentState!.validate()) {
-                    await store.adicionarUsuario(Usuario(id: widget.usuario?.id, nome: _nomeController.text.trim(), senha: _senhaController.text.trim()));
+                    await store.adicionarUsuario(Usuario(nome: _nomeController.text, email: _emailController.text, senha: _senhaController.text));
 
                     // ignore: use_build_context_synchronously
                     Navigator.pop(context); // fecha o BottomSheet
