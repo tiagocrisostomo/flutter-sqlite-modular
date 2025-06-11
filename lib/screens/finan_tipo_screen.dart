@@ -14,11 +14,6 @@ class _FinanTipoScreenState extends State<FinanTipoScreen> {
   @override
   void initState() {
     super.initState();
-    // Future.microtask(
-    //   () =>
-    //       // ignore: use_build_context_synchronously
-    //       Provider.of<FinanTipoStore>(context, listen: false).carregarTipos(),
-    // );
     WidgetsBinding.instance.addPostFrameCallback((_) {
       Provider.of<FinanTipoStore>(context, listen: false).carregarTipos();
     });
@@ -30,12 +25,7 @@ class _FinanTipoScreenState extends State<FinanTipoScreen> {
     // Exibe snackbar se houver erro
     if (store.estado == EstadoFinanTipo.erro && store.mensagemErro != null) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(store.mensagemErro!),
-            backgroundColor: Colors.red,
-          ),
-        );
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(store.mensagemErro!), backgroundColor: Colors.red));
         store.limparErro();
       });
     }
@@ -56,41 +46,22 @@ class _FinanTipoScreenState extends State<FinanTipoScreen> {
             final tipo = store.finanTipos[index];
             return ListTile(
               leading: CircleAvatar(
-                backgroundColor:
-                    tipo.cor != null
-                        ? Color(int.parse(tipo.cor!.replaceAll("#", "0xFF")))
-                        : Colors.grey,
-                child:
-                    tipo.id != null
-                        ? Text(tipo.id.toString())
-                        : Icon(Icons.playlist_add_check_circle_sharp),
+                backgroundColor: tipo.cor != null ? Color(int.parse(tipo.cor!.replaceAll("#", "0xFF"))) : Colors.grey,
+                child: tipo.id != null ? Text(tipo.id.toString()) : Icon(Icons.playlist_add_check_circle_sharp),
               ),
               title: Text(tipo.descricao ?? ''),
               subtitle: Text(tipo.cor ?? ''),
               trailing: SizedBox(
-                width: 96,
+                width: MediaQuery.of(context).size.width * 0.25,
                 child: Row(
                   children: [
                     IconButton(
                       icon: const Icon(Icons.edit, color: Colors.blue),
                       onPressed: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder:
-                                (context) => FormularioFinanTipo(tipo: tipo),
-                          ),
-                        );
+                        Navigator.push(context, MaterialPageRoute(builder: (context) => FormularioFinanTipo(tipo: tipo)));
                       },
                     ),
-                    IconButton(
-                      icon: Icon(
-                        Icons.delete_forever_outlined,
-                        color: Colors.red,
-                      ),
-                      onPressed:
-                          () => _confirmarExclusaoTipo(context, tipo.id!),
-                    ),
+                    IconButton(icon: Icon(Icons.delete_forever_outlined, color: Colors.red), onPressed: () => _confirmarExclusaoTipo(context, tipo.id!)),
                   ],
                 ),
               ),
@@ -99,9 +70,7 @@ class _FinanTipoScreenState extends State<FinanTipoScreen> {
         );
         break;
       default:
-        corpo = const Center(
-          child: Text('DEU ERRO E TA SEM TRATAMNTO AQUI NESSA TELA.'),
-        );
+        corpo = const Center(child: Text('DEU ERRO E TA SEM TRATAMNTO AQUI NESSA TELA.'));
     }
     return Scaffold(
       appBar: AppBar(
@@ -110,10 +79,7 @@ class _FinanTipoScreenState extends State<FinanTipoScreen> {
           IconButton(
             icon: Icon(Icons.add, color: Colors.green, applyTextScaling: true),
             onPressed: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(builder: (context) => FormularioFinanTipo()),
-              );
+              Navigator.push(context, MaterialPageRoute(builder: (context) => FormularioFinanTipo()));
             },
           ),
         ],
@@ -132,10 +98,7 @@ class _FinanTipoScreenState extends State<FinanTipoScreen> {
             title: Text('Excluir Tipo'),
             content: Text('Deseja realmente excluir o Tipo?'),
             actions: [
-              TextButton(
-                onPressed: () => Navigator.of(context).pop(),
-                child: Text('Cancelar'),
-              ),
+              TextButton(onPressed: () => Navigator.of(context).pop(), child: Text('Cancelar')),
               TextButton(
                 onPressed: () async {
                   await store.removerTipo(id);

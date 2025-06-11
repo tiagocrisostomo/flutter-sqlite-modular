@@ -14,13 +14,6 @@ class _UsuarioScreenState extends State<UsuarioScreen> {
   @override
   void initState() {
     super.initState();
-    // carregar os usuários ao iniciar o aplicativo
-    // Future.microtask(
-    //   () =>
-    //       // ignore: use_build_context_synchronously
-    //       Provider.of<UsuarioStore>(context, listen: false).carregarUsuarios(),
-    // );
-
     WidgetsBinding.instance.addPostFrameCallback((_) {
       Provider.of<UsuarioStore>(context, listen: false).carregarUsuarios();
     });
@@ -33,12 +26,7 @@ class _UsuarioScreenState extends State<UsuarioScreen> {
     // Exibe snackbar se houver erro
     if (store.estado == EstadoUsuario.erro && store.mensagemErro != null) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(store.mensagemErro!),
-            backgroundColor: Colors.red,
-          ),
-        );
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(store.mensagemErro!), backgroundColor: Colors.red));
         store.limparErro();
       });
     }
@@ -56,16 +44,23 @@ class _UsuarioScreenState extends State<UsuarioScreen> {
         corpo = ListView.builder(
           itemCount: store.usuarios.length,
           itemBuilder: (_, index) {
-            final u = store.usuarios[index];
+            final usuario = store.usuarios[index];
             return ListTile(
-              leading: CircleAvatar(
-                child:
-                    u.id != null ? Text(u.id.toString()) : Icon(Icons.person),
-              ),
-              title: Text(u.nome),
-              trailing: IconButton(
-                icon: Icon(Icons.delete_forever_outlined, color: Colors.red),
-                onPressed: () => _confirmarExclusaoUsuario(context, u.id!),
+              leading: CircleAvatar(child: usuario.id != null ? Text(usuario.id.toString()) : Icon(Icons.person)),
+              title: Text(usuario.nome),
+              trailing: SizedBox(
+                width: MediaQuery.of(context).size.width * 0.25,
+                child: Row(
+                  children: [
+                    IconButton(
+                      icon: const Icon(Icons.edit, color: Colors.blue),
+                      onPressed: () {
+                        Navigator.push(context, MaterialPageRoute(builder: (context) => FormularioUsuario(usuario: usuario)));
+                      },
+                    ),
+                    IconButton(icon: Icon(Icons.delete_forever_outlined, color: Colors.red), onPressed: () => _confirmarExclusaoUsuario(context, usuario.id!)),
+                  ],
+                ),
               ),
             );
           },
@@ -82,10 +77,7 @@ class _UsuarioScreenState extends State<UsuarioScreen> {
           IconButton(
             icon: Icon(Icons.add, color: Colors.green, applyTextScaling: true),
             onPressed: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(builder: (context) => FormularioUsuario()),
-              );
+              Navigator.push(context, MaterialPageRoute(builder: (context) => FormularioUsuario()));
             },
           ),
         ],
@@ -102,16 +94,10 @@ class _UsuarioScreenState extends State<UsuarioScreen> {
             title: Text('Excluir usuário'),
             content: Text('Deseja realmente excluir o usuário?'),
             actions: [
-              TextButton(
-                onPressed: () => Navigator.of(context).pop(),
-                child: Text('Cancelar'),
-              ),
+              TextButton(onPressed: () => Navigator.of(context).pop(), child: Text('Cancelar')),
               TextButton(
                 onPressed: () {
-                  Provider.of<UsuarioStore>(
-                    context,
-                    listen: false,
-                  ).removerUsuario(id);
+                  Provider.of<UsuarioStore>(context, listen: false).removerUsuario(id);
                   Navigator.of(context).pop();
                 },
                 child: Text('Excluir'),

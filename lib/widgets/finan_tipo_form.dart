@@ -25,9 +25,7 @@ class _FormularioFinanTipoState extends State<FormularioFinanTipo> {
   }
 
   void _abrirSeletorDeCor() {
-    Color pickerColor = Color(
-      int.parse(_corSelecionada!.replaceAll("#", "0xFF")),
-    );
+    Color pickerColor = Color(int.parse(_corSelecionada!.replaceAll("#", "0xFF")));
 
     showDialog(
       context: context,
@@ -39,18 +37,12 @@ class _FormularioFinanTipoState extends State<FormularioFinanTipo> {
                 pickerColor: pickerColor,
                 onColorChanged: (Color cor) {
                   setState(() {
-                    _corSelecionada =
-                        '#${cor.toARGB32().toRadixString(16).substring(2).toUpperCase()}';
+                    _corSelecionada = '#${cor.toARGB32().toRadixString(16).substring(2).toUpperCase()}';
                   });
                 },
               ),
             ),
-            actions: [
-              TextButton(
-                child: const Text('Fechar'),
-                onPressed: () => Navigator.of(context).pop(),
-              ),
-            ],
+            actions: [TextButton(child: const Text('Fechar'), onPressed: () => Navigator.of(context).pop())],
           ),
     );
   }
@@ -60,12 +52,7 @@ class _FormularioFinanTipoState extends State<FormularioFinanTipo> {
     final store = Provider.of<FinanTipoStore>(context, listen: false);
 
     return Scaffold(
-      appBar: AppBar(
-        title: Text(
-          'Cadastrar novo Tipo',
-          style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-        ),
-      ),
+      appBar: AppBar(title: Text('Cadastrar/Alterar Financeiro Tipo', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold))),
       body: Padding(
         padding: const EdgeInsets.only(left: 32, right: 32, top: 8),
         child: Form(
@@ -76,9 +63,7 @@ class _FormularioFinanTipoState extends State<FormularioFinanTipo> {
               TextFormField(
                 controller: _nomeController,
                 decoration: InputDecoration(labelText: 'Descrição'),
-                validator:
-                    (v) =>
-                        v == null || v.isEmpty ? 'Informe a descrição' : null,
+                validator: (v) => v == null || v.isEmpty ? 'Informe a descrição' : null,
               ),
               SizedBox(height: 16),
               Row(
@@ -87,12 +72,7 @@ class _FormularioFinanTipoState extends State<FormularioFinanTipo> {
                   const SizedBox(width: 8),
                   GestureDetector(
                     onTap: _abrirSeletorDeCor,
-                    child: CircleAvatar(
-                      backgroundColor: Color(
-                        int.parse(_corSelecionada!.replaceAll("#", "0xFF")),
-                      ),
-                      radius: 20,
-                    ),
+                    child: CircleAvatar(backgroundColor: Color(int.parse(_corSelecionada!.replaceAll("#", "0xFF"))), radius: 20),
                   ),
                 ],
               ),
@@ -103,12 +83,7 @@ class _FormularioFinanTipoState extends State<FormularioFinanTipo> {
                 onPressed: () async {
                   if (_formKey.currentState!.validate()) {
                     // Adicione a lógica para salvar o tipo aqui
-                    await store.adicionarTipo(
-                      FinanTipo(
-                        descricao: _nomeController.text.trim(),
-                        cor: _corSelecionada.toString(),
-                      ),
-                    );
+                    await store.adicionarTipo(FinanTipo(id: widget.tipo?.id, descricao: _nomeController.text.trim(), cor: _corSelecionada.toString()));
 
                     // ignore: use_build_context_synchronously
                     Navigator.pop(context); // fecha o BottomSheet
