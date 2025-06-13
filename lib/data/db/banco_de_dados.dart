@@ -20,15 +20,9 @@ class BancoDeDados {
       caminhoCompleto,
       version: 1,
       onCreate: (db, version) async {
-        await db.execute(
-          '''CREATE TABLE usuario (id INTEGER PRIMARY KEY, nome TEXT, senha TEXT, email TEXT)''',
-        );
-        await db.execute(
-          '''CREATE TABLE finan_categoria (id INTEGER PRIMARY KEY, descricao TEXT, cor TEXT)''',
-        );
-        await db.execute(
-          '''CREATE TABLE finan_tipo (id INTEGER PRIMARY KEY, descricao TEXT, cor TEXT)''',
-        );
+        await db.execute('''CREATE TABLE usuario (id INTEGER PRIMARY KEY, nome TEXT, senha TEXT, email TEXT)''');
+        await db.execute('''CREATE TABLE finan_categoria (id INTEGER PRIMARY KEY, descricao TEXT, cor TEXT)''');
+        await db.execute('''CREATE TABLE finan_tipo (id INTEGER PRIMARY KEY, descricao TEXT, cor TEXT)''');
         await db.execute('''CREATE TABLE finan_lancamento 
           (id INTEGER PRIMARY KEY, descricao TEXT, valor REAL, data TEXT, 
           tipoId INTEGER, categoriaId INTEGER, usuarioId INTEGER, 

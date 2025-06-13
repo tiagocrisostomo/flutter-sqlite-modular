@@ -47,7 +47,7 @@ class FormularioUsuarioState extends State<FormularioUsuario> {
               TextFormField(
                 controller: _senhaController,
                 decoration: InputDecoration(labelText: 'Senha'),
-                obscureText: false,
+                obscureText: true,
                 validator: (v) => v == null || v.length < 4 ? 'Mínimo 4 caracteres' : null,
               ),
               TextFormField(
@@ -55,6 +55,7 @@ class FormularioUsuarioState extends State<FormularioUsuario> {
                 decoration: InputDecoration(labelText: 'Email'),
                 validator: (v) => v == null || !v.contains('@') ? 'Informe um email válido' : null,
               ),
+
               SizedBox(height: 16),
               ElevatedButton.icon(
                 icon: Icon(Icons.save),
