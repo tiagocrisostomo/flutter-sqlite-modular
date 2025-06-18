@@ -22,8 +22,8 @@ class _HomePageState extends State<HomePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(  
-        leading: IconButton.filled(onPressed: (){}, icon: Icon(Icons.person_2_outlined),),      
+      appBar: AppBar(
+        leading: IconButton.filled(onPressed: () {}, icon: Icon(Icons.person_2_outlined)),
         title: const Text('Controle Financeiro'),
         centerTitle: true,
       ),
@@ -33,10 +33,7 @@ class _HomePageState extends State<HomePage> {
         onTap: (index) => setState(() => paginaAtual = index),
         items: const [
           BottomNavigationBarItem(icon: Icon(Icons.pie_chart), label: 'Painel'),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.monetization_on_outlined),
-            label: 'Lançamentos',
-          ),
+          BottomNavigationBarItem(icon: Icon(Icons.monetization_on_outlined), label: 'Lançamentos'),
           BottomNavigationBarItem(icon: Icon(Icons.settings), label: 'Config'),
         ],
       ),

@@ -52,13 +52,13 @@ class _FormularioFinanTipoState extends State<FormularioFinanTipo> {
     final store = Provider.of<FinanTipoStore>(context, listen: false);
 
     return Scaffold(
-      appBar: AppBar(title: Text('Cadastrar/Alterar Financeiro Tipo', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold))),
+      appBar: AppBar(title: Text('Cadastrar/Alterar Tipo(s)', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold))),
       body: Padding(
         padding: const EdgeInsets.only(left: 32, right: 32, top: 8),
         child: Form(
           key: _formKey,
-          child: Column(
-            mainAxisSize: MainAxisSize.min, // tamanho automático
+          child: ListView(
+            // mainAxisSize: MainAxisSize.min, // tamanho automático
             children: [
               TextFormField(
                 controller: _nomeController,

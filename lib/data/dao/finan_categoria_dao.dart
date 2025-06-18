@@ -7,7 +7,7 @@ class FinanCategoriaDao {
 
   Future<void> salvar(FinanCategoria finanCategoria) async {
     final db = await BancoDeDados.banco;
-    await db.insert('finan_categoria', finanCategoria.toMap());
+    await db.insert(_tableName, finanCategoria.toMap());
   }
 
   Future<List<FinanCategoria>> listarTodos() async {
@@ -37,7 +37,7 @@ class FinanCategoriaDao {
 
   Future<bool> verificarUso(int id) async {
     final db = await BancoDeDados.banco;
-    final resultado = await db.query(_tableName, columns: ['COUNT(*)'], where: 'categoria_id = ?', whereArgs: [id]);
+    final resultado = await db.query('finan_lancamento', columns: ['COUNT(*)'], where: 'categoriaId = ?', whereArgs: [id]);
 
     // debugPrint('Resultado  USO: $resultado');
 

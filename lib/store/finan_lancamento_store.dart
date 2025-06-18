@@ -25,13 +25,9 @@ class FinanLancamentoStore extends ChangeNotifier {
   String? _mensagemErro;
   String? get mensagemErro => _mensagemErro;
 
-  double get totalApagar => _lancamentos
-      .where((l) => l.categoriaId == 1)
-      .fold(0.0, (total, l) => total + l.valor);
+  double get totalApagar => _lancamentos.where((l) => l.categoriaId == 1).fold(0.0, (total, l) => total + l.valor);
 
-  double get totalAreceber => _lancamentos
-      .where((l) => l.categoriaId == 2)
-      .fold(0.0, (total, l) => total + l.valor);
+  double get totalAreceber => _lancamentos.where((l) => l.categoriaId == 2).fold(0.0, (total, l) => total + l.valor);
 
   double get saldoTotal => totalAreceber - totalApagar;
 
@@ -88,14 +84,8 @@ class FinanLancamentoStore extends ChangeNotifier {
     carregarTipos();
     final Map<String, double> totais = {};
     for (var t in _lancamentos) {
-      final tipo = _tipos.firstWhere(
-        (tipo) => tipo.id == t.tipoId,
-        orElse:
-            () =>
-                FinanTipo(id: t.tipoId, descricao: 'Tipo ${t.tipoId}', cor: ''),
-      );
-      totais[tipo.descricao.toString()] =
-          (totais[tipo.descricao] ?? 0) + t.valor;
+      final tipo = _tipos.firstWhere((tipo) => tipo.id == t.tipoId, orElse: () => FinanTipo(id: t.tipoId, descricao: 'Tipo ${t.tipoId}', cor: ''));
+      totais[tipo.descricao.toString()] = (totais[tipo.descricao] ?? 0) + t.valor;
     }
     // debugPrint(totais.toString());
     return totais;
@@ -107,15 +97,9 @@ class FinanLancamentoStore extends ChangeNotifier {
     for (var t in _lancamentos) {
       final categoria = _categorias.firstWhere(
         (c) => c.id == t.categoriaId,
-        orElse:
-            () => FinanCategoria(
-              id: t.categoriaId,
-              descricao: 'Categoria ${t.categoriaId}',
-              cor: '',
-            ),
+        orElse: () => FinanCategoria(id: t.categoriaId, descricao: 'Categoria ${t.categoriaId}', cor: ''),
       );
-      totais[categoria.descricao.toString()] =
-          (totais[categoria.descricao] ?? 0) + t.valor;
+      totais[categoria.descricao.toString()] = (totais[categoria.descricao] ?? 0) + t.valor;
     }
     // debugPrint(totais.toString());
     return totais;

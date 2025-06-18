@@ -3,6 +3,7 @@ import 'package:db_sqlite/data/model/finan_categoria.dart';
 
 class FinanCategoriaService {
   final FinanCategoriaDao _dao = FinanCategoriaDao();
+
   Future<void> salvarOuAtualizarCategoria(FinanCategoria finanCategoria) async {
     if (finanCategoria.id == null) {
       await _dao.salvar(finanCategoria);

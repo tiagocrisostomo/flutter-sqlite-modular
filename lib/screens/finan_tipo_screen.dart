@@ -1,4 +1,5 @@
 import 'package:db_sqlite/store/finan_tipo_store.dart';
+import 'package:db_sqlite/utils/routes_context_transations.dart';
 import 'package:db_sqlite/widgets/finan_tipo_form.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -45,6 +46,7 @@ class _FinanTipoScreenState extends State<FinanTipoScreen> {
           itemBuilder: (_, index) {
             final tipo = store.finanTipos[index];
             return ListTile(
+              dense: true,
               leading: CircleAvatar(
                 backgroundColor: tipo.cor != null ? Color(int.parse(tipo.cor!.replaceAll("#", "0xFF"))) : Colors.grey,
                 child: tipo.id != null ? Text(tipo.id.toString()) : Icon(Icons.playlist_add_check_circle_sharp),
@@ -56,12 +58,16 @@ class _FinanTipoScreenState extends State<FinanTipoScreen> {
                 child: Row(
                   children: [
                     IconButton(
-                      icon: const Icon(Icons.edit, color: Colors.blue),
+                      icon: const Icon(Icons.edit, color: Colors.blue, size: 18),
                       onPressed: () {
-                        Navigator.push(context, MaterialPageRoute(builder: (context) => FormularioFinanTipo(tipo: tipo)));
+                        context.pushRtL(FormularioFinanTipo(tipo: tipo));
+                        // Navigator.push(context, MaterialPageRoute(builder: (context) => FormularioFinanTipo(tipo: tipo)));
                       },
                     ),
-                    IconButton(icon: Icon(Icons.delete_forever_outlined, color: Colors.red), onPressed: () => _confirmarExclusaoTipo(context, tipo.id!)),
+                    IconButton(
+                      icon: Icon(Icons.delete_forever_outlined, color: Colors.red, size: 18),
+                      onPressed: () => _confirmarExclusaoTipo(context, tipo.id!),
+                    ),
                   ],
                 ),
               ),
@@ -70,16 +76,17 @@ class _FinanTipoScreenState extends State<FinanTipoScreen> {
         );
         break;
       default:
-        corpo = const Center(child: Text('DEU ERRO E TA SEM TRATAMNTO AQUI NESSA TELA.'));
+        corpo = const Center(child: Text('DEU ERRO E TA SEM TRATAMENTO AQUI NESSA TELA.'));
     }
     return Scaffold(
       appBar: AppBar(
         title: Text('Tipos de Finanças'),
         actions: [
           IconButton(
-            icon: Icon(Icons.add, color: Colors.green, applyTextScaling: true),
+            icon: Icon(Icons.add, color: Colors.green, applyTextScaling: false, size: 35),
             onPressed: () {
-              Navigator.push(context, MaterialPageRoute(builder: (context) => FormularioFinanTipo()));
+              context.pushRtL(FormularioFinanTipo());
+              // Navigator.push(context, MaterialPageRoute(builder: (context) => FormularioFinanTipo()));
             },
           ),
         ],

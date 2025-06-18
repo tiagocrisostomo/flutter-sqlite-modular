@@ -36,33 +36,50 @@ class FormularioUsuarioState extends State<FormularioUsuario> {
         padding: const EdgeInsets.only(left: 32, right: 32, top: 8),
         child: Form(
           key: _formKey,
-          child: Column(
-            mainAxisSize: MainAxisSize.min, // tamanho automático
+          child: ListView(
+            // mainAxisSize: MainAxisSize.min, // tamanho automático
             children: [
               TextFormField(
                 controller: _nomeController,
-                decoration: InputDecoration(labelText: 'Nome'),
+                decoration: InputDecoration(
+                  labelText: 'Nome',
+                  border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
+                  prefixIcon: Icon(Icons.person),
+                ),
                 validator: (v) => v == null || v.isEmpty ? 'Informe o nome' : null,
               ),
+              SizedBox(height: 16),
               TextFormField(
                 controller: _senhaController,
-                decoration: InputDecoration(labelText: 'Senha'),
+                decoration: InputDecoration(
+                  labelText: 'Senha',
+                  border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
+                  prefixIcon: Icon(Icons.lock),
+                ),
                 obscureText: true,
                 validator: (v) => v == null || v.length < 4 ? 'Mínimo 4 caracteres' : null,
               ),
+              SizedBox(height: 16),
               TextFormField(
                 controller: _emailController,
-                decoration: InputDecoration(labelText: 'Email'),
+                decoration: InputDecoration(
+                  labelText: 'Email',
+                  border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
+                  prefixIcon: Icon(Icons.email),
+                ),
                 validator: (v) => v == null || !v.contains('@') ? 'Informe um email válido' : null,
               ),
 
               SizedBox(height: 16),
               ElevatedButton.icon(
+                style: ButtonStyle(shape: WidgetStatePropertyAll(RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)))),
                 icon: Icon(Icons.save),
                 label: Text('Salvar'),
                 onPressed: () async {
                   if (_formKey.currentState!.validate()) {
-                    await store.adicionarUsuario(Usuario(nome: _nomeController.text, email: _emailController.text, senha: _senhaController.text));
+                    await store.adicionarUsuario(
+                      Usuario(id: widget.usuario?.id, nome: _nomeController.text, email: _emailController.text, senha: _senhaController.text),
+                    );
 
                     // ignore: use_build_context_synchronously
                     Navigator.pop(context); // fecha o BottomSheet

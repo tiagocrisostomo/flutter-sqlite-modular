@@ -6,18 +6,9 @@ import 'package:sqflite/sqflite.dart';
 class UsuarioDao {
   Future<void> salvar(Usuario usuario) async {
     final db = await BancoDeDados.banco;
-    final usuarioComSenhaHash = Usuario(
-      id: usuario.id,
-      nome: usuario.nome,
-      email: usuario.email,
-      senha: Seguranca.hashSenha(usuario.senha),
-    );
+    final usuarioComSenhaHash = Usuario(id: usuario.id, nome: usuario.nome, email: usuario.email, senha: Seguranca.hashSenha(usuario.senha));
 
-    await db.insert(
-      'usuario',
-      usuarioComSenhaHash.toMap(),
-      conflictAlgorithm: ConflictAlgorithm.replace,
-    );
+    await db.insert('usuario', usuarioComSenhaHash.toMap(), conflictAlgorithm: ConflictAlgorithm.replace);
   }
 
   Future<List<Usuario>> listarTodos() async {
@@ -28,12 +19,7 @@ class UsuarioDao {
 
   Future<int> atualizar(Usuario usuario) async {
     final db = await BancoDeDados.banco;
-    return await db.update(
-      'usuario',
-      usuario.toMap(),
-      where: 'id = ?',
-      whereArgs: [usuario.id],
-    );
+    return await db.update('usuario', usuario.toMap(), where: 'id = ?', whereArgs: [usuario.id]);
   }
 
   Future<int> deletar(int id) async {
@@ -43,11 +29,7 @@ class UsuarioDao {
 
   Future<Usuario?> buscarPorId(int id) async {
     final db = await BancoDeDados.banco;
-    final resultado = await db.query(
-      'usuario',
-      where: 'id = ?',
-      whereArgs: [id],
-    );
+    final resultado = await db.query('usuario', where: 'id = ?', whereArgs: [id]);
     if (resultado.isNotEmpty) {
       return Usuario.fromMap(resultado.first);
     }
@@ -58,11 +40,7 @@ class UsuarioDao {
     final db = await BancoDeDados.banco;
     final senhaHash = Seguranca.hashSenha(senha);
 
-    final maps = await db.query(
-      'usuario',
-      where: 'nome = ? AND senha = ?',
-      whereArgs: [nome, senhaHash],
-    );
+    final maps = await db.query('usuario', where: 'nome = ? AND senha = ?', whereArgs: [nome, senhaHash]);
     if (maps.isNotEmpty) {
       return Usuario.fromMap(maps.first);
     }
@@ -71,12 +49,7 @@ class UsuarioDao {
 
   Future<bool> verificarUso(int id) async {
     final db = await BancoDeDados.banco;
-    final resultado = await db.rawQuery(
-      'SELECT COUNT(*) FROM finan_lancamento WHERE usuarioId = ?',
-      [id],
-    );
-
-    // debugPrint('Resultado  USO: $resultado');
+    final resultado = await db.query('finan_lancamento', columns: ['count(*)'], where: 'usuarioId = ?', whereArgs: [id]);
 
     if (resultado.isNotEmpty) {
       final count = Sqflite.firstIntValue(resultado);
@@ -88,14 +61,9 @@ class UsuarioDao {
   Future<bool> verificarPadrao(int? id) async {
     final db = await BancoDeDados.banco;
 
-    final resultado = await db.query(
-      'usuario',
-      where: 'id = ? OR nome = ?',
-      whereArgs: [1, 'admin'],
-    );
+    final resultado = await db.query('usuario', where: 'id = ? OR nome = ?', whereArgs: [1, 'admin']);
 
     bool padrao = resultado.any((row) => row['id'] == id);
-    // debugPrint('Resultado PADRAO: $padrao');
 
     return padrao;
   }

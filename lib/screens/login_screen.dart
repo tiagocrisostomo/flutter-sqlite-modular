@@ -16,20 +16,12 @@ class LoginScreen extends StatelessWidget {
 
     if (store.estadoAuth == EstadoAuth.erro && store.mensagemErro != null) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(store.mensagemErro!),
-            backgroundColor: Colors.red,
-          ),
-        );
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(store.mensagemErro!), backgroundColor: Colors.red));
         store.limparErro();
       });
     } else if (store.estadoAuth == EstadoAuth.sucesso) {
-      WidgetsBinding.instance.addPostFrameCallback((_){
-        Navigator.pushReplacement(
-          context,
-          MaterialPageRoute(builder: (_) => HomePage()),
-        );
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        Navigator.pushReplacement(context, MaterialPageRoute(builder: (_) => HomePage()));
       });
     } else if (store.estadoAuth == EstadoAuth.carregando) {
       return Center(child: CircularProgressIndicator());
@@ -38,11 +30,7 @@ class LoginScreen extends StatelessWidget {
     return Scaffold(
       body: Container(
         decoration: const BoxDecoration(
-          gradient: LinearGradient(
-            colors: [Color(0xFF0f2027), Color(0xFF203A43), Color(0xFF2c5364)],
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
-          ),
+          gradient: LinearGradient(colors: [Color(0xFF0f2027), Color(0xFF203A43), Color(0xFF2c5364)], begin: Alignment.topLeft, end: Alignment.bottomRight),
         ),
         width: double.infinity,
         padding: const EdgeInsets.symmetric(horizontal: 24),
@@ -51,32 +39,15 @@ class LoginScreen extends StatelessWidget {
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                const Icon(
-                  Icons.account_balance_wallet_rounded,
-                  size: 80,
-                  color: Colors.white,
-                ),
+                const Icon(Icons.account_balance_wallet_rounded, size: 80, color: Colors.white),
                 const SizedBox(height: 16),
-                const Text(
-                  'FinanceX',
-                  style: TextStyle(
-                    fontSize: 32,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.white,
-                    letterSpacing: 1.5,
-                  ),
-                ),
+                const Text('FinanceX', style: TextStyle(fontSize: 32, fontWeight: FontWeight.bold, color: Colors.white, letterSpacing: 1.5)),
                 const SizedBox(height: 8),
-                const Text(
-                  'Controle seus gastos de forma inteligente',
-                  style: TextStyle(fontSize: 16, color: Colors.white70),
-                ),
+                const Text('Controle seus gastos de forma inteligente', style: TextStyle(fontSize: 16, color: Colors.white70)),
                 const SizedBox(height: 32),
                 Card(
                   elevation: 10,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(20),
-                  ),
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
                   child: Padding(
                     padding: const EdgeInsets.all(24.0),
                     child: Form(
@@ -86,57 +57,35 @@ class LoginScreen extends StatelessWidget {
                         children: [
                           TextFormField(
                             controller: _userController,
-                            decoration: const InputDecoration(
-                              prefixIcon: Icon(Icons.email),
-                              labelText: 'Usuário',
-                              border: OutlineInputBorder(),
-                            ),
-                            validator:
-                                (value) =>
-                                    value!.isEmpty ? 'Informe o email' : null,
+                            decoration: const InputDecoration(prefixIcon: Icon(Icons.email), labelText: 'Usuário', border: OutlineInputBorder()),
+                            validator: (value) => value!.isEmpty ? 'Informe o email' : null,
                           ),
                           const SizedBox(height: 16),
                           TextFormField(
                             controller: _senhaController,
-                            decoration: const InputDecoration(
-                              prefixIcon: Icon(Icons.lock),
-                              labelText: 'Senha',
-                              border: OutlineInputBorder(),
-                            ),
+                            decoration: const InputDecoration(prefixIcon: Icon(Icons.lock), labelText: 'Senha', border: OutlineInputBorder()),
                             obscureText: true,
-                            validator:
-                                (value) =>
-                                    value!.isEmpty ? 'Informe a senha' : null,
+                            validator: (value) => value!.isEmpty ? 'Informe a senha' : null,
                           ),
                           const SizedBox(height: 24),
                           SizedBox(
                             width: double.infinity,
                             child: ElevatedButton.icon(
                               onPressed: () async {
-                                await store.login(
-                                  _userController.text,
-                                  _senhaController.text,
-                                );
+                                await store.login(_userController.text, _senhaController.text);
                               },
                               icon: const Icon(Icons.login),
                               label: const Text('Entrar'),
                               style: ElevatedButton.styleFrom(
                                 backgroundColor: const Color(0xFF1DB954),
-                                padding: const EdgeInsets.symmetric(
-                                  vertical: 16,
-                                ),
+                                padding: const EdgeInsets.symmetric(vertical: 16),
                                 textStyle: const TextStyle(fontSize: 16),
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(8),
-                                ),
+                                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
                               ),
                             ),
                           ),
                           const SizedBox(height: 8),
-                          TextButton(
-                            onPressed: () {},
-                            child: const Text('Esqueci minha senha'),
-                          ),
+                          TextButton(onPressed: () {}, child: const Text('Esqueci minha senha')),
                         ],
                       ),
                     ),
@@ -147,6 +96,6 @@ class LoginScreen extends StatelessWidget {
           ),
         ),
       ),
-    );    
+    );
   }
 }

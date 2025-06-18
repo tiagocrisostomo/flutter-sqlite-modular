@@ -3,39 +3,32 @@ import 'package:db_sqlite/data/model/finan_tipo.dart';
 import 'package:sqflite/sqflite.dart';
 
 class FinanTipoDao {
+  static const _tableName = 'finan_tipo';
+
   Future<void> salvar(FinanTipo finanTipo) async {
     final db = await BancoDeDados.banco;
-    await db.insert('finan_tipo', finanTipo.toMap());
+    await db.insert(_tableName, finanTipo.toMap());
   }
 
   Future<List<FinanTipo>> listarTodos() async {
     final db = await BancoDeDados.banco;
-    final resultado = await db.query('finan_tipo');
+    final resultado = await db.query(_tableName);
     return resultado.map((e) => FinanTipo.fromMap(e)).toList();
   }
 
   Future<int> atualizar(FinanTipo finanTipo) async {
     final db = await BancoDeDados.banco;
-    return await db.update(
-      'finan_tipo',
-      finanTipo.toMap(),
-      where: 'id = ?',
-      whereArgs: [finanTipo.id],
-    );
+    return await db.update(_tableName, finanTipo.toMap(), where: 'id = ?', whereArgs: [finanTipo.id]);
   }
 
   Future<int> deletar(int id) async {
     final db = await BancoDeDados.banco;
-    return await db.delete('finan_tipo', where: 'id = ?', whereArgs: [id]);
+    return await db.delete(_tableName, where: 'id = ?', whereArgs: [id]);
   }
 
   Future<FinanTipo?> buscarPorId(int id) async {
     final db = await BancoDeDados.banco;
-    final resultado = await db.query(
-      'finan_tipo',
-      where: 'id = ?',
-      whereArgs: [id],
-    );
+    final resultado = await db.query(_tableName, where: 'id = ?', whereArgs: [id]);
     if (resultado.isNotEmpty) {
       return FinanTipo.fromMap(resultado.first);
     }
@@ -44,12 +37,8 @@ class FinanTipoDao {
 
   Future<bool> verificarUso(int id) async {
     final db = await BancoDeDados.banco;
-    final resultado = await db.rawQuery(
-      'SELECT COUNT(*) FROM finan_lancamento WHERE tipoId = ?',
-      [id],
-    );
 
-    // debugPrint('Resultado  USO: $resultado');
+    final resultado = await db.query('finan_lancamento', columns: ['COUNT(*)'], where: 'tipoId = ?', whereArgs: [id]);
 
     if (resultado.isNotEmpty) {
       final count = Sqflite.firstIntValue(resultado);
@@ -61,14 +50,9 @@ class FinanTipoDao {
   Future<bool> verificarPadrao(int? id) async {
     final db = await BancoDeDados.banco;
 
-    final resultado = await db.query(
-      'finan_tipo',
-      where: 'id IN (?, ?) OR descricao IN (?, ?)',
-      whereArgs: [1, 2, 'Geral', 'Pessoal'],
-    );
+    final resultado = await db.query(_tableName, where: 'id IN (?, ?) OR descricao IN (?, ?)', whereArgs: [1, 'Geral']);
 
     bool padrao = resultado.any((row) => row['id'] == id);
-    // debugPrint('Resultado PADRAO: $padrao');
 
     return padrao;
   }

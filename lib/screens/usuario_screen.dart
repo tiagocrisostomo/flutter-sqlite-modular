@@ -46,6 +46,7 @@ class _UsuarioScreenState extends State<UsuarioScreen> {
           itemBuilder: (_, index) {
             final usuario = store.usuarios[index];
             return ListTile(
+              dense: true,
               leading: CircleAvatar(child: usuario.id != null ? Text(usuario.id.toString()) : Icon(Icons.person)),
               title: Text(usuario.nome),
               trailing: SizedBox(
@@ -53,12 +54,15 @@ class _UsuarioScreenState extends State<UsuarioScreen> {
                 child: Row(
                   children: [
                     IconButton(
-                      icon: const Icon(Icons.edit, color: Colors.blue),
+                      icon: const Icon(Icons.edit, color: Colors.blue, size: 18),
                       onPressed: () {
                         Navigator.push(context, MaterialPageRoute(builder: (context) => FormularioUsuario(usuario: usuario)));
                       },
                     ),
-                    IconButton(icon: Icon(Icons.delete_forever_outlined, color: Colors.red), onPressed: () => _confirmarExclusaoUsuario(context, usuario.id!)),
+                    IconButton(
+                      icon: Icon(Icons.delete_forever_outlined, color: Colors.red, size: 18),
+                      onPressed: () => _confirmarExclusaoUsuario(context, usuario.id!),
+                    ),
                   ],
                 ),
               ),
@@ -75,7 +79,7 @@ class _UsuarioScreenState extends State<UsuarioScreen> {
         title: Text('Usuários'),
         actions: [
           IconButton(
-            icon: Icon(Icons.add, color: Colors.green, applyTextScaling: true),
+            icon: Icon(Icons.add, color: Colors.green, applyTextScaling: true, size: 35),
             onPressed: () {
               Navigator.push(context, MaterialPageRoute(builder: (context) => FormularioUsuario()));
             },

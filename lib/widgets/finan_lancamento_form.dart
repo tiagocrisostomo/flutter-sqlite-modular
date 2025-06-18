@@ -32,10 +32,7 @@ class _FinanLancamentoFormState extends State<FinanLancamentoForm> {
     super.initState();
 
     final tipoStore = Provider.of<FinanTipoStore>(context, listen: false);
-    final categoriaStore = Provider.of<FinanCategoriaStore>(
-      context,
-      listen: false,
-    );
+    final categoriaStore = Provider.of<FinanCategoriaStore>(context, listen: false);
     final usuarioStore = Provider.of<UsuarioStore>(context, listen: false);
 
     Future.microtask(() {
@@ -45,12 +42,8 @@ class _FinanLancamentoFormState extends State<FinanLancamentoForm> {
     });
 
     final lancamento = widget.lancamento;
-    _descricaoController = TextEditingController(
-      text: lancamento?.descricao ?? '',
-    );
-    _valorController = TextEditingController(
-      text: lancamento?.valor.toString() ?? '',
-    );
+    _descricaoController = TextEditingController(text: lancamento?.descricao ?? '');
+    _valorController = TextEditingController(text: lancamento?.valor.toString() ?? '');
     _dataSelecionada = lancamento?.data ?? DateTime.now();
     _tipoId = lancamento?.tipoId;
     _categoriaId = lancamento?.categoriaId;
@@ -65,12 +58,7 @@ class _FinanLancamentoFormState extends State<FinanLancamentoForm> {
   }
 
   Future<void> _selecionarData() async {
-    final data = await showDatePicker(
-      context: context,
-      initialDate: _dataSelecionada,
-      firstDate: DateTime(2000),
-      lastDate: DateTime(2100),
-    );
+    final data = await showDatePicker(context: context, initialDate: _dataSelecionada, firstDate: DateTime(2000), lastDate: DateTime(2100));
     if (data != null) {
       setState(() {
         _dataSelecionada = data;
@@ -86,72 +74,65 @@ class _FinanLancamentoFormState extends State<FinanLancamentoForm> {
     final usuarioStore = Provider.of<UsuarioStore>(context);
 
     return Scaffold(
-      appBar: AppBar(
-        title: Text(
-          widget.lancamento == null ? 'Novo Lançamento' : 'Editar Lançamento',
-        ),
-      ),
+      appBar: AppBar(title: Text(widget.lancamento == null ? 'Novo Lançamento' : 'Editar Lançamento')),
       body: Padding(
-        padding: const EdgeInsets.all(16.0),
+        padding: const EdgeInsets.only(left: 32, right: 32, top: 8),
         child: Form(
           key: _formKey,
           child: ListView(
+            // mainAxisSize: MainAxisSize.min,
             children: [
               TextFormField(
                 controller: _descricaoController,
-                decoration: const InputDecoration(labelText: 'Descrição'),
-                validator:
-                    (value) =>
-                        value == null || value.isEmpty
-                            ? 'Informe a descrição'
-                            : null,
+                decoration: InputDecoration(
+                  labelText: 'Descrição',
+                  border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
+                  prefixIcon: const Icon(Icons.abc),
+                ),
+                validator: (value) => value == null || value.isEmpty ? 'Informe a descrição' : null,
               ),
+              const SizedBox(height: 8),
               TextFormField(
                 controller: _valorController,
                 keyboardType: TextInputType.number,
-                decoration: const InputDecoration(labelText: 'Valor (R\$)'),
-                validator:
-                    (value) =>
-                        value == null || value.isEmpty
-                            ? 'Informe o valor'
-                            : null,
+                decoration: InputDecoration(
+                  labelText: 'Valor (R\$)',
+                  border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
+                  prefixIcon: const Icon(Icons.monetization_on),
+                ),
+                validator: (value) => value == null || value.isEmpty ? 'Informe o valor' : null,
               ),
-              const SizedBox(height: 16),
-              Text(
-                'Data: ${DateFormat('dd/MM/yyyy').format(_dataSelecionada)}',
-              ),
+              const SizedBox(height: 8),
+              Text('Data: ${DateFormat('dd/MM/yyyy').format(_dataSelecionada)}', style: TextStyle(fontSize: 22)),
+              const SizedBox(height: 8),
               ElevatedButton(
                 onPressed: _selecionarData,
+                style: ButtonStyle(shape: WidgetStatePropertyAll(RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)))),
                 child: const Text('Selecionar Data'),
               ),
-              const SizedBox(height: 16),
+              const SizedBox(height: 8),
               DropdownButtonFormField<int>(
                 value: _tipoId,
                 items:
                     tipoStore.finanTipos.map((tipo) {
-                      return DropdownMenuItem(
-                        value: tipo.id,
-                        child: Text(tipo.descricao!),
-                      );
+                      return DropdownMenuItem(value: tipo.id, child: Text(tipo.descricao!));
                     }).toList(),
                 onChanged: (val) => setState(() => _tipoId = val),
-                decoration: const InputDecoration(labelText: 'Tipo'),
+                decoration: InputDecoration(labelText: 'Tipo', border: OutlineInputBorder(borderRadius: BorderRadius.circular(10))),
                 validator: (value) => value == null ? 'Selecione o tipo' : null,
               ),
+              const SizedBox(height: 8),
               DropdownButtonFormField<int>(
                 value: _categoriaId,
                 items:
                     categoriaStore.finanCategorias.map((cat) {
-                      return DropdownMenuItem(
-                        value: cat.id,
-                        child: Text(cat.descricao!),
-                      );
+                      return DropdownMenuItem(value: cat.id, child: Text(cat.descricao!));
                     }).toList(),
                 onChanged: (val) => setState(() => _categoriaId = val),
-                decoration: const InputDecoration(labelText: 'Categoria'),
-                validator:
-                    (value) => value == null ? 'Selecione a categoria' : null,
+                decoration: InputDecoration(labelText: 'Categoria', border: OutlineInputBorder(borderRadius: BorderRadius.circular(10))),
+                validator: (value) => value == null ? 'Selecione a categoria' : null,
               ),
+              const SizedBox(height: 8),
               DropdownButtonFormField<int>(
                 value: _usuarioId,
                 items:
@@ -159,11 +140,10 @@ class _FinanLancamentoFormState extends State<FinanLancamentoForm> {
                       return DropdownMenuItem(value: u.id, child: Text(u.nome));
                     }).toList(),
                 onChanged: (val) => setState(() => _usuarioId = val),
-                decoration: const InputDecoration(labelText: 'Titular'),
-                validator:
-                    (value) => value == null ? 'Selecione o dono da despesa/receita' : null,
+                decoration: InputDecoration(labelText: 'Titular', border: OutlineInputBorder(borderRadius: BorderRadius.circular(10))),
+                validator: (value) => value == null ? 'Selecione o dono da despesa/receita' : null,
               ),
-              const SizedBox(height: 24),
+              const SizedBox(height: 16),
               ElevatedButton(
                 onPressed: () async {
                   if (_formKey.currentState!.validate()) {
@@ -176,13 +156,12 @@ class _FinanLancamentoFormState extends State<FinanLancamentoForm> {
                       categoriaId: _categoriaId!,
                       usuarioId: _usuarioId!,
                     );
-        
-                    await lancamentoStore.adicionarOuEditarLancamento(
-                      lancamento,
-                    );
+
+                    await lancamentoStore.adicionarOuEditarLancamento(lancamento);
                     if (context.mounted) Navigator.pop(context);
                   }
                 },
+                style: ButtonStyle(shape: WidgetStatePropertyAll(RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)))),
                 child: const Text('Salvar'),
               ),
             ],

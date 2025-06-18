@@ -46,24 +46,25 @@ class _FinanCategoriaScreenState extends State<FinanCategoriaScreen> {
           itemBuilder: (_, index) {
             final cat = store.finanCategorias[index];
             return ListTile(
+              dense: true,
               leading: CircleAvatar(
                 backgroundColor: cat.cor != null ? Color(int.parse(cat.cor!.replaceAll("#", "0xFF"))) : Colors.grey,
                 child: cat.id != null ? Text(cat.id.toString()) : Icon(Icons.playlist_add_check_circle_sharp),
               ),
-              title: Text(cat.descricao!),
-              subtitle: Text(cat.cor ?? 'Cor não definida'),
+              title: Text(cat.descricao ?? ''),
+              subtitle: Text(cat.cor ?? ''),
               trailing: SizedBox(
-                width: 96,
+                width: MediaQuery.of(context).size.width * 0.25,
                 child: Row(
                   children: [
                     IconButton(
-                      icon: const Icon(Icons.edit, color: Colors.blue),
+                      icon: const Icon(Icons.edit, color: Colors.blue, size: 18),
                       onPressed: () {
                         Navigator.push(context, MaterialPageRoute(builder: (context) => FormularioFinanCategoria(categoria: cat)));
                       },
                     ),
                     IconButton(
-                      icon: Icon(Icons.delete_forever_outlined, color: Colors.red),
+                      icon: Icon(Icons.delete_forever_outlined, color: Colors.red, size: 18),
                       onPressed: () {
                         _confirmarExclusaoCategoria(context, cat.id!);
                       },
@@ -76,14 +77,14 @@ class _FinanCategoriaScreenState extends State<FinanCategoriaScreen> {
         );
         break;
       default:
-        corpo = const Center(child: Text('DEU ERRO E TA SEM TRATAMNTO AQUI NESSA TELA.'));
+        corpo = const Center(child: Text('DEU ERRO E TA SEM TRATAMENTO AQUI NESSA TELA.'));
     }
     return Scaffold(
       appBar: AppBar(
         title: Text('Categoria de Finanças'),
         actions: [
           IconButton(
-            icon: Icon(Icons.add, color: Colors.green, applyTextScaling: true),
+            icon: Icon(Icons.add, color: Colors.green, applyTextScaling: true, size: 35),
             onPressed: () {
               Navigator.push(context, MaterialPageRoute(builder: (context) => FormularioFinanCategoria()));
             },

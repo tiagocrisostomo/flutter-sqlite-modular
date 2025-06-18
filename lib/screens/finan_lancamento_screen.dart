@@ -16,10 +16,7 @@ class _FinanLancamentoScreenState extends State<FinanLancamentoScreen> {
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      Provider.of<FinanLancamentoStore>(
-        context,
-        listen: false,
-      ).carregarLancamentos();
+      Provider.of<FinanLancamentoStore>(context, listen: false).carregarLancamentos();
     });
   }
 
@@ -30,12 +27,7 @@ class _FinanLancamentoScreenState extends State<FinanLancamentoScreen> {
     // Mostra erro caso ocorra
     if (store.estado == EstadoLancamento.erro && store.mensagemErro != null) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(store.mensagemErro!),
-            backgroundColor: Colors.red,
-          ),
-        );
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(store.mensagemErro!), backgroundColor: Colors.red));
         store.limparErro();
       });
     }
@@ -49,7 +41,7 @@ class _FinanLancamentoScreenState extends State<FinanLancamentoScreen> {
       case EstadoLancamento.carregado:
         corpo = ListView.separated(
           padding: EdgeInsets.all(8),
-          separatorBuilder: (context, index) => Divider(color: Colors.blueGrey,),  
+          separatorBuilder: (context, index) => Divider(color: Colors.blueGrey),
           itemCount: store.lancamentos.length,
           itemBuilder: (_, index) {
             final lanc = store.lancamentos[index];
@@ -57,25 +49,18 @@ class _FinanLancamentoScreenState extends State<FinanLancamentoScreen> {
               isThreeLine: false,
               dense: true,
               title: Text(lanc.descricao.toString()),
-              subtitle: Text(
-                'R\$ ${lanc.valor.toStringAsFixed(2)} - ${DateFormat('dd/MM/yyyy').format(lanc.data as DateTime)}',
-              ),
+              subtitle: Text('R\$ ${lanc.valor.toStringAsFixed(2)} - ${DateFormat('dd/MM/yyyy').format(lanc.data as DateTime)}'),
               trailing: Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   IconButton(
                     icon: const Icon(Icons.edit, color: Colors.blue, size: 16),
                     onPressed: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (_) => FinanLancamentoForm(lancamento: lanc),
-                        ),
-                      );
+                      Navigator.push(context, MaterialPageRoute(builder: (_) => FinanLancamentoForm(lancamento: lanc)));
                     },
                   ),
                   IconButton(
-                    icon: const Icon(Icons.delete_forever_outlined, color: Colors.red, size: 16,),
+                    icon: const Icon(Icons.delete_forever_outlined, color: Colors.red, size: 16),
                     onPressed: () {
                       _confirmarExclusao(context, lanc.id!);
                     },
@@ -95,12 +80,9 @@ class _FinanLancamentoScreenState extends State<FinanLancamentoScreen> {
         title: const Text('Lançamentos Financeiros'),
         actions: [
           IconButton(
-            icon: const Icon(Icons.add, color: Colors.green),
+            icon: const Icon(Icons.add, color: Colors.green, applyTextScaling: true, size: 35),
             onPressed: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(builder: (_) => const FinanLancamentoForm()),
-              );
+              Navigator.push(context, MaterialPageRoute(builder: (_) => const FinanLancamentoForm()));
             },
           ),
         ],
@@ -118,10 +100,7 @@ class _FinanLancamentoScreenState extends State<FinanLancamentoScreen> {
             title: const Text('Confirmar exclusão'),
             content: const Text('Deseja realmente excluir este lançamento?'),
             actions: [
-              TextButton(
-                onPressed: () => Navigator.pop(context),
-                child: const Text('Cancelar'),
-              ),
+              TextButton(onPressed: () => Navigator.pop(context), child: const Text('Cancelar')),
               TextButton(
                 onPressed: () async {
                   await store.removerLancamento(id);
@@ -129,11 +108,7 @@ class _FinanLancamentoScreenState extends State<FinanLancamentoScreen> {
                   Navigator.pop(context);
                   if (store.estado != EstadoLancamento.erro) {
                     // ignore: use_build_context_synchronously
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(
-                        content: Text('Lançamento excluído com sucesso!'),
-                      ),
-                    );
+                    ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Lançamento excluído com sucesso!')));
                   }
                 },
                 child: const Text('Excluir'),

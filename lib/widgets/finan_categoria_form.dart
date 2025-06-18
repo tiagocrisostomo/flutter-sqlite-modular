@@ -52,7 +52,7 @@ class _FormularioFinanCategoriaState extends State<FormularioFinanCategoria> {
     final store = Provider.of<FinanCategoriaStore>(context, listen: false);
 
     return Scaffold(
-      appBar: AppBar(title: Text('Cadastrar nova Categoria', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold))),
+      appBar: AppBar(title: Text('Cadastrar/Alterar Categoria(s)', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold))),
       body: Padding(
         padding: const EdgeInsets.only(left: 32, right: 32, top: 8),
         child: Form(
@@ -84,7 +84,9 @@ class _FormularioFinanCategoriaState extends State<FormularioFinanCategoria> {
                   // Adicione a lógica para salvar a categoria aqui
                   if (_formKey.currentState!.validate()) {
                     // Adicione a lógica para salvar o tipo aqui
-                    await store.adicionarCategoria(FinanCategoria(descricao: _descricaoController.text.trim(), cor: _corSelecionada.toString()));
+                    await store.adicionarCategoria(
+                      FinanCategoria(id: widget.categoria?.id, descricao: _descricaoController.text.trim(), cor: _corSelecionada.toString()),
+                    );
 
                     // ignore: use_build_context_synchronously
                     Navigator.pop(context); // fecha o BottomSheet

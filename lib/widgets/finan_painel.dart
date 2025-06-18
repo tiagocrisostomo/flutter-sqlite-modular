@@ -10,15 +10,10 @@ class PainelFinanceiro extends StatefulWidget {
   State<PainelFinanceiro> createState() => _PainelFinanceiroState();
 }
 
-class _PainelFinanceiroState extends State<PainelFinanceiro>
-    with SingleTickerProviderStateMixin {
+class _PainelFinanceiroState extends State<PainelFinanceiro> with SingleTickerProviderStateMixin {
   late TabController _tabController;
 
-  final List<Tab> _tabs = const [
-    Tab(text: 'Por Tipo'),
-    Tab(text: 'Por Categoria'),
-    Tab(text: 'Por Titular'),
-  ];
+  final List<Tab> _tabs = const [Tab(text: 'Por Tipo'), Tab(text: 'Por Categoria'), Tab(text: 'Por Titular')];
 
   @override
   void initState() {
@@ -26,20 +21,11 @@ class _PainelFinanceiroState extends State<PainelFinanceiro>
     _tabController = TabController(length: _tabs.length, vsync: this);
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      Provider.of<FinanLancamentoStore>(
-        context,
-        listen: false,
-      ).carregarLancamentos();
+      Provider.of<FinanLancamentoStore>(context, listen: false).carregarLancamentos();
 
-      Provider.of<FinanLancamentoStore>(
-        context,
-        listen: false,
-      ).totaisPorCategoriaDescricao();
-      
-      Provider.of<FinanLancamentoStore>(
-        context,
-        listen: false,
-      ).totaisPorTipoDescricao();
+      Provider.of<FinanLancamentoStore>(context, listen: false).totaisPorCategoriaDescricao();
+
+      Provider.of<FinanLancamentoStore>(context, listen: false).totaisPorTipoDescricao();
 
       Provider.of<FinanLancamentoStore>(context, listen: false);
     });
@@ -61,10 +47,7 @@ class _PainelFinanceiroState extends State<PainelFinanceiro>
             _buildCards('A Pagar', store.totalApagar),
             _buildCards('Saldo', store.saldoTotal),
             Container(
-              decoration: BoxDecoration(
-                color: Colors.grey[100],
-                borderRadius: BorderRadius.circular(12),
-              ),
+              decoration: BoxDecoration(color: Colors.grey[100], borderRadius: BorderRadius.circular(12)),
               child: Padding(
                 padding: const EdgeInsets.all(8.0),
                 child: TabBar(
@@ -80,11 +63,7 @@ class _PainelFinanceiroState extends State<PainelFinanceiro>
               height: 300,
               child: TabBarView(
                 controller: _tabController,
-                children: [
-                  _buildGraficoPizzaPorTipo(store),
-                  _buildGraficoBarraPorCategoria(store),
-                  _buildGraficoPizzaPorTitular(store),
-                ],
+                children: [_buildGraficoPizzaPorTipo(store), _buildGraficoBarraPorCategoria(store), _buildGraficoPizzaPorTitular(store)],
               ),
             ),
           ],
@@ -118,27 +97,11 @@ class _PainelFinanceiroState extends State<PainelFinanceiro>
                       : Colors.orange,
             ),
             const SizedBox(width: 12),
-            Text(
-              titulo,
-              style: TextStyle(fontSize: 16, color: Colors.grey[700]),
-            ),
+            Text(titulo, style: TextStyle(fontSize: 16, color: Colors.grey[700])),
             const Spacer(),
             (valor > 0)
-                ? Text(
-                  'R\$ ${valor.toStringAsFixed(2)}',
-                  style: const TextStyle(
-                    fontSize: 20,
-                    fontWeight: FontWeight.bold,
-                  ),
-                )
-                : Text(
-                  'R\$ ${valor.toStringAsFixed(2)}',
-                  style: const TextStyle(
-                    fontSize: 20,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.red,
-                  ),
-                ),
+                ? Text('R\$ ${valor.toStringAsFixed(2)}', style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold))
+                : Text('R\$ ${valor.toStringAsFixed(2)}', style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: Colors.red)),
           ],
         ),
       ),
@@ -165,11 +128,7 @@ class _PainelFinanceiroState extends State<PainelFinanceiro>
                   title: '${entry.key} \n ${percent.toStringAsFixed(1)}%',
                   color: _corAleatoria(entry.key),
                   radius: 60,
-                  titleStyle: const TextStyle(
-                    fontSize: 14,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.white,
-                  ),
+                  titleStyle: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: Colors.white),
                 );
               }).toList(),
           sectionsSpace: 4,
@@ -196,16 +155,13 @@ class _PainelFinanceiroState extends State<PainelFinanceiro>
           alignment: BarChartAlignment.spaceAround,
           maxY: max * 1.7,
           titlesData: FlTitlesData(
-            bottomTitles: AxisTitles(               
+            bottomTitles: AxisTitles(
               sideTitles: SideTitles(
                 showTitles: true,
                 getTitlesWidget: (value, meta) {
                   final index = value.toInt();
                   if (index >= 0 && index < keys.length) {
-                    return SideTitleWidget(
-                      axisSide: meta.axisSide,
-                      child: Text(keys[index], style: TextStyle(fontSize: 12)),
-                    );
+                    return SideTitleWidget(axisSide: meta.axisSide, child: Text(keys[index], style: TextStyle(fontSize: 12)));
                   }
                   return const SizedBox.shrink();
                 },
@@ -219,15 +175,7 @@ class _PainelFinanceiroState extends State<PainelFinanceiro>
           barGroups: List.generate(keys.length, (i) {
             return BarChartGroupData(
               x: i,
-              barRods: [
-                BarChartRodData(
-                  fromY: 0,
-                  toY: data[keys[i]]!,
-                  color: _corAleatoria(keys[i]),
-                  width: 8,
-                  borderRadius: BorderRadius.circular(4),
-                ),
-              ],
+              barRods: [BarChartRodData(fromY: 0, toY: data[keys[i]]!, color: _corAleatoria(keys[i]), width: 8, borderRadius: BorderRadius.circular(4))],
             );
           }),
         ),
@@ -235,7 +183,7 @@ class _PainelFinanceiroState extends State<PainelFinanceiro>
     );
   }
 
-  Widget _buildGraficoPizzaPorTitular(FinanLancamentoStore store) {    
+  Widget _buildGraficoPizzaPorTitular(FinanLancamentoStore store) {
     final data = store.totaisPorUsuarioNome();
     final total = data.values.fold(0.0, (a, b) => a + b);
 
@@ -243,23 +191,19 @@ class _PainelFinanceiroState extends State<PainelFinanceiro>
       return const Center(child: Text('Nenhum dado disponível'));
     }
 
-    return AnimatedSwitcher(            
+    return AnimatedSwitcher(
       duration: const Duration(milliseconds: 300),
-      child: PieChart(                
+      child: PieChart(
         PieChartData(
           sections:
               data.entries.map((entry) {
                 final percent = (entry.value / total) * 100;
-                return PieChartSectionData(                                    
+                return PieChartSectionData(
                   value: entry.value,
                   title: '${entry.key} \n ${percent.toStringAsFixed(2)}%',
                   color: _corAleatoria(entry.key),
                   radius: 60,
-                  titleStyle: const TextStyle(
-                    fontSize: 14,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.white,
-                  ),
+                  titleStyle: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: Colors.white),
                 );
               }).toList(),
           sectionsSpace: 4,
@@ -267,13 +211,10 @@ class _PainelFinanceiroState extends State<PainelFinanceiro>
         ),
       ),
     );
-  
   }
 
   Color _corAleatoria(String chave) {
     final hash = chave.hashCode;
     return Color((0xFF000000 + (hash & 0x00FFFFFF))).withValues(alpha: 1.0);
   }
-  
-  
 }

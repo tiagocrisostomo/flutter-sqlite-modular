@@ -3,6 +3,7 @@ import 'package:db_sqlite/data/model/finan_tipo.dart';
 
 class FinanTipoService {
   final FinanTipoDao _dao = FinanTipoDao();
+
   Future<void> salvarOuAtualizarTipo(FinanTipo finanTipo) async {
     if (finanTipo.id == null) {
       await _dao.salvar(finanTipo);

@@ -18,10 +18,7 @@ class ConfigScreen extends StatelessWidget {
             subtitle: const Text('Gerencie os usuários do sistema'),
             trailing: const Icon(Icons.arrow_forward_ios),
             onTap: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(builder: (_) => const UsuarioScreen()),
-              );
+              Navigator.push(context, MaterialPageRoute(builder: (_) => const UsuarioScreen()));
             },
           ),
           const Divider(),
@@ -32,10 +29,7 @@ class ConfigScreen extends StatelessWidget {
             subtitle: const Text('Cadastrar e editar categorias'),
             trailing: const Icon(Icons.arrow_forward_ios),
             onTap: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(builder: (_) => const FinanCategoriaScreen()),
-              );
+              Navigator.push(context, MaterialPageRoute(builder: (_) => const FinanCategoriaScreen()));
             },
           ),
           const Divider(),
@@ -46,10 +40,7 @@ class ConfigScreen extends StatelessWidget {
             subtitle: const Text('Cadastrar e editar tipos'),
             trailing: const Icon(Icons.arrow_forward_ios),
             onTap: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(builder: (_) => const FinanTipoScreen()),
-              );
+              Navigator.push(context, MaterialPageRoute(builder: (_) => const FinanTipoScreen()));
             },
           ),
         ],
