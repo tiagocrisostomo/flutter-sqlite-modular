@@ -26,13 +26,13 @@ class FinanTipoDao {
     return await db.delete(_tableName, where: 'id = ?', whereArgs: [id]);
   }
 
-  Future<FinanTipo?> buscarPorId(int id) async {
+  Future<List<FinanTipo>> buscarPorId(int id) async {
     final db = await BancoDeDados.banco;
     final resultado = await db.query(_tableName, where: 'id = ?', whereArgs: [id]);
     if (resultado.isNotEmpty) {
-      return FinanTipo.fromMap(resultado.first);
+      return resultado.map((e) => FinanTipo.fromMap(e)).toList();
     }
-    return null;
+    return [];
   }
 
   Future<bool> verificarUso(int id) async {

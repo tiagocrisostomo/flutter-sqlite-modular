@@ -23,10 +23,86 @@ class _FinanTipoScreenState extends State<FinanTipoScreen> {
   @override
   Widget build(BuildContext context) {
     final store = Provider.of<FinanTipoStore>(context);
+
     // Exibe snackbar se houver erro
     if (store.estado == EstadoFinanTipo.erro && store.mensagemErro != null) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
-        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(store.mensagemErro!), backgroundColor: Colors.red));
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(store.mensagemErro!),
+            backgroundColor: Colors.red,
+            showCloseIcon: true,
+            // width: Material, // Width of the SnackBar.
+            padding: const EdgeInsets.symmetric(
+              horizontal: 8.0, // Inner padding for SnackBar content.
+            ),
+            behavior: SnackBarBehavior.floating,
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(5.0)),
+          ),
+        );
+        store.limparErro();
+      });
+    }
+
+    if (store.estado == EstadoFinanTipo.deletado) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Deletado'),
+            backgroundColor: Colors.green,
+            showCloseIcon: true,
+            // width: Material, // Width of the SnackBar.
+            padding: const EdgeInsets.symmetric(
+              horizontal: 8.0, // Inner padding for SnackBar content.
+            ),
+            behavior: SnackBarBehavior.floating,
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(5.0)),
+          ),
+        );
+        store.limparErro();
+      });
+    }
+
+    if (store.estado == EstadoFinanTipo.incluido) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Cadastrado.'),
+            backgroundColor: Colors.green,
+            showCloseIcon: true,
+            // width: Material, // Width of the SnackBar.
+            padding: const EdgeInsets.symmetric(
+              horizontal: 8.0, // Inner padding for SnackBar content.
+            ),
+            behavior: SnackBarBehavior.floating,
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(5.0)),
+          ),
+        );
+        store.limparErro();
+      });
+    }
+
+    if (store.estado == EstadoFinanTipo.alterado) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Alterado.'),
+            backgroundColor: Colors.green,
+            // action: SnackBarAction(
+            //   label: 'Action',
+            //   onPressed: () {
+            //     // Code to execute.
+            //   },
+            // ),
+            showCloseIcon: true,
+            // width: Material, // Width of the SnackBar.
+            padding: const EdgeInsets.symmetric(
+              horizontal: 8.0, // Inner padding for SnackBar content.
+            ),
+            behavior: SnackBarBehavior.floating,
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(5.0)),
+          ),
+        );
         store.limparErro();
       });
     }
@@ -35,10 +111,16 @@ class _FinanTipoScreenState extends State<FinanTipoScreen> {
 
     switch (store.estado) {
       case EstadoFinanTipo.carregando:
-        corpo = Center(child: CircularProgressIndicator());
+        corpo = Center(child: CircularProgressIndicator(semanticsLabel: 'Carregando...'));
         break;
-      case EstadoFinanTipo.erro:
-        corpo = Center(child: Text(store.mensagemErro ?? 'Erro inesperado'));
+      case EstadoFinanTipo.deletando:
+        corpo = Center(child: CircularProgressIndicator(semanticsLabel: 'Deletando...'));
+        break;
+      case EstadoFinanTipo.incluindo:
+        corpo = Center(child: CircularProgressIndicator(semanticsLabel: 'Incluindo...'));
+        break;
+      case EstadoFinanTipo.alterando:
+        corpo = Center(child: CircularProgressIndicator(semanticsLabel: 'Alterando...'));
         break;
       case EstadoFinanTipo.carregado:
         corpo = ListView.builder(
@@ -57,13 +139,7 @@ class _FinanTipoScreenState extends State<FinanTipoScreen> {
                 width: MediaQuery.of(context).size.width * 0.25,
                 child: Row(
                   children: [
-                    IconButton(
-                      icon: const Icon(Icons.edit, color: Colors.blue, size: 18),
-                      onPressed: () {
-                        context.pushRtL(FormularioFinanTipo(tipo: tipo));
-                        // Navigator.push(context, MaterialPageRoute(builder: (context) => FormularioFinanTipo(tipo: tipo)));
-                      },
-                    ),
+                    IconButton(icon: const Icon(Icons.edit, color: Colors.blue, size: 18), onPressed: () => context.pushRtL(FormularioFinanTipo(tipo: tipo))),
                     IconButton(
                       icon: Icon(Icons.delete_forever_outlined, color: Colors.red, size: 18),
                       onPressed: () => _confirmarExclusaoTipo(context, tipo.id!),
@@ -76,19 +152,13 @@ class _FinanTipoScreenState extends State<FinanTipoScreen> {
         );
         break;
       default:
-        corpo = const Center(child: Text('DEU ERRO E TA SEM TRATAMENTO AQUI NESSA TELA.'));
+        corpo = Center(child: CircularProgressIndicator(semanticsLabel: 'Padrão...'));
     }
     return Scaffold(
       appBar: AppBar(
         title: Text('Tipos de Finanças'),
         actions: [
-          IconButton(
-            icon: Icon(Icons.add, color: Colors.green, applyTextScaling: false, size: 35),
-            onPressed: () {
-              context.pushRtL(FormularioFinanTipo());
-              // Navigator.push(context, MaterialPageRoute(builder: (context) => FormularioFinanTipo()));
-            },
-          ),
+          IconButton(icon: Icon(Icons.add, color: Colors.green, applyTextScaling: false, size: 35), onPressed: () => context.pushRtL(FormularioFinanTipo())),
         ],
       ),
       body: corpo,
@@ -109,8 +179,9 @@ class _FinanTipoScreenState extends State<FinanTipoScreen> {
               TextButton(
                 onPressed: () async {
                   await store.removerTipo(id);
-                  // ignore: use_build_context_synchronously
-                  Navigator.of(context).pop();
+                  WidgetsBinding.instance.addPostFrameCallback((_) {
+                    Navigator.of(context).pop();
+                  });
                 },
                 child: Text('Excluir'),
               ),

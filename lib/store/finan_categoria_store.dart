@@ -2,7 +2,7 @@ import 'package:db_sqlite/data/model/finan_categoria.dart';
 import 'package:db_sqlite/data/services/finan_categoria_service.dart';
 import 'package:flutter/material.dart';
 
-enum EstadoFinanCategoria { inicial, carregando, carregado, erro }
+enum EstadoFinanCategoria { inicial, carregando, carregado, erro, deletando, deletado, incluindo, incluido, alterando, alterado }
 
 class FinanCategoriaStore extends ChangeNotifier {
   final FinanCategoriaService _service = FinanCategoriaService();
@@ -35,11 +35,22 @@ class FinanCategoriaStore extends ChangeNotifier {
   }
 
   Future<void> adicionarCategoria(FinanCategoria finanCategoria) async {
+    if (finanCategoria.id == null) {
+      _estado = EstadoFinanCategoria.incluindo;
+    } else {
+      _estado = EstadoFinanCategoria.alterando;
+    }
+    notifyListeners();
     try {
       await _service.salvarOuAtualizarCategoria(finanCategoria);
+      if (finanCategoria.id == null) {
+        _estado = EstadoFinanCategoria.incluido;
+      } else {
+        _estado = EstadoFinanCategoria.alterado;
+      }
 
-      // Atualiza a lista de categorias após adicionar
-      await carregarCategorias();
+      notifyListeners();
+      // await carregarCategorias();
     } catch (e) {
       _estado = EstadoFinanCategoria.erro;
       _mensagemErro = "Erro ao adicionar categoria: $e";
@@ -48,9 +59,13 @@ class FinanCategoriaStore extends ChangeNotifier {
   }
 
   Future<void> removerCategoria(int id) async {
+    _estado = EstadoFinanCategoria.deletando;
+    notifyListeners();
     try {
       await _service.deletarCategoria(id);
-      await carregarCategorias();
+      _estado = EstadoFinanCategoria.deletado;
+      notifyListeners();
+      // await carregarCategorias();
     } catch (e) {
       _estado = EstadoFinanCategoria.erro;
       _mensagemErro = "Erro ao remover categoria: $e";

@@ -12,7 +12,7 @@ class FinanTipoService {
     }
   }
 
-  Future<FinanTipo?> buscarTipoPorId(int id) async {
+  Future<List<FinanTipo>> buscarTipoPorId(int id) async {
     return await _dao.buscarPorId(id);
   }
 
@@ -23,13 +23,13 @@ class FinanTipoService {
   Future<void> deletarTipo(int id) async {
     // Verifica se a categoria está em usome/ou é padrão
     final emUso = await _dao.verificarUso(id);
-    final catPadrao = await _dao.verificarPadrao(id);
+    final tipoPadrao = await _dao.verificarPadrao(id);
 
-    if (catPadrao) {
-      throw Exception('Categoria padrão não pode ser deletada.');
+    if (tipoPadrao) {
+      throw Exception('Tipo padrão não pode ser deletado.');
     }
     if (emUso) {
-      throw Exception('Categoria em uso e não pode ser deletada.');
+      throw Exception('Tipo em uso e não pode ser deletado.');
     }
 
     await _dao.deletar(id);

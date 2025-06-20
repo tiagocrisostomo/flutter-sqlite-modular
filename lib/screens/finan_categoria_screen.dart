@@ -1,4 +1,5 @@
 import 'package:db_sqlite/store/finan_categoria_store.dart';
+import 'package:db_sqlite/utils/routes_context_transations.dart';
 import 'package:db_sqlite/widgets/finan_categoria_form.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -26,7 +27,82 @@ class _FinanCategoriaScreenState extends State<FinanCategoriaScreen> {
     // Exibe snackbar se houver erro
     if (store.estado == EstadoFinanCategoria.erro && store.mensagemErro != null) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
-        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(store.mensagemErro!), backgroundColor: Colors.red));
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(store.mensagemErro!),
+            backgroundColor: Colors.red,
+            showCloseIcon: true,
+            // width: Material, // Width of the SnackBar.
+            padding: const EdgeInsets.symmetric(
+              horizontal: 8.0, // Inner padding for SnackBar content.
+            ),
+            behavior: SnackBarBehavior.floating,
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(5.0)),
+          ),
+        );
+        store.limparErro();
+      });
+    }
+
+    if (store.estado == EstadoFinanCategoria.deletado) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Deletado'),
+            backgroundColor: Colors.green,
+            showCloseIcon: true,
+            // width: Material, // Width of the SnackBar.
+            padding: const EdgeInsets.symmetric(
+              horizontal: 8.0, // Inner padding for SnackBar content.
+            ),
+            behavior: SnackBarBehavior.floating,
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(5.0)),
+          ),
+        );
+        store.limparErro();
+      });
+    }
+
+    if (store.estado == EstadoFinanCategoria.incluido) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Cadastrado.'),
+            backgroundColor: Colors.green,
+            showCloseIcon: true,
+            // width: Material, // Width of the SnackBar.
+            padding: const EdgeInsets.symmetric(
+              horizontal: 8.0, // Inner padding for SnackBar content.
+            ),
+            behavior: SnackBarBehavior.floating,
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(5.0)),
+          ),
+        );
+        store.limparErro();
+      });
+    }
+
+    if (store.estado == EstadoFinanCategoria.alterado) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Alterado.'),
+            backgroundColor: Colors.green,
+            // action: SnackBarAction(
+            //   label: 'Action',
+            //   onPressed: () {
+            //     // Code to execute.
+            //   },
+            // ),
+            showCloseIcon: true,
+            // width: Material, // Width of the SnackBar.
+            padding: const EdgeInsets.symmetric(
+              horizontal: 8.0, // Inner padding for SnackBar content.
+            ),
+            behavior: SnackBarBehavior.floating,
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(5.0)),
+          ),
+        );
         store.limparErro();
       });
     }
@@ -35,10 +111,16 @@ class _FinanCategoriaScreenState extends State<FinanCategoriaScreen> {
 
     switch (store.estado) {
       case EstadoFinanCategoria.carregando:
-        corpo = const Center(child: CircularProgressIndicator());
+        corpo = Center(child: CircularProgressIndicator(semanticsLabel: 'Carregando...'));
         break;
-      case EstadoFinanCategoria.erro:
-        corpo = const Center(child: Text('Erro inesperado'));
+      case EstadoFinanCategoria.deletando:
+        corpo = Center(child: CircularProgressIndicator(semanticsLabel: 'Deletando...'));
+        break;
+      case EstadoFinanCategoria.incluindo:
+        corpo = Center(child: CircularProgressIndicator(semanticsLabel: 'Incluindo...'));
+        break;
+      case EstadoFinanCategoria.alterando:
+        corpo = Center(child: CircularProgressIndicator(semanticsLabel: 'Alterando...'));
         break;
       case EstadoFinanCategoria.carregado:
         corpo = ListView.builder(
@@ -59,15 +141,11 @@ class _FinanCategoriaScreenState extends State<FinanCategoriaScreen> {
                   children: [
                     IconButton(
                       icon: const Icon(Icons.edit, color: Colors.blue, size: 18),
-                      onPressed: () {
-                        Navigator.push(context, MaterialPageRoute(builder: (context) => FormularioFinanCategoria(categoria: cat)));
-                      },
+                      onPressed: () => context.pushRtL(FormularioFinanCategoria(categoria: cat)),
                     ),
                     IconButton(
                       icon: Icon(Icons.delete_forever_outlined, color: Colors.red, size: 18),
-                      onPressed: () {
-                        _confirmarExclusaoCategoria(context, cat.id!);
-                      },
+                      onPressed: () => _confirmarExclusaoCategoria(context, cat.id!),
                     ),
                   ],
                 ),
@@ -77,7 +155,7 @@ class _FinanCategoriaScreenState extends State<FinanCategoriaScreen> {
         );
         break;
       default:
-        corpo = const Center(child: Text('DEU ERRO E TA SEM TRATAMENTO AQUI NESSA TELA.'));
+        corpo = Center(child: CircularProgressIndicator(semanticsLabel: 'Padrão...'));
     }
     return Scaffold(
       appBar: AppBar(
@@ -85,9 +163,7 @@ class _FinanCategoriaScreenState extends State<FinanCategoriaScreen> {
         actions: [
           IconButton(
             icon: Icon(Icons.add, color: Colors.green, applyTextScaling: true, size: 35),
-            onPressed: () {
-              Navigator.push(context, MaterialPageRoute(builder: (context) => FormularioFinanCategoria()));
-            },
+            onPressed: () => context.pushRtL(FormularioFinanCategoria()),
           ),
         ],
       ),
@@ -109,9 +185,9 @@ class _FinanCategoriaScreenState extends State<FinanCategoriaScreen> {
               TextButton(
                 onPressed: () async {
                   await store.removerCategoria(id);
-
-                  // ignore: use_build_context_synchronously
-                  Navigator.of(context).pop();
+                  WidgetsBinding.instance.addPostFrameCallback((_) {
+                    Navigator.of(context).pop();
+                  });
                 },
                 child: const Text('Excluir'),
               ),
