@@ -8,10 +8,10 @@ import 'package:db_sqlite/data/services/finan_tipo_service.dart';
 import 'package:db_sqlite/data/services/usuario_service.dart';
 import 'package:flutter/material.dart';
 
-enum EstadoLancamento { inicial, carregando, carregado, erro }
+enum EstadoLancamento { inicial, carregando, carregado, erro, deletando, deletado, incluindo, incluido, alterando, alterado }
 
 class FinanLancamentoStore extends ChangeNotifier {
-  final FinanLancamentoService service = FinanLancamentoService();
+  final FinanLancamentoService _service = FinanLancamentoService();
   List<FinanTipo> _tipos = [];
   List<FinanCategoria> _categorias = [];
   List<Usuario> _usuarios = [];
@@ -36,7 +36,7 @@ class FinanLancamentoStore extends ChangeNotifier {
     notifyListeners();
 
     try {
-      _lancamentos = await service.buscarLancamentos();
+      _lancamentos = await _service.buscarLancamentos();
       _estado = EstadoLancamento.carregado;
     } catch (e) {
       _estado = EstadoLancamento.erro;
@@ -47,9 +47,21 @@ class FinanLancamentoStore extends ChangeNotifier {
   }
 
   Future<void> adicionarOuEditarLancamento(FinanLancamento lancamento) async {
+    if (lancamento.id == null) {
+      _estado = EstadoLancamento.incluindo;
+    } else {
+      _estado = EstadoLancamento.alterando;
+    }
+    notifyListeners();
     try {
-      await service.salvarOuAtualizarLancamento(lancamento);
-      await carregarLancamentos();
+      await _service.salvarOuAtualizarLancamento(lancamento);
+      if (lancamento.id == null) {
+        _estado = EstadoLancamento.incluido;
+      } else {
+        _estado = EstadoLancamento.alterado;
+      }
+      notifyListeners();
+      // await carregarLancamentos();
     } catch (e) {
       _estado = EstadoLancamento.erro;
       _mensagemErro = "Erro ao salvar lançamento: $e";
@@ -58,9 +70,13 @@ class FinanLancamentoStore extends ChangeNotifier {
   }
 
   Future<void> removerLancamento(int id) async {
+    _estado = EstadoLancamento.deletando;
+    notifyListeners();
     try {
-      await service.deletarLancamento(id);
-      await carregarLancamentos();
+      await _service.deletarLancamento(id);
+      _estado = EstadoLancamento.deletado;
+      notifyListeners();
+      // await carregarLancamentos();
     } catch (e) {
       _estado = EstadoLancamento.erro;
       _mensagemErro = "Erro ao remover lançamento: $e";

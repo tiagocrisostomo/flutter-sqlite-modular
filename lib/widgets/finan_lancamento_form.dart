@@ -147,17 +147,17 @@ class _FinanLancamentoFormState extends State<FinanLancamentoForm> {
               ElevatedButton(
                 onPressed: () async {
                   if (_formKey.currentState!.validate()) {
-                    final lancamento = FinanLancamento(
-                      id: widget.lancamento?.id,
-                      descricao: _descricaoController.text,
-                      valor: double.tryParse(_valorController.text) ?? 0,
-                      data: _dataSelecionada,
-                      tipoId: _tipoId!,
-                      categoriaId: _categoriaId!,
-                      usuarioId: _usuarioId!,
+                    await lancamentoStore.adicionarOuEditarLancamento(
+                      FinanLancamento(
+                        id: widget.lancamento?.id,
+                        descricao: _descricaoController.text,
+                        valor: double.tryParse(_valorController.text) ?? 0,
+                        data: _dataSelecionada,
+                        tipoId: _tipoId!,
+                        categoriaId: _categoriaId!,
+                        usuarioId: _usuarioId!,
+                      ),
                     );
-
-                    await lancamentoStore.adicionarOuEditarLancamento(lancamento);
                     if (context.mounted) Navigator.pop(context);
                   }
                 },

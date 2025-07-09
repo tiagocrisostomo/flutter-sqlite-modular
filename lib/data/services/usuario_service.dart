@@ -23,9 +23,9 @@ class UsuarioService {
   Future<void> deletarUsuario(int id) async {
     // Verifica se a categoria está em usome/ou é padrão
     final emUso = await _dao.verificarUso(id);
-    final catPadrao = await _dao.verificarPadrao(id);
+    final usuarioPadrao = await _dao.verificarPadrao(id);
 
-    if (catPadrao) {
+    if (usuarioPadrao) {
       throw Exception('Usuário padrão não pode ser deletado.');
     }
     if (emUso) {
