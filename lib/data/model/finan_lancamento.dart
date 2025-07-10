@@ -6,6 +6,9 @@ class FinanLancamento {
   int? tipoId; // "Geral" ou "Pessoal"
   int? categoriaId; // "A Pagar" ou "A Receber"
   int? usuarioId; // ID do usuário associado a este lançamento
+  String categoriaDescricao; // Descrição da categoria
+  String tipoDescricao; // Descrição do tipo
+  String usuarioNome; // Nome do usuário associado a este lançamento
 
   FinanLancamento({
     required this.id,
@@ -15,6 +18,9 @@ class FinanLancamento {
     required this.tipoId,
     required this.categoriaId,
     required this.usuarioId,
+    this.categoriaDescricao = '',
+    this.tipoDescricao = '',
+    this.usuarioNome = '',
   });
 
   factory FinanLancamento.fromMap(Map<String, dynamic> json) {
@@ -26,6 +32,9 @@ class FinanLancamento {
       tipoId: json['tipoId'],
       categoriaId: json['categoriaId'],
       usuarioId: json['usuarioId'],
+      categoriaDescricao: json['categoriaDescricao'],
+      tipoDescricao: json['tipoDescricao'],
+      usuarioNome: json['usuarioNome'],
     );
   }
 

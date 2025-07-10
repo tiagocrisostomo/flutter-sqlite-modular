@@ -10,6 +10,8 @@ import 'package:db_sqlite/store/finan_categoria_store.dart';
 import 'package:db_sqlite/utils/seed.dart';
 import 'package:db_sqlite/screens/login_screen.dart';
 
+import 'package:flutter_localizations/flutter_localizations.dart';
+
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
@@ -25,6 +27,9 @@ void main() async {
         ChangeNotifierProvider(create: (_) => FinanLancamentoStore()),
       ],
       child: MaterialApp(
+        localizationsDelegates: const [GlobalMaterialLocalizations.delegate, GlobalWidgetsLocalizations.delegate, GlobalCupertinoLocalizations.delegate],
+        locale: const Locale('pt', 'BR'),
+        supportedLocales: const [Locale('pt', 'BR')],
         home: LoginScreen(),
         title: 'Login',
         theme: ThemeData(useMaterial3: true, colorScheme: ColorScheme.fromSeed(seedColor: Colors.blue), primaryColor: Colors.blue),

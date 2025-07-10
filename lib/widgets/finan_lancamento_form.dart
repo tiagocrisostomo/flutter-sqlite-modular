@@ -4,6 +4,7 @@ import 'package:db_sqlite/store/finan_lancamento_store.dart';
 import 'package:db_sqlite/store/finan_tipo_store.dart';
 import 'package:db_sqlite/store/usuario_store.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import 'package:intl/intl.dart';
 
@@ -17,6 +18,9 @@ class FinanLancamentoForm extends StatefulWidget {
 }
 
 class _FinanLancamentoFormState extends State<FinanLancamentoForm> {
+  final NumberFormat _formatter = NumberFormat.currency(locale: "pt_BR", symbol: "R\$", decimalDigits: 2);
+  String _formattedValue = "";
+
   final _formKey = GlobalKey<FormState>();
 
   late TextEditingController _descricaoController;
@@ -43,7 +47,7 @@ class _FinanLancamentoFormState extends State<FinanLancamentoForm> {
 
     final lancamento = widget.lancamento;
     _descricaoController = TextEditingController(text: lancamento?.descricao ?? '');
-    _valorController = TextEditingController(text: lancamento?.valor.toString() ?? '');
+    _valorController = TextEditingController(text: lancamento != null ? _formatter.format(lancamento.valor) : '');
     _dataSelecionada = lancamento?.data ?? DateTime.now();
     _tipoId = lancamento?.tipoId;
     _categoriaId = lancamento?.categoriaId;
@@ -57,8 +61,27 @@ class _FinanLancamentoFormState extends State<FinanLancamentoForm> {
     super.dispose();
   }
 
+  void _onChanged(String value) {
+    // Remove qualquer formatação existente
+    String cleanValue = value.replaceAll(RegExp(r'[^\d]'), '');
+
+    if (cleanValue.isNotEmpty) {
+      double? numericValue = double.tryParse(cleanValue);
+      if (numericValue != null) {
+        numericValue /= 100; // Considerando centavos
+        _formattedValue = _formatter.format(numericValue);
+        _valorController.value = TextEditingValue(text: _formattedValue, selection: TextSelection.collapsed(offset: _formattedValue.length));
+        setState(() {});
+      }
+    } else {
+      _formattedValue = "";
+      _valorController.clear();
+      setState(() {});
+    }
+  }
+
   Future<void> _selecionarData() async {
-    final data = await showDatePicker(context: context, initialDate: _dataSelecionada, firstDate: DateTime(2000), lastDate: DateTime(2100));
+    final data = await showDatePicker(context: context, initialDate: _dataSelecionada, firstDate: DateTime(2010), lastDate: DateTime(2100));
     if (data != null) {
       setState(() {
         _dataSelecionada = data;
@@ -83,27 +106,32 @@ class _FinanLancamentoFormState extends State<FinanLancamentoForm> {
             // mainAxisSize: MainAxisSize.min,
             children: [
               TextFormField(
+                autofocus: true,
+                textCapitalization: TextCapitalization.words,
                 controller: _descricaoController,
                 decoration: InputDecoration(
-                  labelText: 'Descrição',
                   border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
                   prefixIcon: const Icon(Icons.abc),
+                  hintText: 'Descrição',
                 ),
                 validator: (value) => value == null || value.isEmpty ? 'Informe a descrição' : null,
+                inputFormatters: [LengthLimitingTextInputFormatter(30)],
               ),
               const SizedBox(height: 8),
               TextFormField(
                 controller: _valorController,
                 keyboardType: TextInputType.number,
                 decoration: InputDecoration(
-                  labelText: 'Valor (R\$)',
                   border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
                   prefixIcon: const Icon(Icons.monetization_on),
+                  labelText: 'Valor',
                 ),
+                onChanged: _onChanged,
+
                 validator: (value) => value == null || value.isEmpty ? 'Informe o valor' : null,
               ),
               const SizedBox(height: 8),
-              Text('Data: ${DateFormat('dd/MM/yyyy').format(_dataSelecionada)}', style: TextStyle(fontSize: 22)),
+              Text('Data: ${DateFormat('dd/MM/yyyy').format(_dataSelecionada)}', style: TextStyle(fontSize: 22), textAlign: TextAlign.center),
               const SizedBox(height: 8),
               ElevatedButton(
                 onPressed: _selecionarData,
@@ -147,11 +175,21 @@ class _FinanLancamentoFormState extends State<FinanLancamentoForm> {
               ElevatedButton(
                 onPressed: () async {
                   if (_formKey.currentState!.validate()) {
+                    // 1. Obter o texto do controlador de valor.
+                    String valorText = _valorController.text;
+
+                    // 2. Remover o prefixo "R$" e substituir a vírgula por ponto.
+                    // Isso padroniza a string para o formato aceito por double.tryParse.
+                    String cleanValorText = valorText.replaceAll('R\$', '').replaceAll('.', '').replaceAll(',', '.').trim();
+
+                    // 3. Tentar converter para double. Se falhar, usar 0.0.
+                    double valorNumerico = double.tryParse(cleanValorText) ?? 0.0;
+
                     await lancamentoStore.adicionarOuEditarLancamento(
                       FinanLancamento(
                         id: widget.lancamento?.id,
                         descricao: _descricaoController.text,
-                        valor: double.tryParse(_valorController.text) ?? 0,
+                        valor: valorNumerico,
                         data: _dataSelecionada,
                         tipoId: _tipoId!,
                         categoriaId: _categoriaId!,

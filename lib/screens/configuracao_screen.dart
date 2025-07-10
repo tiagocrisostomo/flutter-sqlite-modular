@@ -1,6 +1,7 @@
 import 'package:db_sqlite/screens/finan_categoria_screen.dart';
 import 'package:db_sqlite/screens/finan_tipo_screen.dart';
 import 'package:db_sqlite/screens/usuario_screen.dart';
+import 'package:db_sqlite/utils/routes_context_transations.dart';
 import 'package:flutter/material.dart';
 
 class ConfigScreen extends StatelessWidget {
@@ -17,9 +18,7 @@ class ConfigScreen extends StatelessWidget {
             title: const Text('Usuários'),
             subtitle: const Text('Gerencie os usuários do sistema'),
             trailing: const Icon(Icons.arrow_forward_ios),
-            onTap: () {
-              Navigator.push(context, MaterialPageRoute(builder: (_) => const UsuarioScreen()));
-            },
+            onTap: () => context.pushRtL(const UsuarioScreen()),
           ),
           const Divider(),
 
@@ -28,9 +27,7 @@ class ConfigScreen extends StatelessWidget {
             title: const Text('Categorias Financeiras'),
             subtitle: const Text('Cadastrar e editar categorias'),
             trailing: const Icon(Icons.arrow_forward_ios),
-            onTap: () {
-              Navigator.push(context, MaterialPageRoute(builder: (_) => const FinanCategoriaScreen()));
-            },
+            onTap: () => context.pushRtL(const FinanCategoriaScreen()),
           ),
           const Divider(),
 
@@ -39,9 +36,7 @@ class ConfigScreen extends StatelessWidget {
             title: const Text('Tipos Financeiros'),
             subtitle: const Text('Cadastrar e editar tipos'),
             trailing: const Icon(Icons.arrow_forward_ios),
-            onTap: () {
-              Navigator.push(context, MaterialPageRoute(builder: (_) => const FinanTipoScreen()));
-            },
+            onTap: () => context.pushRtL(const FinanTipoScreen()),
           ),
         ],
       ),

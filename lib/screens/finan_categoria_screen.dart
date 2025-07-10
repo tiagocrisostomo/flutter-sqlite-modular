@@ -38,6 +38,9 @@ class _FinanCategoriaScreenState extends State<FinanCategoriaScreen> {
             ),
             behavior: SnackBarBehavior.floating,
             shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(5.0)),
+            elevation: 10,
+            dismissDirection: DismissDirection.horizontal,
+            animation: CurvedAnimation(parent: const AlwaysStoppedAnimation(1.5), curve: Curves.easeIn),
           ),
         );
         store.limparErro();
@@ -49,6 +52,7 @@ class _FinanCategoriaScreenState extends State<FinanCategoriaScreen> {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text('Deletado'),
+
             backgroundColor: Colors.green,
             showCloseIcon: true,
             // width: Material, // Width of the SnackBar.
@@ -57,6 +61,9 @@ class _FinanCategoriaScreenState extends State<FinanCategoriaScreen> {
             ),
             behavior: SnackBarBehavior.floating,
             shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(5.0)),
+            elevation: 10,
+            dismissDirection: DismissDirection.horizontal,
+            animation: CurvedAnimation(parent: const AlwaysStoppedAnimation(1.5), curve: Curves.easeIn),
           ),
         );
         store.limparErro();
@@ -76,6 +83,9 @@ class _FinanCategoriaScreenState extends State<FinanCategoriaScreen> {
             ),
             behavior: SnackBarBehavior.floating,
             shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(5.0)),
+            elevation: 10,
+            dismissDirection: DismissDirection.horizontal,
+            animation: CurvedAnimation(parent: const AlwaysStoppedAnimation(1.5), curve: Curves.easeIn),
           ),
         );
         store.limparErro();
@@ -88,12 +98,6 @@ class _FinanCategoriaScreenState extends State<FinanCategoriaScreen> {
           SnackBar(
             content: Text('Alterado.'),
             backgroundColor: Colors.green,
-            // action: SnackBarAction(
-            //   label: 'Action',
-            //   onPressed: () {
-            //     // Code to execute.
-            //   },
-            // ),
             showCloseIcon: true,
             // width: Material, // Width of the SnackBar.
             padding: const EdgeInsets.symmetric(
@@ -101,6 +105,9 @@ class _FinanCategoriaScreenState extends State<FinanCategoriaScreen> {
             ),
             behavior: SnackBarBehavior.floating,
             shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(5.0)),
+            elevation: 10,
+            dismissDirection: DismissDirection.horizontal,
+            animation: CurvedAnimation(parent: const AlwaysStoppedAnimation(1.5), curve: Curves.easeIn),
           ),
         );
         store.limparErro();
@@ -181,7 +188,15 @@ class _FinanCategoriaScreenState extends State<FinanCategoriaScreen> {
             title: Text('Excluir Categoria'),
             content: Text('Deseja realmente excluir a Categoria?'),
             actions: [
-              TextButton(onPressed: () => Navigator.of(context).pop(), child: Text('Cancelar')),
+              TextButton(
+                onPressed: () => Navigator.of(context).pop(),
+                style: ButtonStyle(
+                  backgroundColor: WidgetStatePropertyAll(Colors.transparent),
+                  foregroundColor: WidgetStatePropertyAll(Colors.blue),
+                  shape: WidgetStatePropertyAll(RoundedRectangleBorder(borderRadius: BorderRadius.circular(10))),
+                ),
+                child: Text('Cancelar'),
+              ),
               TextButton(
                 onPressed: () async {
                   await store.removerCategoria(id);
@@ -189,6 +204,11 @@ class _FinanCategoriaScreenState extends State<FinanCategoriaScreen> {
                     Navigator.of(context).pop();
                   });
                 },
+                style: ButtonStyle(
+                  backgroundColor: WidgetStatePropertyAll(Colors.red),
+                  foregroundColor: WidgetStatePropertyAll(Colors.white),
+                  shape: WidgetStatePropertyAll(RoundedRectangleBorder(borderRadius: BorderRadius.circular(10))),
+                ),
                 child: const Text('Excluir'),
               ),
             ],

@@ -175,7 +175,15 @@ class _FinanTipoScreenState extends State<FinanTipoScreen> {
             title: Text('Excluir Tipo'),
             content: Text('Deseja realmente excluir o Tipo?'),
             actions: [
-              TextButton(onPressed: () => Navigator.of(context).pop(), child: Text('Cancelar')),
+              TextButton(
+                onPressed: () => Navigator.of(context).pop(),
+                style: ButtonStyle(
+                  backgroundColor: WidgetStatePropertyAll(Colors.transparent),
+                  foregroundColor: WidgetStatePropertyAll(Colors.blue),
+                  shape: WidgetStatePropertyAll(RoundedRectangleBorder(borderRadius: BorderRadius.circular(10))),
+                ),
+                child: Text('Cancelar'),
+              ),
               TextButton(
                 onPressed: () async {
                   await store.removerTipo(id);
@@ -183,6 +191,11 @@ class _FinanTipoScreenState extends State<FinanTipoScreen> {
                     Navigator.of(context).pop();
                   });
                 },
+                style: ButtonStyle(
+                  backgroundColor: WidgetStatePropertyAll(Colors.red),
+                  foregroundColor: WidgetStatePropertyAll(Colors.white),
+                  shape: WidgetStatePropertyAll(RoundedRectangleBorder(borderRadius: BorderRadius.circular(10))),
+                ),
                 child: Text('Excluir'),
               ),
             ],

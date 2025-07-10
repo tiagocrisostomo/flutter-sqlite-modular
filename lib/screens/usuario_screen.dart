@@ -98,12 +98,25 @@ class _UsuarioScreenState extends State<UsuarioScreen> {
             title: Text('Excluir usuário'),
             content: Text('Deseja realmente excluir o usuário?'),
             actions: [
-              TextButton(onPressed: () => Navigator.of(context).pop(), child: Text('Cancelar')),
+              TextButton(
+                onPressed: () => Navigator.of(context).pop(),
+                style: ButtonStyle(
+                  backgroundColor: WidgetStatePropertyAll(Colors.transparent),
+                  foregroundColor: WidgetStatePropertyAll(Colors.blue),
+                  shape: WidgetStatePropertyAll(RoundedRectangleBorder(borderRadius: BorderRadius.circular(10))),
+                ),
+                child: Text('Cancelar'),
+              ),
               TextButton(
                 onPressed: () {
                   Provider.of<UsuarioStore>(context, listen: false).removerUsuario(id);
                   Navigator.of(context).pop();
                 },
+                style: ButtonStyle(
+                  backgroundColor: WidgetStatePropertyAll(Colors.red),
+                  foregroundColor: WidgetStatePropertyAll(Colors.white),
+                  shape: WidgetStatePropertyAll(RoundedRectangleBorder(borderRadius: BorderRadius.circular(10))),
+                ),
                 child: Text('Excluir'),
               ),
             ],

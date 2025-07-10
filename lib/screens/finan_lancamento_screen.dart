@@ -39,6 +39,9 @@ class _FinanLancamentoScreenState extends State<FinanLancamentoScreen> {
             ),
             behavior: SnackBarBehavior.floating,
             shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(5.0)),
+            elevation: 10,
+            dismissDirection: DismissDirection.horizontal,
+            animation: CurvedAnimation(parent: const AlwaysStoppedAnimation(1.5), curve: Curves.easeIn),
           ),
         );
         store.limparErro();
@@ -58,6 +61,9 @@ class _FinanLancamentoScreenState extends State<FinanLancamentoScreen> {
             ),
             behavior: SnackBarBehavior.floating,
             shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(5.0)),
+            elevation: 10,
+            dismissDirection: DismissDirection.horizontal,
+            animation: CurvedAnimation(parent: const AlwaysStoppedAnimation(1.5), curve: Curves.easeIn),
           ),
         );
         store.limparErro();
@@ -77,6 +83,9 @@ class _FinanLancamentoScreenState extends State<FinanLancamentoScreen> {
             ),
             behavior: SnackBarBehavior.floating,
             shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(5.0)),
+            elevation: 10,
+            dismissDirection: DismissDirection.horizontal,
+            animation: CurvedAnimation(parent: const AlwaysStoppedAnimation(1.5), curve: Curves.easeIn),
           ),
         );
         store.limparErro();
@@ -89,12 +98,6 @@ class _FinanLancamentoScreenState extends State<FinanLancamentoScreen> {
           SnackBar(
             content: Text('Alterado.'),
             backgroundColor: Colors.green,
-            // action: SnackBarAction(
-            //   label: 'Action',
-            //   onPressed: () {
-            //     // Code to execute.
-            //   },
-            // ),
             showCloseIcon: true,
             // width: Material, // Width of the SnackBar.
             padding: const EdgeInsets.symmetric(
@@ -102,6 +105,9 @@ class _FinanLancamentoScreenState extends State<FinanLancamentoScreen> {
             ),
             behavior: SnackBarBehavior.floating,
             shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(5.0)),
+            elevation: 10,
+            dismissDirection: DismissDirection.horizontal,
+            animation: CurvedAnimation(parent: const AlwaysStoppedAnimation(1.5), curve: Curves.easeIn),
           ),
         );
         store.limparErro();
@@ -124,31 +130,40 @@ class _FinanLancamentoScreenState extends State<FinanLancamentoScreen> {
         corpo = Center(child: CircularProgressIndicator(semanticsLabel: 'Alterando...'));
         break;
       case EstadoLancamento.carregado:
-        corpo = ListView.separated(
+        corpo = ListView.builder(
           padding: EdgeInsets.all(8),
-          separatorBuilder: (context, index) => Divider(color: Colors.blueGrey),
+          // separatorBuilder: (context, index) => Divider(color: Colors.blueGrey),
           itemCount: store.lancamentos.length,
           itemBuilder: (_, index) {
             final lanc = store.lancamentos[index];
-            return ListTile(
-              isThreeLine: false,
-              dense: true,
-              title: Text(lanc.descricao.toString()),
-              subtitle: Text('R\$ ${lanc.valor.toStringAsFixed(2)} - ${DateFormat('dd/MM/yyyy').format(lanc.data as DateTime)}'),
-              trailing: Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  IconButton(
-                    icon: const Icon(Icons.edit, color: Colors.blue, size: 16),
-                    onPressed: () => context.pushRtL(FinanLancamentoForm(lancamento: lanc)),
-                  ),
-                  IconButton(
-                    icon: const Icon(Icons.delete_forever_outlined, color: Colors.red, size: 16),
-                    onPressed: () {
-                      _confirmarExclusao(context, lanc.id!);
-                    },
-                  ),
-                ],
+            return Padding(
+              padding: const EdgeInsets.all(2.0),
+              child: ListTile(
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10), side: BorderSide(color: Colors.blueGrey, width: 0.5)),
+                isThreeLine: false,
+                dense: true,
+                leading: Text(lanc.tipoDescricao.toString(), style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold)),
+                title: Text('R\$ ${lanc.valor.toStringAsFixed(2)}', style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold)),
+                subtitle: Text(
+                  '${lanc.categoriaDescricao.toString()} - ${DateFormat('dd/MM/yyyy').format(lanc.data as DateTime)} \n'
+                  '${lanc.descricao.toString()}',
+                  style: TextStyle(fontSize: 12, color: Colors.black54),
+                ),
+                trailing: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    IconButton(
+                      icon: const Icon(Icons.edit, color: Colors.blue, size: 16),
+                      onPressed: () => context.pushRtL(FinanLancamentoForm(lancamento: lanc)),
+                    ),
+                    IconButton(
+                      icon: const Icon(Icons.delete_forever_outlined, color: Colors.red, size: 16),
+                      onPressed: () {
+                        _confirmarExclusao(context, lanc.id!);
+                      },
+                    ),
+                  ],
+                ),
               ),
             );
           },
@@ -169,6 +184,25 @@ class _FinanLancamentoScreenState extends State<FinanLancamentoScreen> {
         ],
       ),
       body: corpo,
+      floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
+      floatingActionButton: Container(
+        padding: const EdgeInsets.only(left: 20, right: 20),
+        height: MediaQuery.of(context).size.height * 0.05,
+        width: MediaQuery.of(context).size.width * 1,
+        child: FloatingActionButton.extended(
+          label: Row(
+            children: [
+              Text('Ver todos os lançamentos', style: TextStyle(fontSize: 16, color: Colors.white)),
+              Icon(Icons.arrow_forward_ios, color: Colors.white, size: 16),
+            ],
+          ),
+          onPressed: () => context.pushRtL(FinanLancamentoForm()),
+          isExtended: true,
+          backgroundColor: Colors.black,
+          tooltip: 'Ver todos os lançamentos',
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(6)),
+        ),
+      ),
     );
   }
 
@@ -182,8 +216,21 @@ class _FinanLancamentoScreenState extends State<FinanLancamentoScreen> {
             title: const Text('Confirmar exclusão'),
             content: const Text('Deseja realmente excluir este lançamento?'),
             actions: [
-              TextButton(onPressed: () => Navigator.of(context).pop(), child: Text('Cancelar')),
               TextButton(
+                onPressed: () => Navigator.of(context).pop(),
+                style: ButtonStyle(
+                  backgroundColor: WidgetStatePropertyAll(Colors.transparent),
+                  foregroundColor: WidgetStatePropertyAll(Colors.blue),
+                  shape: WidgetStatePropertyAll(RoundedRectangleBorder(borderRadius: BorderRadius.circular(10))),
+                ),
+                child: Text('Cancelar'),
+              ),
+              TextButton(
+                style: ButtonStyle(
+                  backgroundColor: WidgetStatePropertyAll(Colors.red),
+                  foregroundColor: WidgetStatePropertyAll(Colors.white),
+                  shape: WidgetStatePropertyAll(RoundedRectangleBorder(borderRadius: BorderRadius.circular(10))),
+                ),
                 onPressed: () async {
                   await store.removerLancamento(id);
                   WidgetsBinding.instance.addPostFrameCallback((_) {

@@ -19,11 +19,34 @@ class FinanLancamentoDAO {
     await db.delete(_tableName, where: 'id = ?', whereArgs: [id]);
   }
 
+  String sql = '''SELECT
+      fl.id,
+      fl.descricao,
+      fl.valor,
+      fl.data,
+      fl.categoriaId,
+      fl.tipoId,
+      fl.usuarioId,
+      fc.descricao AS categoriaDescricao,
+      ft.descricao AS tipoDescricao,
+      u.nome AS usuarioNome  
+     FROM finan_lancamento fl
+     INNER JOIN finan_categoria fc ON fl.categoriaId = fc.id
+     INNER JOIN finan_tipo ft ON fl.tipoId = ft.id
+     INNER JOIN usuario u ON fl.usuarioId = u.id
+  ''';
+
   Future<List<FinanLancamento>> listarTodos() async {
     final db = await BancoDeDados.banco;
-    final maps = await db.query(_tableName);
-    return maps.map((map) => FinanLancamento.fromMap(map)).toList();
+    final lancamentos = await db.rawQuery(sql);
+    return lancamentos.map((lancamento) => FinanLancamento.fromMap(lancamento)).toList();
   }
+
+  // Future<List<FinanLancamento>> listarTodos() async {
+  //   final db = await BancoDeDados.banco;
+  //   final lancamentos = await db.query(_tableName);
+  //   return lancamentos.map((lancamento) => FinanLancamento.fromMap(lancamento)).toList();
+  // }
 
   Future<FinanLancamento?> buscarPorId(int id) async {
     final db = await BancoDeDados.banco;

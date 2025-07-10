@@ -44,6 +44,8 @@ dependencies:
   fl_chart: ^0.66.0
   http: ^1.2.1
   page_transition: ^2.2.1
+  flutter_localizations:
+    sdk: flutter
 
 dev_dependencies:
   flutter_test:

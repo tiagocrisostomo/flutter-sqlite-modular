@@ -41,7 +41,7 @@ class LoginScreen extends StatelessWidget {
               children: [
                 const Icon(Icons.account_balance_wallet_rounded, size: 80, color: Colors.white),
                 const SizedBox(height: 16),
-                const Text('FinanceX', style: TextStyle(fontSize: 32, fontWeight: FontWeight.bold, color: Colors.white, letterSpacing: 1.5)),
+                const Text('ESTUDO DO TIAGO', style: TextStyle(fontSize: 32, fontWeight: FontWeight.bold, color: Colors.white, letterSpacing: 1.5)),
                 const SizedBox(height: 8),
                 const Text('Controle seus gastos de forma inteligente', style: TextStyle(fontSize: 16, color: Colors.white70)),
                 const SizedBox(height: 32),
