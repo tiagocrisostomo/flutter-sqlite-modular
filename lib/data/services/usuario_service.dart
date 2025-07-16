@@ -12,7 +12,7 @@ class UsuarioService {
     }
   }
 
-  Future<Usuario?> buscarUsuarioPorId(int id) async {
+  Future<List<Usuario>> buscarUsuarioPorId(int id) async {
     return await _dao.buscarPorId(id);
   }
 

@@ -21,7 +21,7 @@ class _PainelFinanceiroState extends State<PainelFinanceiro> with SingleTickerPr
     _tabController = TabController(length: _tabs.length, vsync: this);
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      Provider.of<FinanLancamentoStore>(context, listen: false).carregarLancamentos();
+      Provider.of<FinanLancamentoStore>(context, listen: false).carregarLancamentosMes();
 
       Provider.of<FinanLancamentoStore>(context, listen: false).totaisPorCategoriaDescricao();
 

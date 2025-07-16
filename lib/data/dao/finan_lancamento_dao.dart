@@ -19,7 +19,8 @@ class FinanLancamentoDAO {
     await db.delete(_tableName, where: 'id = ?', whereArgs: [id]);
   }
 
-  String sql = '''SELECT
+  Future<List<FinanLancamento>> listarTodos() async {
+    String sql = '''SELECT
       fl.id,
       fl.descricao,
       fl.valor,
@@ -35,8 +36,30 @@ class FinanLancamentoDAO {
      INNER JOIN finan_tipo ft ON fl.tipoId = ft.id
      INNER JOIN usuario u ON fl.usuarioId = u.id
   ''';
+    final db = await BancoDeDados.banco;
+    final lancamentos = await db.rawQuery(sql);
+    return lancamentos.map((lancamento) => FinanLancamento.fromMap(lancamento)).toList();
+  }
 
-  Future<List<FinanLancamento>> listarTodos() async {
+    Future<List<FinanLancamento>> listarMes() async {
+    String sql = '''SELECT
+      fl.id,
+      fl.descricao,
+      fl.valor,
+      fl.data,
+      fl.categoriaId,
+      fl.tipoId,
+      fl.usuarioId,
+      fc.descricao AS categoriaDescricao,
+      ft.descricao AS tipoDescricao,
+      u.nome AS usuarioNome  
+     FROM finan_lancamento fl
+     INNER JOIN finan_categoria fc ON fl.categoriaId = fc.id
+     INNER JOIN finan_tipo ft ON fl.tipoId = ft.id
+     INNER JOIN usuario u ON fl.usuarioId = u.id
+     WHERE strftime('%Y-%m', fl.data) = strftime('%Y-%m', 'now')
+     ORDER BY fl.data DESC
+  ''';
     final db = await BancoDeDados.banco;
     final lancamentos = await db.rawQuery(sql);
     return lancamentos.map((lancamento) => FinanLancamento.fromMap(lancamento)).toList();

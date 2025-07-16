@@ -1,4 +1,3 @@
-import 'package:db_sqlite/screens/finan_lancamento_screen_todos.dart';
 import 'package:db_sqlite/store/finan_lancamento_store.dart';
 import 'package:db_sqlite/utils/routes_context_transations.dart';
 import 'package:db_sqlite/widgets/finan_lancamento_form.dart';
@@ -6,19 +5,19 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 
-class FinanLancamentoScreen extends StatefulWidget {
-  const FinanLancamentoScreen({super.key});
+class FinanLancamentoScreenTodos extends StatefulWidget {
+  const FinanLancamentoScreenTodos({super.key});
 
   @override
-  State<FinanLancamentoScreen> createState() => _FinanLancamentoScreenState();
+  State<FinanLancamentoScreenTodos> createState() => _FinanLancamentoScreenTodosState();
 }
 
-class _FinanLancamentoScreenState extends State<FinanLancamentoScreen> {
+class _FinanLancamentoScreenTodosState extends State<FinanLancamentoScreenTodos> {
   @override
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      Provider.of<FinanLancamentoStore>(context, listen: false).carregarLancamentosMes();
+      Provider.of<FinanLancamentoStore>(context, listen: false).carregarLancamentos();
     });
   }
 
@@ -150,24 +149,20 @@ class _FinanLancamentoScreenState extends State<FinanLancamentoScreen> {
                   '${lanc.descricao.toString()}',
                   style: TextStyle(fontSize: 12, color: Colors.black54),
                 ),
-                trailing: Container(
-                  height: MediaQuery.of(context).size.height * 0.05,
-                  decoration: BoxDecoration(
-                    color: Colors.black,
-                    borderRadius: BorderRadius.circular(6),
-                    boxShadow: [BoxShadow(color: Colors.black26, blurRadius: 4, offset: Offset(0, 2))],
-                  ),
-                  child: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      IconButton(
-                        icon: const Icon(Icons.edit, color: Colors.white, size: 16),
-                        onPressed: () => context.pushRtL(FinanLancamentoForm(lancamento: lanc)),
-                      ),
-                      VerticalDivider(),
-                      IconButton(icon: const Icon(Icons.delete_forever, color: Colors.red, size: 16), onPressed: () => _confirmarExclusao(context, lanc.id!)),
-                    ],
-                  ),
+                trailing: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    IconButton(
+                      icon: const Icon(Icons.edit, color: Colors.blue, size: 16),
+                      onPressed: () => context.pushRtL(FinanLancamentoForm(lancamento: lanc)),
+                    ),
+                    IconButton(
+                      icon: const Icon(Icons.delete_forever_outlined, color: Colors.red, size: 16),
+                      onPressed: () {
+                        _confirmarExclusao(context, lanc.id!);
+                      },
+                    ),
+                  ],
                 ),
               ),
             );
@@ -180,7 +175,7 @@ class _FinanLancamentoScreenState extends State<FinanLancamentoScreen> {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Lançamentos Financeiros do mês', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+        title: const Text('Lançamentos Financeiros', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
         actions: [
           IconButton(
             icon: const Icon(Icons.add, color: Colors.green, applyTextScaling: true, size: 35),
@@ -189,25 +184,6 @@ class _FinanLancamentoScreenState extends State<FinanLancamentoScreen> {
         ],
       ),
       body: corpo,
-      floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
-      floatingActionButton: Container(
-        padding: const EdgeInsets.only(left: 20, right: 20),
-        height: MediaQuery.of(context).size.height * 0.05,
-        width: MediaQuery.of(context).size.width * 1,
-        child: FloatingActionButton.extended(
-          label: Row(
-            children: [
-              Text('Ver todos os lançamentos       ', style: TextStyle(fontSize: 16, color: Colors.white)),
-              Icon(Icons.keyboard_double_arrow_right_outlined, applyTextScaling: true, color: Colors.green, size: 35),
-            ],
-          ),
-          onPressed: () => context.pushRtL(FinanLancamentoScreenTodos()),
-          isExtended: true,
-          backgroundColor: Colors.black,
-          tooltip: 'Ver todos os lançamentos',
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(6)),
-        ),
-      ),
     );
   }
 

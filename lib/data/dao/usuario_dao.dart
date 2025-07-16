@@ -4,6 +4,8 @@ import 'package:db_sqlite/utils/seguranca.dart';
 import 'package:sqflite/sqflite.dart';
 
 class UsuarioDao {
+  static const String _tablename = 'usuario';
+
   Future<void> salvar(Usuario usuario) async {
     final db = await BancoDeDados.banco;
     final usuarioComSenhaHash = Usuario(id: usuario.id, nome: usuario.nome, email: usuario.email, senha: Seguranca.hashSenha(usuario.senha));
@@ -13,34 +15,34 @@ class UsuarioDao {
 
   Future<List<Usuario>> listarTodos() async {
     final db = await BancoDeDados.banco;
-    final resultado = await db.query('usuario');
+    final resultado = await db.query(_tablename);
     return resultado.map((e) => Usuario.fromMap(e)).toList();
   }
 
   Future<int> atualizar(Usuario usuario) async {
     final db = await BancoDeDados.banco;
-    return await db.update('usuario', usuario.toMap(), where: 'id = ?', whereArgs: [usuario.id]);
+    return await db.update(_tablename, usuario.toMap(), where: 'id = ?', whereArgs: [usuario.id]);
   }
 
   Future<int> deletar(int id) async {
     final db = await BancoDeDados.banco;
-    return await db.delete('usuario', where: 'id = ?', whereArgs: [id]);
+    return await db.delete(_tablename, where: 'id = ?', whereArgs: [id]);
   }
 
-  Future<Usuario?> buscarPorId(int id) async {
+  Future<List<Usuario>> buscarPorId(int id) async {
     final db = await BancoDeDados.banco;
-    final resultado = await db.query('usuario', where: 'id = ?', whereArgs: [id]);
+    final resultado = await db.query(_tablename, where: 'id = ?', whereArgs: [id]);
     if (resultado.isNotEmpty) {
-      return Usuario.fromMap(resultado.first);
+      return resultado.map((e) => Usuario.fromMap(e)).toList();
     }
-    return null;
+    return [];
   }
 
   Future<Usuario?> buscarPorNomeSenha(String nome, String senha) async {
     final db = await BancoDeDados.banco;
     final senhaHash = Seguranca.hashSenha(senha);
 
-    final maps = await db.query('usuario', where: 'nome = ? AND senha = ?', whereArgs: [nome, senhaHash]);
+    final maps = await db.query(_tablename, where: 'nome = ? AND senha = ?', whereArgs: [nome, senhaHash]);
     if (maps.isNotEmpty) {
       return Usuario.fromMap(maps.first);
     }
@@ -61,7 +63,7 @@ class UsuarioDao {
   Future<bool> verificarPadrao(int? id) async {
     final db = await BancoDeDados.banco;
 
-    final resultado = await db.query('usuario', where: 'id = ? OR nome = ?', whereArgs: [1, 'admin']);
+    final resultado = await db.query(_tablename, where: 'id = ? OR nome = ?', whereArgs: [1, 'admin']);
 
     bool padrao = resultado.any((row) => row['id'] == id);
 

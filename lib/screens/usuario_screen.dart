@@ -26,7 +26,89 @@ class _UsuarioScreenState extends State<UsuarioScreen> {
     // Exibe snackbar se houver erro
     if (store.estado == EstadoUsuario.erro && store.mensagemErro != null) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
-        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(store.mensagemErro!), backgroundColor: Colors.red));
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(store.mensagemErro!),
+            backgroundColor: Colors.red,
+            showCloseIcon: true,
+            // width: Material, // Width of the SnackBar.
+            padding: const EdgeInsets.symmetric(
+              horizontal: 8.0, // Inner padding for SnackBar content.
+            ),
+            behavior: SnackBarBehavior.floating,
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(5.0)),
+            elevation: 10,
+            dismissDirection: DismissDirection.horizontal,
+            animation: CurvedAnimation(parent: const AlwaysStoppedAnimation(1.5), curve: Curves.easeIn),
+          ),
+        );
+        store.limparErro();
+      });
+    }
+
+    if (store.estado == EstadoUsuario.deletado) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Deletado'),
+
+            backgroundColor: Colors.green,
+            showCloseIcon: true,
+            // width: Material, // Width of the SnackBar.
+            padding: const EdgeInsets.symmetric(
+              horizontal: 8.0, // Inner padding for SnackBar content.
+            ),
+            behavior: SnackBarBehavior.floating,
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(5.0)),
+            elevation: 10,
+            dismissDirection: DismissDirection.horizontal,
+            animation: CurvedAnimation(parent: const AlwaysStoppedAnimation(1.5), curve: Curves.easeIn),
+          ),
+        );
+        store.limparErro();
+      });
+    }
+
+    if (store.estado == EstadoUsuario.incluido) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Cadastrado.'),
+            backgroundColor: Colors.green,
+            showCloseIcon: true,
+            // width: Material, // Width of the SnackBar.
+            padding: const EdgeInsets.symmetric(
+              horizontal: 8.0, // Inner padding for SnackBar content.
+            ),
+            behavior: SnackBarBehavior.floating,
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(5.0)),
+            elevation: 10,
+            dismissDirection: DismissDirection.horizontal,
+            animation: CurvedAnimation(parent: const AlwaysStoppedAnimation(1.5), curve: Curves.easeIn),
+          ),
+        );
+        store.limparErro();
+      });
+    }
+
+    if (store.estado == EstadoUsuario.alterado) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Alterado.'),
+            backgroundColor: Colors.green,
+            showCloseIcon: true,
+            // width: Material, // Width of the SnackBar.
+            padding: const EdgeInsets.symmetric(
+              horizontal: 8.0, // Inner padding for SnackBar content.
+            ),
+            behavior: SnackBarBehavior.floating,
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(5.0)),
+            elevation: 10,
+            dismissDirection: DismissDirection.horizontal,
+            animation: CurvedAnimation(parent: const AlwaysStoppedAnimation(1.5), curve: Curves.easeIn),
+          ),
+        );
         store.limparErro();
       });
     }
@@ -35,10 +117,16 @@ class _UsuarioScreenState extends State<UsuarioScreen> {
 
     switch (store.estado) {
       case EstadoUsuario.carregando:
-        corpo = Center(child: CircularProgressIndicator());
+        corpo = Center(child: CircularProgressIndicator(semanticsLabel: 'Carregando...'));
         break;
-      case EstadoUsuario.erro:
-        corpo = Center(child: Text(store.mensagemErro ?? 'Erro inesperado'));
+      case EstadoUsuario.deletando:
+        corpo = Center(child: CircularProgressIndicator(semanticsLabel: 'Deletando...'));
+        break;
+      case EstadoUsuario.incluindo:
+        corpo = Center(child: CircularProgressIndicator(semanticsLabel: 'Incluindo...'));
+        break;
+      case EstadoUsuario.alterando:
+        corpo = Center(child: CircularProgressIndicator(semanticsLabel: 'Alterando...'));
         break;
       case EstadoUsuario.carregado:
         corpo = ListView.builder(
@@ -71,7 +159,7 @@ class _UsuarioScreenState extends State<UsuarioScreen> {
         );
         break;
       default:
-        corpo = SizedBox();
+        corpo = Center(child: CircularProgressIndicator(semanticsLabel: 'Padrão...'));
     }
 
     return Scaffold(

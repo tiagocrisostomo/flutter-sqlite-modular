@@ -46,6 +46,22 @@ class FinanLancamentoStore extends ChangeNotifier {
     notifyListeners();
   }
 
+  Future<void> carregarLancamentosMes() async {
+    _estado = EstadoLancamento.carregando;
+    notifyListeners();
+
+    try {
+      _lancamentos = await _service.buscarLancamentoMes();
+      _estado = EstadoLancamento.carregado;
+      notifyListeners();
+    } catch (e) {
+      _estado = EstadoLancamento.erro;
+      _mensagemErro = "Erro ao carregar lançamentos do mês: $e";
+    }
+
+    notifyListeners();
+  }
+
   Future<void> adicionarOuEditarLancamento(FinanLancamento lancamento) async {
     if (lancamento.id == null) {
       _estado = EstadoLancamento.incluindo;

@@ -16,6 +16,10 @@ class FinanLancamentoService {
     return await _dao.listarTodos();
   }
 
+  Future<List<FinanLancamento>> buscarLancamentoMes() async {
+    return await _dao.listarMes();
+  }
+
   Future<FinanLancamento?> buscarLancamentoPorId(int id) async {
     return await _dao.buscarPorId(id);
   }
