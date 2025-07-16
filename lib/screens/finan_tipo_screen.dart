@@ -128,22 +128,29 @@ class _FinanTipoScreenState extends State<FinanTipoScreen> {
           itemBuilder: (_, index) {
             final tipo = store.finanTipos[index];
             return ListTile(
-              dense: true,
+              dense: false,
               leading: CircleAvatar(
-                backgroundColor: tipo.cor != null ? Color(int.parse(tipo.cor!.replaceAll("#", "0xFF"))) : Colors.grey,
+                backgroundColor: Colors.black,
+                foregroundColor: Colors.white,
                 child: tipo.id != null ? Text(tipo.id.toString()) : Icon(Icons.playlist_add_check_circle_sharp),
               ),
               title: Text(tipo.descricao ?? ''),
-              subtitle: Text(tipo.cor ?? ''),
-              trailing: SizedBox(
-                width: MediaQuery.of(context).size.width * 0.25,
+              trailing: Container(
+                height: MediaQuery.of(context).size.height * 0.05,
+                decoration: BoxDecoration(
+                  color: Colors.black,
+                  borderRadius: BorderRadius.circular(6),
+                  boxShadow: [BoxShadow(color: Colors.black26, blurRadius: 4, offset: Offset(0, 2))],
+                ),
                 child: Row(
+                  mainAxisSize: MainAxisSize.min,
                   children: [
-                    IconButton(icon: const Icon(Icons.edit, color: Colors.blue, size: 18), onPressed: () => context.pushRtL(FormularioFinanTipo(tipo: tipo))),
                     IconButton(
-                      icon: Icon(Icons.delete_forever_outlined, color: Colors.red, size: 18),
-                      onPressed: () => _confirmarExclusaoTipo(context, tipo.id!),
+                      icon: const Icon(Icons.edit_square, color: Colors.blue, size: 16),
+                      onPressed: () => context.pushRtL(FormularioFinanTipo(tipo: tipo)),
                     ),
+                    VerticalDivider(),
+                    IconButton(icon: Icon(Icons.delete_forever, color: Colors.red, size: 16), onPressed: () => _confirmarExclusaoTipo(context, tipo.id!)),
                   ],
                 ),
               ),
@@ -158,7 +165,10 @@ class _FinanTipoScreenState extends State<FinanTipoScreen> {
       appBar: AppBar(
         title: Text('Tipos de Finanças'),
         actions: [
-          IconButton(icon: Icon(Icons.add, color: Colors.green, applyTextScaling: false, size: 35), onPressed: () => context.pushRtL(FormularioFinanTipo())),
+          IconButton(
+            icon: const Icon(Icons.add_box_rounded, color: Colors.black, applyTextScaling: true, size: 35),
+            onPressed: () => context.pushRtL(FormularioFinanTipo()),
+          ),
         ],
       ),
       body: corpo,

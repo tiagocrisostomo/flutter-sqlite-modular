@@ -116,7 +116,7 @@ class FinanLancamentoStore extends ChangeNotifier {
     carregarTipos();
     final Map<String, double> totais = {};
     for (var t in _lancamentos) {
-      final tipo = _tipos.firstWhere((tipo) => tipo.id == t.tipoId, orElse: () => FinanTipo(id: t.tipoId, descricao: 'Tipo ${t.tipoId}', cor: ''));
+      final tipo = _tipos.firstWhere((tipo) => tipo.id == t.tipoId, orElse: () => FinanTipo(id: t.tipoId, descricao: 'Tipo ${t.tipoId}'));
       totais[tipo.descricao.toString()] = (totais[tipo.descricao] ?? 0) + t.valor;
     }
     // debugPrint(totais.toString());
@@ -129,7 +129,7 @@ class FinanLancamentoStore extends ChangeNotifier {
     for (var t in _lancamentos) {
       final categoria = _categorias.firstWhere(
         (c) => c.id == t.categoriaId,
-        orElse: () => FinanCategoria(id: t.categoriaId, descricao: 'Categoria ${t.categoriaId}', cor: ''),
+        orElse: () => FinanCategoria(id: t.categoriaId, descricao: 'Categoria ${t.categoriaId}'),
       );
       totais[categoria.descricao.toString()] = (totais[categoria.descricao] ?? 0) + t.valor;
     }

@@ -9,6 +9,13 @@ extension RouterContextExtension on BuildContext {
     );
   }
 
+  Future pushRtLReplace(Widget page) {
+    return Navigator.pushReplacement(
+      this,
+      PageTransition(fullscreenDialog: false, type: PageTransitionType.rightToLeft, duration: const Duration(milliseconds: 400), child: page),
+    );
+  }
+
   Future pushRtLModal(Widget page) {
     return Navigator.push(
       this,

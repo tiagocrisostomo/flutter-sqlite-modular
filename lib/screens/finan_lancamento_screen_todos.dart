@@ -149,20 +149,24 @@ class _FinanLancamentoScreenTodosState extends State<FinanLancamentoScreenTodos>
                   '${lanc.descricao.toString()}',
                   style: TextStyle(fontSize: 12, color: Colors.black54),
                 ),
-                trailing: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    IconButton(
-                      icon: const Icon(Icons.edit, color: Colors.blue, size: 16),
-                      onPressed: () => context.pushRtL(FinanLancamentoForm(lancamento: lanc)),
-                    ),
-                    IconButton(
-                      icon: const Icon(Icons.delete_forever_outlined, color: Colors.red, size: 16),
-                      onPressed: () {
-                        _confirmarExclusao(context, lanc.id!);
-                      },
-                    ),
-                  ],
+                trailing: Container(
+                  height: MediaQuery.of(context).size.height * 0.05,
+                  decoration: BoxDecoration(
+                    color: Colors.black,
+                    borderRadius: BorderRadius.circular(6),
+                    boxShadow: [BoxShadow(color: Colors.black26, blurRadius: 4, offset: Offset(0, 2))],
+                  ),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      IconButton(
+                        icon: const Icon(Icons.edit_square, color: Colors.blue, size: 16),
+                        onPressed: () => context.pushRtL(FinanLancamentoForm(lancamento: lanc)),
+                      ),
+                      VerticalDivider(),
+                      IconButton(icon: const Icon(Icons.delete_forever, color: Colors.red, size: 16), onPressed: () => _confirmarExclusao(context, lanc.id!)),
+                    ],
+                  ),
                 ),
               ),
             );
@@ -178,7 +182,7 @@ class _FinanLancamentoScreenTodosState extends State<FinanLancamentoScreenTodos>
         title: const Text('Lançamentos Financeiros', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
         actions: [
           IconButton(
-            icon: const Icon(Icons.add, color: Colors.green, applyTextScaling: true, size: 35),
+            icon: const Icon(Icons.add_box_rounded, color: Colors.black, applyTextScaling: true, size: 35),
             onPressed: () => context.pushRtL(FinanLancamentoForm()),
           ),
         ],

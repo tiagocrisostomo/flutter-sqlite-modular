@@ -161,7 +161,7 @@ class _FinanLancamentoScreenState extends State<FinanLancamentoScreen> {
                     mainAxisSize: MainAxisSize.min,
                     children: [
                       IconButton(
-                        icon: const Icon(Icons.edit, color: Colors.white, size: 16),
+                        icon: const Icon(Icons.edit_square, color: Colors.blue, size: 16),
                         onPressed: () => context.pushRtL(FinanLancamentoForm(lancamento: lanc)),
                       ),
                       VerticalDivider(),
@@ -183,7 +183,7 @@ class _FinanLancamentoScreenState extends State<FinanLancamentoScreen> {
         title: const Text('Lançamentos Financeiros do mês', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
         actions: [
           IconButton(
-            icon: const Icon(Icons.add, color: Colors.green, applyTextScaling: true, size: 35),
+            icon: const Icon(Icons.add_box_rounded, color: Colors.black, applyTextScaling: true, size: 35),
             onPressed: () => context.pushRtL(FinanLancamentoForm()),
           ),
         ],

@@ -1,4 +1,5 @@
 import 'package:db_sqlite/store/usuario_store.dart';
+import 'package:db_sqlite/utils/routes_context_transations.dart';
 import 'package:db_sqlite/widgets/usuario_form.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -130,28 +131,46 @@ class _UsuarioScreenState extends State<UsuarioScreen> {
         break;
       case EstadoUsuario.carregado:
         corpo = ListView.builder(
+          padding: EdgeInsets.all(8),
           itemCount: store.usuarios.length,
           itemBuilder: (_, index) {
             final usuario = store.usuarios[index];
-            return ListTile(
-              dense: true,
-              leading: CircleAvatar(child: usuario.id != null ? Text(usuario.id.toString()) : Icon(Icons.person)),
-              title: Text(usuario.nome),
-              trailing: SizedBox(
-                width: MediaQuery.of(context).size.width * 0.25,
-                child: Row(
-                  children: [
-                    IconButton(
-                      icon: const Icon(Icons.edit, color: Colors.blue, size: 18),
-                      onPressed: () {
-                        Navigator.push(context, MaterialPageRoute(builder: (context) => FormularioUsuario(usuario: usuario)));
-                      },
-                    ),
-                    IconButton(
-                      icon: Icon(Icons.delete_forever_outlined, color: Colors.red, size: 18),
-                      onPressed: () => _confirmarExclusaoUsuario(context, usuario.id!),
-                    ),
-                  ],
+            return Padding(
+              padding: const EdgeInsets.all(2.0),
+              child: ListTile(
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10), side: BorderSide(color: Colors.blueGrey, width: 0.5)),
+                isThreeLine: false,
+                dense: true,
+                leading: CircleAvatar(
+                  backgroundColor: Colors.black,
+                  foregroundColor: Colors.white,
+                  child: usuario.id != null ? Text(usuario.id.toString()) : Icon(Icons.person),
+                ),
+                title: Text(usuario.nome),
+                subtitle: Text(usuario.email),
+                trailing: Container(
+                  height: MediaQuery.of(context).size.height * 0.05,
+                  decoration: BoxDecoration(
+                    color: Colors.black,
+                    borderRadius: BorderRadius.circular(6),
+                    boxShadow: [BoxShadow(color: Colors.black26, blurRadius: 4, offset: Offset(0, 2))],
+                  ),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      IconButton(
+                        icon: const Icon(Icons.edit_square, color: Colors.blue, size: 16),
+                        onPressed: () {
+                          Navigator.push(context, MaterialPageRoute(builder: (context) => FormularioUsuario(usuario: usuario)));
+                        },
+                      ),
+                      VerticalDivider(),
+                      IconButton(
+                        icon: Icon(Icons.delete_forever, color: Colors.red, size: 16),
+                        onPressed: () => _confirmarExclusaoUsuario(context, usuario.id!),
+                      ),
+                    ],
+                  ),
                 ),
               ),
             );
@@ -167,10 +186,8 @@ class _UsuarioScreenState extends State<UsuarioScreen> {
         title: Text('Usuários'),
         actions: [
           IconButton(
-            icon: Icon(Icons.add, color: Colors.green, applyTextScaling: true, size: 35),
-            onPressed: () {
-              Navigator.push(context, MaterialPageRoute(builder: (context) => FormularioUsuario()));
-            },
+            icon: const Icon(Icons.add_box_rounded, color: Colors.black, applyTextScaling: true, size: 35),
+            onPressed: () => context.pushRtL(FormularioUsuario()),
           ),
         ],
       ),

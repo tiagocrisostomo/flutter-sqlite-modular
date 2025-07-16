@@ -131,30 +131,40 @@ class _FinanCategoriaScreenState extends State<FinanCategoriaScreen> {
         break;
       case EstadoFinanCategoria.carregado:
         corpo = ListView.builder(
+          padding: EdgeInsets.all(8),
           itemCount: store.finanCategorias.length,
           itemBuilder: (_, index) {
             final cat = store.finanCategorias[index];
-            return ListTile(
-              dense: true,
-              leading: CircleAvatar(
-                backgroundColor: cat.cor != null ? Color(int.parse(cat.cor!.replaceAll("#", "0xFF"))) : Colors.grey,
-                child: cat.id != null ? Text(cat.id.toString()) : Icon(Icons.playlist_add_check_circle_sharp),
-              ),
-              title: Text(cat.descricao ?? ''),
-              subtitle: Text(cat.cor ?? ''),
-              trailing: SizedBox(
-                width: MediaQuery.of(context).size.width * 0.25,
-                child: Row(
-                  children: [
-                    IconButton(
-                      icon: const Icon(Icons.edit, color: Colors.blue, size: 18),
-                      onPressed: () => context.pushRtL(FormularioFinanCategoria(categoria: cat)),
-                    ),
-                    IconButton(
-                      icon: Icon(Icons.delete_forever_outlined, color: Colors.red, size: 18),
-                      onPressed: () => _confirmarExclusaoCategoria(context, cat.id!),
-                    ),
-                  ],
+            return Padding(
+              padding: const EdgeInsets.all(2.0),
+              child: ListTile(
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10), side: BorderSide(color: Colors.blueGrey, width: 0.5)),
+                isThreeLine: false,
+                dense: false,
+                leading: CircleAvatar(
+                  backgroundColor: Colors.black,
+                  foregroundColor: Colors.white,
+                  child: cat.id != null ? Text(cat.id.toString()) : Icon(Icons.playlist_add_check_circle_sharp),
+                ),
+                title: Text(cat.descricao ?? ''),
+                trailing: Container(
+                  height: MediaQuery.of(context).size.height * 0.05,
+                  decoration: BoxDecoration(
+                    color: Colors.black,
+                    borderRadius: BorderRadius.circular(6),
+                    boxShadow: [BoxShadow(color: Colors.black26, blurRadius: 4, offset: Offset(0, 2))],
+                  ),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      IconButton(
+                        icon: const Icon(Icons.edit_square, color: Colors.blue, size: 16),
+                        onPressed: () => context.pushRtL(FormularioFinanCategoria(categoria: cat)),
+                      ),
+                      VerticalDivider(),
+                      IconButton(icon: Icon(Icons.delete_forever, color: Colors.red, size: 16), onPressed: () => _confirmarExclusaoCategoria(context, cat.id!)),
+                    ],
+                  ),
                 ),
               ),
             );
@@ -169,7 +179,7 @@ class _FinanCategoriaScreenState extends State<FinanCategoriaScreen> {
         title: Text('Categoria de Finanças'),
         actions: [
           IconButton(
-            icon: Icon(Icons.add, color: Colors.green, applyTextScaling: true, size: 35),
+            icon: const Icon(Icons.add_box_rounded, color: Colors.black, applyTextScaling: true, size: 35),
             onPressed: () => context.pushRtL(FormularioFinanCategoria()),
           ),
         ],

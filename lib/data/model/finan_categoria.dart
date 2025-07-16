@@ -1,19 +1,14 @@
 class FinanCategoria {
   int? id;
   String? descricao;
-  String? cor;
 
-  FinanCategoria({this.id, required this.descricao, required this.cor});
+  FinanCategoria({this.id, required this.descricao});
 
   factory FinanCategoria.fromMap(Map<String, dynamic> json) {
-    return FinanCategoria(
-      id: json['id'],
-      descricao: json['descricao'],
-      cor: json['cor'],
-    );
+    return FinanCategoria(id: json['id'], descricao: json['descricao']);
   }
 
   Map<String, dynamic> toMap() {
-    return {'id': id, 'descricao': descricao, 'cor': cor};
+    return {'id': id, 'descricao': descricao};
   }
 }
