@@ -34,7 +34,7 @@ class _HomePageState extends State<HomePage> {
         items: const [
           BottomNavigationBarItem(icon: Icon(Icons.pie_chart), label: 'Painel'),
           BottomNavigationBarItem(icon: Icon(Icons.monetization_on_outlined), label: 'Lançamentos'),
-          BottomNavigationBarItem(icon: Icon(Icons.settings), label: 'Config'),
+          BottomNavigationBarItem(icon: Icon(Icons.settings), label: 'Configuração'),
         ],
       ),
     );

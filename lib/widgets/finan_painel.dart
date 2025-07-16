@@ -35,6 +35,7 @@ class _PainelFinanceiroState extends State<PainelFinanceiro> with SingleTickerPr
 
   @override
   Widget build(BuildContext context) {
+    Size size = MediaQuery.of(context).size;
     final store = context.watch<FinanLancamentoStore>();
 
     return Scaffold(
@@ -47,20 +48,32 @@ class _PainelFinanceiroState extends State<PainelFinanceiro> with SingleTickerPr
             _buildCards('A Pagar', store.totalApagar),
             _buildCards('Saldo', store.saldoTotal),
             Container(
+              padding: const EdgeInsets.all(6),
               decoration: BoxDecoration(color: Colors.grey[100], borderRadius: BorderRadius.circular(12)),
-              child: Padding(
-                padding: const EdgeInsets.all(8.0),
-                child: TabBar(
-                  controller: _tabController,
-                  tabs: _tabs,
-                  labelColor: Theme.of(context).primaryColor,
-                  unselectedLabelColor: Colors.black,
-                  indicatorColor: Theme.of(context).primaryColor,
+              height: size.height * 0.08,
+              child: TabBar(
+                indicatorSize: TabBarIndicatorSize.tab,
+
+                indicator: BoxDecoration(
+                  color: Colors.grey[100],
+                  borderRadius: BorderRadius.circular(12),
+                  boxShadow: [BoxShadow(color: Colors.blueGrey, blurRadius: 4, offset: const Offset(0, 1))],
                 ),
+                dividerColor: Colors.grey[300],
+                isScrollable: true,
+                controller: _tabController,
+                labelStyle: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                tabAlignment: TabAlignment.center,
+
+                tabs: _tabs,
+                labelColor: Theme.of(context).primaryColor,
+                unselectedLabelColor: Colors.black,
+                indicatorColor: Theme.of(context).primaryColor,
               ),
             ),
-            SizedBox(
-              height: 300,
+            Container(
+              height: size.height * 0.350,
+              decoration: BoxDecoration(color: Colors.grey[100], borderRadius: BorderRadius.circular(12)),
               child: TabBarView(
                 controller: _tabController,
                 children: [_buildGraficoPizzaPorTipo(store), _buildGraficoBarraPorCategoria(store), _buildGraficoPizzaPorTitular(store)],
@@ -97,11 +110,11 @@ class _PainelFinanceiroState extends State<PainelFinanceiro> with SingleTickerPr
                       : Colors.orange,
             ),
             const SizedBox(width: 12),
-            Text(titulo, style: TextStyle(fontSize: 16, color: Colors.grey[700])),
+            Text(titulo, style: TextStyle(fontSize: 14, color: Colors.grey[700])),
             const Spacer(),
             (valor > 0)
-                ? Text('R\$ ${valor.toStringAsFixed(2)}', style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold))
-                : Text('R\$ ${valor.toStringAsFixed(2)}', style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: Colors.red)),
+                ? Text('R\$ ${valor.toStringAsFixed(2)}', style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold))
+                : Text('R\$ ${valor.toStringAsFixed(2)}', style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.red)),
           ],
         ),
       ),
