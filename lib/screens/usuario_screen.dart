@@ -146,10 +146,9 @@ class _UsuarioScreenState extends State<UsuarioScreen> {
                   foregroundColor: Colors.white,
                   child: usuario.id != null ? Text(usuario.id.toString()) : Icon(Icons.person),
                 ),
-                title: Text(usuario.nome),
-                subtitle: Text(usuario.email),
+                title: Text(usuario.nome),               
                 trailing: Container(
-                  height: MediaQuery.of(context).size.height * 0.05,
+                  height: MediaQuery.of(context).size.height * 0.04,
                   decoration: BoxDecoration(
                     color: Colors.black,
                     borderRadius: BorderRadius.circular(6),

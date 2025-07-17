@@ -32,7 +32,7 @@ void main() async {
         supportedLocales: const [Locale('pt', 'BR')],
         home: LoginScreen(),
         title: 'Login',
-        theme: ThemeData(useMaterial3: true, colorScheme: ColorScheme.fromSeed(seedColor: Colors.blue), primaryColor: Colors.blue),
+        theme: ThemeData(useMaterial3: true, colorScheme: ColorScheme.fromSeed(seedColor: Colors.blueGrey), primaryColor: Colors.blueGrey),
       ),
     ),
   );

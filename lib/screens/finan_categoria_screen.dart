@@ -140,7 +140,7 @@ class _FinanCategoriaScreenState extends State<FinanCategoriaScreen> {
               child: ListTile(
                 shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10), side: BorderSide(color: Colors.blueGrey, width: 0.5)),
                 isThreeLine: false,
-                dense: false,
+                dense: true,
                 leading: CircleAvatar(
                   backgroundColor: Colors.black,
                   foregroundColor: Colors.white,
@@ -148,7 +148,7 @@ class _FinanCategoriaScreenState extends State<FinanCategoriaScreen> {
                 ),
                 title: Text(cat.descricao ?? ''),
                 trailing: Container(
-                  height: MediaQuery.of(context).size.height * 0.05,
+                   height: MediaQuery.of(context).size.height * 0.04,
                   decoration: BoxDecoration(
                     color: Colors.black,
                     borderRadius: BorderRadius.circular(6),

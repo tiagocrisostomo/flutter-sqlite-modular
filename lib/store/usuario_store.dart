@@ -66,7 +66,6 @@ class UsuarioStore extends ChangeNotifier {
       await _service.deletarUsuario(id);
       _estado = EstadoUsuario.deletado;
       notifyListeners();
-      // await carregarUsuarios();
     } catch (e) {
       _estado = EstadoUsuario.erro;
       _mensagemErro = "Erro ao remover usuário: $e";

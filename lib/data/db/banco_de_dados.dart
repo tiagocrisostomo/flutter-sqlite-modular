@@ -1,4 +1,3 @@
-import 'package:flutter/material.dart';
 import 'package:path/path.dart';
 import 'package:sqflite/sqflite.dart';
 
@@ -14,15 +13,15 @@ class BancoDeDados {
   static Future<Database> _iniciarBanco() async {
     final caminho = await getDatabasesPath();
     final caminhoCompleto = join(caminho, 'app.db');
-    debugPrint('Caminho do banco de dados: $caminhoCompleto');
+    //debugPrint('Caminho do banco de dados: $caminhoCompleto');
 
     return openDatabase(
       caminhoCompleto,
       version: 1,
       onCreate: (db, version) async {
         await db.execute('''CREATE TABLE usuario (id INTEGER PRIMARY KEY, nome TEXT, senha TEXT, email TEXT)''');
-        await db.execute('''CREATE TABLE finan_categoria (id INTEGER PRIMARY KEY, descricao TEXT, cor TEXT)''');
-        await db.execute('''CREATE TABLE finan_tipo (id INTEGER PRIMARY KEY, descricao TEXT, cor TEXT)''');
+        await db.execute('''CREATE TABLE finan_categoria (id INTEGER PRIMARY KEY, descricao TEXT)''');
+        await db.execute('''CREATE TABLE finan_tipo (id INTEGER PRIMARY KEY, descricao TEXT)''');
         await db.execute('''CREATE TABLE finan_lancamento 
           (id INTEGER PRIMARY KEY, descricao TEXT, valor REAL, data TEXT, 
           tipoId INTEGER, categoriaId INTEGER, usuarioId INTEGER, 

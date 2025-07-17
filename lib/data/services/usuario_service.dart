@@ -26,10 +26,10 @@ class UsuarioService {
     final usuarioPadrao = await _dao.verificarPadrao(id);
 
     if (usuarioPadrao) {
-      throw Exception('Usuário padrão não pode ser deletado.');
+      throw Exception('\nUsuário padrão não pode ser deletado.');
     }
     if (emUso) {
-      throw Exception('Usuário em vinculado à lançamentos não pode ser deletado.');
+      throw AssertionError('\nUsuário vinculado à lançamentos não pode ser deletado.');
     }
     await _dao.deletar(id);
   }

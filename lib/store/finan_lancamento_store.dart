@@ -19,15 +19,18 @@ class FinanLancamentoStore extends ChangeNotifier {
   List<FinanLancamento> _lancamentos = [];
   List<FinanLancamento> get lancamentos => _lancamentos;
 
+  List<FinanLancamento> _lancamentosMes = [];
+  List<FinanLancamento> get lancamentosMes => _lancamentosMes;
+
   EstadoLancamento _estado = EstadoLancamento.inicial;
   EstadoLancamento get estado => _estado;
 
   String? _mensagemErro;
   String? get mensagemErro => _mensagemErro;
 
-  double get totalApagar => _lancamentos.where((l) => l.categoriaId == 1).fold(0.0, (total, l) => total + l.valor);
+  double get totalApagar => _lancamentosMes.where((l) => l.categoriaId == 1).fold(0.0, (total, l) => total + l.valor);
 
-  double get totalAreceber => _lancamentos.where((l) => l.categoriaId == 2).fold(0.0, (total, l) => total + l.valor);
+  double get totalAreceber => _lancamentosMes.where((l) => l.categoriaId == 2).fold(0.0, (total, l) => total + l.valor);
 
   double get saldoTotal => totalAreceber - totalApagar;
 
@@ -51,7 +54,7 @@ class FinanLancamentoStore extends ChangeNotifier {
     notifyListeners();
 
     try {
-      _lancamentos = await _service.buscarLancamentoMes();
+      _lancamentosMes = await _service.buscarLancamentoMes();
       _estado = EstadoLancamento.carregado;
       notifyListeners();
     } catch (e) {
@@ -115,7 +118,7 @@ class FinanLancamentoStore extends ChangeNotifier {
   Map<String, double> totaisPorTipoDescricao() {
     carregarTipos();
     final Map<String, double> totais = {};
-    for (var t in _lancamentos) {
+    for (var t in _lancamentosMes) {
       final tipo = _tipos.firstWhere((tipo) => tipo.id == t.tipoId, orElse: () => FinanTipo(id: t.tipoId, descricao: 'Tipo ${t.tipoId}'));
       totais[tipo.descricao.toString()] = (totais[tipo.descricao] ?? 0) + t.valor;
     }
@@ -126,7 +129,7 @@ class FinanLancamentoStore extends ChangeNotifier {
   Map<String, double> totaisPorCategoriaDescricao() {
     carregarCategorias();
     final Map<String, double> totais = {};
-    for (var t in _lancamentos) {
+    for (var t in _lancamentosMes) {
       final categoria = _categorias.firstWhere(
         (c) => c.id == t.categoriaId,
         orElse: () => FinanCategoria(id: t.categoriaId, descricao: 'Categoria ${t.categoriaId}'),
@@ -140,7 +143,7 @@ class FinanLancamentoStore extends ChangeNotifier {
   Map<String, dynamic> totaisPorUsuarioNome() {
     carregarUsuarios();
     final Map<String, dynamic> totais = {};
-    for (var t in _lancamentos) {
+    for (var t in _lancamentosMes) {
       final usuario = _usuarios.firstWhere(
         (u) => u.id == t.usuarioId,
         orElse: () => Usuario(id: t.usuarioId, nome: 'Usuário ${t.usuarioId}', senha: 'senha', email: 'email'),
@@ -156,5 +159,6 @@ class FinanLancamentoStore extends ChangeNotifier {
     _estado = EstadoLancamento.inicial;
     notifyListeners();
     carregarLancamentos();
+    carregarLancamentosMes();
   }
 }

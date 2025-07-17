@@ -35,6 +35,7 @@ class FinanLancamentoDAO {
      INNER JOIN finan_categoria fc ON fl.categoriaId = fc.id
      INNER JOIN finan_tipo ft ON fl.tipoId = ft.id
      INNER JOIN usuario u ON fl.usuarioId = u.id
+     ORDER BY fl.data DESC
   ''';
     final db = await BancoDeDados.banco;
     final lancamentos = await db.rawQuery(sql);

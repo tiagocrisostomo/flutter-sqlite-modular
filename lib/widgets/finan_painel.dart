@@ -76,7 +76,7 @@ class _PainelFinanceiroState extends State<PainelFinanceiro> with SingleTickerPr
               decoration: BoxDecoration(color: Colors.grey[100], borderRadius: BorderRadius.circular(12)),
               child: TabBarView(
                 controller: _tabController,
-                children: [_buildGraficoPizzaPorTipo(store), _buildGraficoBarraPorCategoria(store), _buildGraficoPizzaPorTitular(store)],
+                children: [_buildGraficoBarraPorTipo(store), _buildGraficoBarraPorCategoria(store), _buildGraficoPizzaPorTitular(store)],
               ),
             ),
           ],
@@ -121,31 +121,46 @@ class _PainelFinanceiroState extends State<PainelFinanceiro> with SingleTickerPr
     );
   }
 
-  Widget _buildGraficoPizzaPorTipo(FinanLancamentoStore store) {
+  Widget _buildGraficoBarraPorTipo(FinanLancamentoStore store) {
     final data = store.totaisPorTipoDescricao();
-    final total = data.values.fold(0.0, (a, b) => a + b);
+    final keys = data.keys.toList();
 
     if (data.isEmpty) {
       return const Center(child: Text('Nenhum dado disponível'));
     }
 
+    final max = data.values.reduce((a, b) => a > b ? a : b);
+
     return AnimatedSwitcher(
-      duration: const Duration(milliseconds: 300),
-      child: PieChart(
-        PieChartData(
-          sections:
-              data.entries.map((entry) {
-                final percent = (entry.value / total) * 100;
-                return PieChartSectionData(
-                  value: entry.value,
-                  title: '${entry.key} \n ${percent.toStringAsFixed(1)}%',
-                  color: _corAleatoria(entry.key),
-                  radius: 60,
-                  titleStyle: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: Colors.white),
-                );
-              }).toList(),
-          sectionsSpace: 4,
-          centerSpaceRadius: 40,
+      duration: const Duration(milliseconds: 300),            
+      child: BarChart(    
+        BarChartData(                              
+          alignment: BarChartAlignment.spaceEvenly,          
+          titlesData: FlTitlesData(             
+            bottomTitles: AxisTitles(              
+              sideTitles: SideTitles(                
+                showTitles: true,
+                getTitlesWidget: (value, meta) {
+                  final index = value.toInt();
+                  if (index >= 0 && index < keys.length) {
+                    return SideTitleWidget(axisSide: meta.axisSide, child: Text(keys[index], style: TextStyle(fontSize: 12)));
+                  }
+                  return const SizedBox.shrink();
+                },
+              ),
+            ),
+            leftTitles: AxisTitles(sideTitles: SideTitles(showTitles: true)),
+            topTitles: AxisTitles(sideTitles: SideTitles(showTitles: false)),
+            rightTitles: AxisTitles(sideTitles: SideTitles(showTitles: false)),
+          ),
+          borderData: FlBorderData(show: false),          
+          barGroups: List.generate(keys.length, (i) {
+            return BarChartGroupData(
+              x:i, 
+              showingTooltipIndicators: [max == data[keys[i]] ? 0 : -1],             
+              barRods: [BarChartRodData(fromY: 0, toY: data[keys[i]]!, color: _corAleatoria(keys[i]), width: 10, borderRadius: BorderRadius.circular(10))],              
+            );
+          }),
         ),
       ),
     );
@@ -162,12 +177,12 @@ class _PainelFinanceiroState extends State<PainelFinanceiro> with SingleTickerPr
     final max = data.values.reduce((a, b) => a > b ? a : b);
 
     return AnimatedSwitcher(
-      duration: const Duration(milliseconds: 300),
-      child: BarChart(
-        BarChartData(
+      duration: const Duration(milliseconds: 300),      
+      child: BarChart(        
+        BarChartData(          
           alignment: BarChartAlignment.spaceAround,
-          maxY: max * 1.7,
-          titlesData: FlTitlesData(
+          maxY: max * 1,          
+          titlesData: FlTitlesData(            
             bottomTitles: AxisTitles(
               sideTitles: SideTitles(
                 showTitles: true,

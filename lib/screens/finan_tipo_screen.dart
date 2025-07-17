@@ -88,12 +88,6 @@ class _FinanTipoScreenState extends State<FinanTipoScreen> {
           SnackBar(
             content: Text('Alterado.'),
             backgroundColor: Colors.green,
-            // action: SnackBarAction(
-            //   label: 'Action',
-            //   onPressed: () {
-            //     // Code to execute.
-            //   },
-            // ),
             showCloseIcon: true,
             // width: Material, // Width of the SnackBar.
             padding: const EdgeInsets.symmetric(
@@ -124,34 +118,40 @@ class _FinanTipoScreenState extends State<FinanTipoScreen> {
         break;
       case EstadoFinanTipo.carregado:
         corpo = ListView.builder(
+          padding: EdgeInsets.all(8),
           itemCount: store.finanTipos.length,
           itemBuilder: (_, index) {
             final tipo = store.finanTipos[index];
-            return ListTile(
-              dense: false,
-              leading: CircleAvatar(
-                backgroundColor: Colors.black,
-                foregroundColor: Colors.white,
-                child: tipo.id != null ? Text(tipo.id.toString()) : Icon(Icons.playlist_add_check_circle_sharp),
-              ),
-              title: Text(tipo.descricao ?? ''),
-              trailing: Container(
-                height: MediaQuery.of(context).size.height * 0.05,
-                decoration: BoxDecoration(
-                  color: Colors.black,
-                  borderRadius: BorderRadius.circular(6),
-                  boxShadow: [BoxShadow(color: Colors.black26, blurRadius: 4, offset: Offset(0, 2))],
+            return Padding(
+              padding: const EdgeInsets.all(2.0),
+              child: ListTile(
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10), side: BorderSide(color: Colors.blueGrey, width: 0.5)),
+                isThreeLine: false,
+                dense: true,
+                leading: CircleAvatar(
+                  backgroundColor: Colors.black,
+                  foregroundColor: Colors.white,
+                  child: tipo.id != null ? Text(tipo.id.toString()) : Icon(Icons.playlist_add_check_circle_sharp),
                 ),
-                child: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    IconButton(
-                      icon: const Icon(Icons.edit_square, color: Colors.blue, size: 16),
-                      onPressed: () => context.pushRtL(FormularioFinanTipo(tipo: tipo)),
+                title: Text(tipo.descricao ?? ''),
+                trailing: Container(
+                   height: MediaQuery.of(context).size.height * 0.04,
+                    decoration: BoxDecoration(
+                      color: Colors.black,
+                      borderRadius: BorderRadius.circular(6),
+                      boxShadow: [BoxShadow(color: Colors.black26, blurRadius: 4, offset: Offset(0, 2))],
                     ),
-                    VerticalDivider(),
-                    IconButton(icon: Icon(Icons.delete_forever, color: Colors.red, size: 16), onPressed: () => _confirmarExclusaoTipo(context, tipo.id!)),
-                  ],
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      IconButton(
+                        icon: const Icon(Icons.edit_square, color: Colors.blue, size: 16),
+                        onPressed: () => context.pushRtL(FormularioFinanTipo(tipo: tipo)),
+                      ),
+                      VerticalDivider(),
+                      IconButton(icon: Icon(Icons.delete_forever, color: Colors.red, size: 16), onPressed: () => _confirmarExclusaoTipo(context, tipo.id!)),
+                    ],
+                  ),
                 ),
               ),
             );

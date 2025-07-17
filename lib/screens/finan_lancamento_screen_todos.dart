@@ -131,18 +131,19 @@ class _FinanLancamentoScreenTodosState extends State<FinanLancamentoScreenTodos>
         break;
       case EstadoLancamento.carregado:
         corpo = ListView.builder(
-          padding: EdgeInsets.all(8),
-          // separatorBuilder: (context, index) => Divider(color: Colors.blueGrey),
+          padding: EdgeInsets.all(8),          
           itemCount: store.lancamentos.length,
           itemBuilder: (_, index) {
             final lanc = store.lancamentos[index];
             return Padding(
               padding: const EdgeInsets.all(2.0),
-              child: ListTile(
+              child: ListTile(                
                 shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10), side: BorderSide(color: Colors.blueGrey, width: 0.5)),
                 isThreeLine: false,
                 dense: true,
-                leading: Text(lanc.tipoDescricao.toString(), style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold)),
+                leading: CircleAvatar(backgroundColor: Colors.black, maxRadius: MediaQuery.of(context).size.width * 0.07, 
+                child: Text(lanc.tipoDescricao.toString(), softWrap: true,  
+                style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, overflow: TextOverflow.ellipsis, color: Colors.white)),),
                 title: Text('R\$ ${lanc.valor.toStringAsFixed(2)}', style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold)),
                 subtitle: Text(
                   '${lanc.categoriaDescricao.toString()} - ${DateFormat('dd/MM/yyyy').format(lanc.data as DateTime)} \n'
@@ -150,7 +151,7 @@ class _FinanLancamentoScreenTodosState extends State<FinanLancamentoScreenTodos>
                   style: TextStyle(fontSize: 12, color: Colors.black54),
                 ),
                 trailing: Container(
-                  height: MediaQuery.of(context).size.height * 0.05,
+                  height: MediaQuery.of(context).size.height * 0.04,
                   decoration: BoxDecoration(
                     color: Colors.black,
                     borderRadius: BorderRadius.circular(6),
