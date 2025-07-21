@@ -8,7 +8,7 @@ Future<void> inicializarBancoComDadosPadrao() async {
   final usuarios = await db.query('usuario');
   if (usuarios.isEmpty) {
     await db.insert('usuario', {'nome': 'tiago', 'email': 'tiagovcrisostomo@gmail.com', 'senha': Seguranca.hashSenha('1234')});
-    debugPrint('✅ Usuário padrão criado: tiago / 1234 / tiagovcrisostomo@gmail.com');
+    debugPrint('✅ Usuário padrão criado: tiago / tiagovcrisostomo@gmail.com');
   }
 
   final tipos = await db.query('finan_tipo');
