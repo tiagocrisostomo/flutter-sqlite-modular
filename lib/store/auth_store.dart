@@ -2,7 +2,7 @@ import 'package:db_sqlite/data/services/auth_service.dart';
 import 'package:db_sqlite/data/model/usuario.dart';
 import 'package:flutter/material.dart';
 
-enum EstadoAuth { inicial, carregando, sucesso, erro }
+enum EstadoAuth { inicial, logando, logado, erro }
 
 class AuthStore extends ChangeNotifier {
   final AuthService _authService = AuthService();
@@ -16,12 +16,12 @@ class AuthStore extends ChangeNotifier {
   String? get mensagemErro => _mensagemErro;
 
   Future<void> login(String nome, String senha) async {
-    _estado = EstadoAuth.carregando;
+    _estado = EstadoAuth.logando;
     notifyListeners();
     try {
       usuarioLogado = await _authService.login(nome, senha);
       if (usuarioLogado != null) {
-        _estado = EstadoAuth.sucesso;
+        _estado = EstadoAuth.logado;
       } else {
         _estado = EstadoAuth.erro;
         _mensagemErro = 'Usuário ou senha inválidos';

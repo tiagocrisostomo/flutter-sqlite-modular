@@ -16,14 +16,29 @@ class LoginScreen extends StatelessWidget {
 
     if (store.estadoAuth == EstadoAuth.erro && store.mensagemErro != null) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
-        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(store.mensagemErro!), backgroundColor: Colors.red));
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(store.mensagemErro!),
+            backgroundColor: Colors.red,
+            showCloseIcon: true,
+            // width: Material, // Width of the SnackBar.
+            padding: const EdgeInsets.symmetric(
+              horizontal: 8.0, // Inner padding for SnackBar content.
+            ),
+            behavior: SnackBarBehavior.floating,
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(5.0)),
+            elevation: 10,
+            dismissDirection: DismissDirection.horizontal,
+            animation: CurvedAnimation(parent: const AlwaysStoppedAnimation(1.5), curve: Curves.easeIn),
+          ),
+        );
         store.limparErro();
       });
-    } else if (store.estadoAuth == EstadoAuth.sucesso) {
+    } else if (store.estadoAuth == EstadoAuth.logado) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
         Navigator.pushReplacement(context, MaterialPageRoute(builder: (_) => HomePage()));
       });
-    } else if (store.estadoAuth == EstadoAuth.carregando) {
+    } else if (store.estadoAuth == EstadoAuth.logando) {
       return Center(child: CircularProgressIndicator());
     }
 
@@ -58,7 +73,7 @@ class LoginScreen extends StatelessWidget {
                           TextFormField(
                             controller: _userController,
                             decoration: const InputDecoration(prefixIcon: Icon(Icons.email), labelText: 'Usuário', border: OutlineInputBorder()),
-                            validator: (value) => value!.isEmpty ? 'Informe o email' : null,
+                            validator: (value) => value!.isEmpty ? 'Informe o usuário' : null,
                           ),
                           const SizedBox(height: 16),
                           TextFormField(
@@ -72,6 +87,7 @@ class LoginScreen extends StatelessWidget {
                             width: double.infinity,
                             child: ElevatedButton.icon(
                               onPressed: () async {
+                                if (!_formKey.currentState!.validate()) return;
                                 await store.login(_userController.text, _senhaController.text);
                               },
                               icon: const Icon(Icons.login),
