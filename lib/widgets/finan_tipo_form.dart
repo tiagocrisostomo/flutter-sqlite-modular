@@ -15,7 +15,6 @@ class FormularioFinanTipo extends StatefulWidget {
 class _FormularioFinanTipoState extends State<FormularioFinanTipo> {
   final _formKey = GlobalKey<FormState>();
   late TextEditingController _nomeController;
-  // String? _corSelecionada = '#FF0000';
 
   @override
   void initState() {
@@ -23,29 +22,6 @@ class _FormularioFinanTipoState extends State<FormularioFinanTipo> {
     _nomeController = TextEditingController(text: widget.tipo?.descricao ?? '');
     // _corSelecionada = widget.tipo?.cor ?? '#FF0000';
   }
-
-  // void _abrirSeletorDeCor() {
-  //   Color pickerColor = Color(int.parse(_corSelecionada!.replaceAll("#", "0xFF")));
-
-  //   showDialog(
-  //     context: context,
-  //     builder:
-  //         (_) => AlertDialog(
-  //           title: const Text('Selecione uma cor'),
-  //           content: SingleChildScrollView(
-  //             child: BlockPicker(
-  //               pickerColor: pickerColor,
-  //               onColorChanged: (Color cor) {
-  //                 setState(() {
-  //                   _corSelecionada = '#${cor.toARGB32().toRadixString(16).substring(2).toUpperCase()}';
-  //                 });
-  //               },
-  //             ),
-  //           ),
-  //           actions: [TextButton(child: const Text('Fechar'), onPressed: () => Navigator.of(context).pop())],
-  //         ),
-  //   );
-  // }
 
   @override
   Widget build(BuildContext context) {
@@ -66,16 +42,7 @@ class _FormularioFinanTipoState extends State<FormularioFinanTipo> {
                 validator: (v) => v == null || v.isEmpty ? 'Informe a descrição' : null,
               ),
               SizedBox(height: 16),
-              // Row(
-              //   children: [
-              //     const Text("Cor:"),
-              //     const SizedBox(width: 8),
-              //     GestureDetector(
-              //       onTap: _abrirSeletorDeCor,
-              //       child: CircleAvatar(backgroundColor: Color(int.parse(_corSelecionada!.replaceAll("#", "0xFF"))), radius: 20),
-              //     ),
-              //   ],
-              // ),
+
               SizedBox(height: 16),
               ElevatedButton.icon(
                 icon: Icon(Icons.save),
