@@ -1,6 +1,6 @@
 # 📱 Flutter SQLite Modular App
 
-Este projeto é um exemplo de aplicação Flutter modular, utilizando `SQLite` para persistência local e `Provider` com `ChangeNotifier` para gerenciamento de estado.
+Um projeto de referência em Flutter para gerenciamento de dados de finanças. A aplicação permite operações `CRUD` em 'tipos de finanças', utiliza `SQLite` como banco de dados local e implementa uma arquitetura com `DAO` e `Service`. O estado é gerenciado com o `Provider/ChangeNotifier`, e a UI exibe os dados de forma otimizada com `Lazy Loading`.
 
 ---
 
