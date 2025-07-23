@@ -47,7 +47,7 @@ lib/
 │   │   └── finan_lancamento.dart      # Classe Financeiro Lançamento
 │   │   └── usuario.dart               # Classe Usuário
 │   │           
-│   └── service/
+│   └── services/
 │       ├── finan_categoria_service.dart    # Service da entidade Financeiro Categoria
 │       ├── finan_tipo_service.dart         # Service da entidade Financeiro Tipo
 │       ├── finan_lancamento_service.dart   # Service da entidade Financeiro lançamento
@@ -71,8 +71,9 @@ lib/
 │   └── usuario_screen.dart                 # Tela de usuários
 │
 ├── utils/
-│   ├── seguranca.dart                 # Criptografia de senha com SHA-256
-│   └── seed.dart                      # Criação de usuário padrão ao iniciar
+│   ├── routes_context_transations.dart     # Exibição melhor e centralização da navegação entre as páginas
+│   ├── seguranca.dart                      # Criptografia de senha com SHA-256
+│   └── seed.dart                           # Criação de usuário padrão ao iniciar
 │
 ├── widgets/
 │   ├── finan_categoria_form.dart      # Formulário de cadastro de categorias
