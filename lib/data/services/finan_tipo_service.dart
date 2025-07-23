@@ -34,4 +34,8 @@ class FinanTipoService {
 
     await _dao.deletar(id);
   }
+
+  Future<List<FinanTipo>> getTipos({int limit = 14, int offset = 0}) async {
+    return await _dao.findBy(limit: limit, offset: offset); 
+  }
 }

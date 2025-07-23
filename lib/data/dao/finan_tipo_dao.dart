@@ -56,4 +56,15 @@ class FinanTipoDao {
 
     return padrao;
   }
+
+  Future<List<FinanTipo>> findBy({int limit = 14, int offset = 0}) async {
+    final db = await BancoDeDados.banco;
+    final res = await db.query(
+    _tableName,
+    limit: limit,
+    offset: offset,
+    orderBy: 'id ASC', // É uma boa prática ter uma ordem definida
+   );
+   return res.map((json) => FinanTipo.fromMap(json)).toList();
+ }
 }
