@@ -2,14 +2,16 @@ import 'package:db_sqlite/data/model/finan_tipo.dart';
 import 'package:db_sqlite/data/services/finan_tipo_service.dart';
 import 'package:flutter/material.dart';
 
-enum EstadoFinanTipo { inicial, carregando, carregado, erro, deletando, deletado, incluindo, incluido, alterando, alterado, carregandoMais, 
-  carregadoMais  }
+enum EstadoFinanTipo { inicial, carregando, carregado, erro, deletando, deletado, incluindo, incluido, alterando, alterado, carregandoMais, carregadoMais }
 
 class FinanTipoStore extends ChangeNotifier {
   final FinanTipoService _service = FinanTipoService();
 
   List<FinanTipo> _finanTipos = [];
   List<FinanTipo> get finanTipos => _finanTipos;
+
+  List<FinanTipo> _finanTodosTipos = [];
+  List<FinanTipo> get finanTodosTipos => _finanTodosTipos;
 
   List<FinanTipo> _finanTipo = [];
   List<FinanTipo> get finanTipo => _finanTipo;
@@ -35,17 +37,17 @@ class FinanTipoStore extends ChangeNotifier {
 
     _offset = 0; // Reseta o offset para carregar do início
     _hasMoreItems = true;
-    
+
     try {
       final newTipos = await _service.getTipos(limit: _pageSize, offset: _offset);
-      
+
       _finanTipos = newTipos;
       if (newTipos.length < _pageSize) {
         _hasMoreItems = false;
       } else {
         _offset += _pageSize;
       }
-      
+
       _estado = EstadoFinanTipo.carregado;
     } catch (e) {
       _estado = EstadoFinanTipo.erro;
@@ -66,14 +68,14 @@ class FinanTipoStore extends ChangeNotifier {
 
     try {
       final newTipos = await _service.getTipos(limit: _pageSize, offset: _offset);
-      
+
       if (newTipos.isEmpty) {
         _hasMoreItems = false;
       } else {
         _finanTipos.addAll(newTipos);
         _offset += newTipos.length;
       }
-      
+
       _estado = EstadoFinanTipo.carregadoMais;
     } catch (e) {
       _estado = EstadoFinanTipo.erro;
@@ -83,18 +85,18 @@ class FinanTipoStore extends ChangeNotifier {
     notifyListeners();
   }
 
-  // Future<void> carregarTipos() async {
-  //   _estado = EstadoFinanTipo.carregando;
-  //   notifyListeners();
-  //   try {
-  //     _finanTipos = await _service.buscarTipos();
-  //     _estado = EstadoFinanTipo.carregado;
-  //   } catch (e) {
-  //     _estado = EstadoFinanTipo.erro;
-  //     _mensagemErro = "Erro ao carregar tipos: $e";
-  //   }
-  //   notifyListeners();
-  // }
+  Future<void> carregarTodosTipos() async {
+    _estado = EstadoFinanTipo.carregando;
+    notifyListeners();
+    try {
+      _finanTodosTipos = await _service.buscarTipos();
+      _estado = EstadoFinanTipo.carregado;
+    } catch (e) {
+      _estado = EstadoFinanTipo.erro;
+      _mensagemErro = "Erro ao carregar tipos: $e";
+    }
+    notifyListeners();
+  }
 
   Future<void> adicionarTipo(FinanTipo finanTipo) async {
     if (finanTipo.id == null) {

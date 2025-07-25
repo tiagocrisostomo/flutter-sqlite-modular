@@ -12,7 +12,7 @@ class FinanTipoScreen extends StatefulWidget {
 }
 
 class _FinanTipoScreenState extends State<FinanTipoScreen> {
-   final ScrollController _scrollController = ScrollController();
+  final ScrollController _scrollController = ScrollController();
 
   @override
   void initState() {
@@ -145,21 +145,14 @@ class _FinanTipoScreenState extends State<FinanTipoScreen> {
             if (index == store.finanTipos.length) {
               return const Padding(
                 padding: EdgeInsets.all(0),
-                child: Center(child: Column(
-                  children: [
-                    Text("Arrasta para cima e carregue mais Tipos..."),                    
-                    LinearProgressIndicator(),                    
-                    SizedBox(height: 40)
-                    
-                  ],
-                )),
+                child: Center(child: Column(children: [Text("Arrasta para cima e carregue mais Tipos..."), LinearProgressIndicator(), SizedBox(height: 40)])),
               );
             }
             // Caso contrário, exibe o item normalmente
             final tipo = store.finanTipos[index];
             return Padding(
               padding: const EdgeInsets.all(2.0),
-              child: ListTile(                              
+              child: ListTile(
                 shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10), side: const BorderSide(color: Colors.blueGrey, width: 0.5)),
                 isThreeLine: false,
                 contentPadding: const EdgeInsets.only(left: 10, right: 10, top: 2, bottom: 1),
@@ -181,11 +174,14 @@ class _FinanTipoScreenState extends State<FinanTipoScreen> {
                     mainAxisSize: MainAxisSize.min,
                     children: [
                       IconButton(
-                        icon: const Icon(Icons.edit_square, color: Colors.white, size: 16),
+                        icon: const Icon(Icons.edit_square, color: Colors.blue, size: 16),
                         onPressed: () => context.pushRtL(FormularioFinanTipo(tipo: tipo)),
                       ),
                       const VerticalDivider(),
-                      IconButton(icon: const Icon(Icons.delete_forever, color: Colors.white, size: 16), onPressed: () => _confirmarExclusaoTipo(context, tipo.id!)),
+                      IconButton(
+                        icon: const Icon(Icons.delete_forever, color: Colors.red, size: 16),
+                        onPressed: () => _confirmarExclusaoTipo(context, tipo.id!),
+                      ),
                     ],
                   ),
                 ),

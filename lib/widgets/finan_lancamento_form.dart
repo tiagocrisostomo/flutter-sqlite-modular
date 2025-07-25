@@ -40,7 +40,7 @@ class _FinanLancamentoFormState extends State<FinanLancamentoForm> {
     final usuarioStore = Provider.of<UsuarioStore>(context, listen: false);
 
     Future.microtask(() {
-      tipoStore.carregarTipos();
+      tipoStore.carregarTodosTipos();
       categoriaStore.carregarCategorias();
       usuarioStore.carregarUsuarios();
     });
@@ -142,7 +142,7 @@ class _FinanLancamentoFormState extends State<FinanLancamentoForm> {
               DropdownButtonFormField<int>(
                 value: _tipoId,
                 items:
-                    tipoStore.finanTipos.map((tipo) {
+                    tipoStore.finanTodosTipos.map((tipo) {
                       return DropdownMenuItem(value: tipo.id, child: Text(tipo.descricao!));
                     }).toList(),
                 onChanged: (val) => setState(() => _tipoId = val),
