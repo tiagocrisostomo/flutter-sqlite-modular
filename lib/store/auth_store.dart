@@ -33,7 +33,7 @@ class AuthStore extends ChangeNotifier {
             Exception('Usuário ou senha inválidos'),
             StackTrace.current,
             reason: 'erro não fatal',
-            information: [_mensagemErro.toString(), _estado, 'Login falhou'],
+            information: [_mensagemErro.toString(), _estado, 'Login não efetuado'],
             printDetails: true,
             fatal: false,
           );
