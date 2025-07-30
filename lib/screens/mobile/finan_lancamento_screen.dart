@@ -1,4 +1,4 @@
-import 'package:db_sqlite/screens/finan_lancamento_screen_todos.dart';
+import 'package:db_sqlite/screens/mobile/finan_lancamento_screen_todos.dart';
 import 'package:db_sqlite/store/finan_lancamento_store.dart';
 import 'package:db_sqlite/utils/routes_context_transations.dart';
 import 'package:db_sqlite/widgets/finan_lancamento_form.dart';

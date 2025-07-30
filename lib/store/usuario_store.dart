@@ -1,5 +1,7 @@
+import 'dart:io';
 import 'package:db_sqlite/data/model/usuario.dart';
 import 'package:db_sqlite/data/services/usuario_service.dart';
+import 'package:firebase_crashlytics/firebase_crashlytics.dart';
 import 'package:flutter/material.dart';
 
 enum EstadoUsuario { inicial, carregando, carregado, erro, deletando, deletado, incluindo, incluido, alterando, alterado }
@@ -66,9 +68,14 @@ class UsuarioStore extends ChangeNotifier {
       await _service.deletarUsuario(id);
       _estado = EstadoUsuario.deletado;
       notifyListeners();
-    } catch (e) {
+    } catch (e, stack) {
       _estado = EstadoUsuario.erro;
       _mensagemErro = "Erro ao remover usuário: $e";
+      if (Platform.isAndroid || Platform.isIOS) {
+        await FirebaseCrashlytics.instance.log('Tentativa de deletar usuário falhou: $id');
+        await FirebaseCrashlytics.instance.recordError(e, stack);
+      }
+
       notifyListeners();
     }
   }

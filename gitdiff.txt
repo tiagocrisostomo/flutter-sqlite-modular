@@ -1,0 +1,1824 @@
+diff --git a/.gitignore b/.gitignore
+index 1cc70fe..da367e9 100644
+--- a/.gitignore
++++ b/.gitignore
+@@ -32,6 +32,7 @@ migrate_working_dir/
+ .pub-cache/
+ .pub/
+ /build/
++/android/app/google-services.json
+ 
+ # Symbolication related
+ app.*.symbols
+diff --git a/.metadata b/.metadata
+index 01965b7..9084c75 100644
+--- a/.metadata
++++ b/.metadata
+@@ -15,7 +15,7 @@ migration:
+     - platform: root
+       create_revision: c23637390482d4cf9598c3ce3f2be31aa7332daf
+       base_revision: c23637390482d4cf9598c3ce3f2be31aa7332daf
+-    - platform: android
++    - platform: linux
+       create_revision: c23637390482d4cf9598c3ce3f2be31aa7332daf
+       base_revision: c23637390482d4cf9598c3ce3f2be31aa7332daf
+ 
+diff --git a/android/app/build.gradle.kts b/android/app/build.gradle.kts
+index b22d27b..30c51a7 100644
+--- a/android/app/build.gradle.kts
++++ b/android/app/build.gradle.kts
+@@ -1,14 +1,18 @@
+ plugins {
+     id("com.android.application")
++    // START: FlutterFire Configuration
++    id("com.google.gms.google-services")
++    id("com.google.firebase.crashlytics")
++    // END: FlutterFire Configuration
+     id("kotlin-android")
+-    // The Flutter Gradle Plugin must be applied after the Android and Kotlin Gradle plugins.
+     id("dev.flutter.flutter-gradle-plugin")
+ }
+ 
+ android {
+     namespace = "br.com.tiago.db_sqlite"
+-    compileSdk = flutter.compileSdkVersion
++    // compileSdk = flutter.compileSdkVersion
+     // ndkVersion = flutter.ndkVersion
++    compileSdk = 35
+     ndkVersion = "27.0.12077973"
+ 
+     compileOptions {
+@@ -21,20 +25,19 @@ android {
+     }
+ 
+     defaultConfig {
+-        // TODO: Specify your own unique Application ID (https://developer.android.com/studio/build/application-id.html).
+         applicationId = "br.com.tiago.db_sqlite"
+         // You can update the following values to match your application needs.
+         // For more information, see: https://flutter.dev/to/review-gradle-config.
+-        minSdk = flutter.minSdkVersion
+-        targetSdk = flutter.targetSdkVersion
++        // minSdk = flutter.minSdkVersion
++        minSdk = 23
++        // targetSdk = flutter.targetSdkVersion
++        targetSdk = 35
+         versionCode = flutter.versionCode
+         versionName = flutter.versionName
+     }
+ 
+     buildTypes {
+         release {
+-            // TODO: Add your own signing config for the release build.
+-            // Signing with the debug keys for now, so `flutter run --release` works.
+             signingConfig = signingConfigs.getByName("debug")
+         }
+     }
+diff --git a/android/settings.gradle.kts b/android/settings.gradle.kts
+index a439442..c071699 100644
+--- a/android/settings.gradle.kts
++++ b/android/settings.gradle.kts
+@@ -19,7 +19,12 @@ pluginManagement {
+ plugins {
+     id("dev.flutter.flutter-plugin-loader") version "1.0.0"
+     id("com.android.application") version "8.7.0" apply false
+-    id("org.jetbrains.kotlin.android") version "1.8.22" apply false
++    // START: FlutterFire Configuration
++    id("com.google.gms.google-services") version("4.3.15") apply false
++    id("com.google.firebase.crashlytics") version("2.8.1") apply false
++    // END: FlutterFire Configuration
++    // id("org.jetbrains.kotlin.android") version "1.8.22" apply false
++    id("org.jetbrains.kotlin.android") version "2.2.0" apply false
+ }
+ 
+ include(":app")
+diff --git a/lib/data/db/banco_de_dados.dart b/lib/data/db/banco_de_dados.dart
+index e456098..f8ba00d 100644
+--- a/lib/data/db/banco_de_dados.dart
++++ b/lib/data/db/banco_de_dados.dart
+@@ -1,3 +1,4 @@
++import 'package:flutter/material.dart';
+ import 'package:path/path.dart';
+ import 'package:sqflite/sqflite.dart';
+ 
+@@ -13,7 +14,7 @@ class BancoDeDados {
+   static Future<Database> _iniciarBanco() async {
+     final caminho = await getDatabasesPath();
+     final caminhoCompleto = join(caminho, 'app.db');
+-    //debugPrint('Caminho do banco de dados: $caminhoCompleto');
++    debugPrint('Caminho do banco de dados: $caminhoCompleto');
+ 
+     return openDatabase(
+       caminhoCompleto,
+diff --git a/lib/main.dart b/lib/main.dart
+index 7a77105..f9dbf27 100644
+--- a/lib/main.dart
++++ b/lib/main.dart
+@@ -1,20 +1,41 @@
++import 'dart:io';
++import 'dart:ui';
++import 'package:db_sqlite/screens/desktop/login_screen_desktop.dart';
+ import 'package:db_sqlite/store/finan_lancamento_store.dart';
++import 'package:db_sqlite/widgets/build_responsivo.dart';
+ import 'package:flutter/material.dart';
+ import 'package:provider/provider.dart';
+-
+ import 'package:db_sqlite/store/auth_store.dart';
+ import 'package:db_sqlite/store/finan_tipo_store.dart';
+ import 'package:db_sqlite/store/usuario_store.dart';
+ import 'package:db_sqlite/store/finan_categoria_store.dart';
+-
+ import 'package:db_sqlite/utils/seed.dart';
+-import 'package:db_sqlite/screens/login_screen.dart';
+-
++import 'package:db_sqlite/screens/mobile/login_screen.dart';
+ import 'package:flutter_localizations/flutter_localizations.dart';
++import 'package:sqflite_common_ffi/sqflite_ffi.dart';
++import 'package:firebase_core/firebase_core.dart';
++import 'package:firebase_crashlytics/firebase_crashlytics.dart';
+ 
+ void main() async {
+   WidgetsFlutterBinding.ensureInitialized();
+ 
++  if (Platform.isAndroid || Platform.isIOS) {
++    await Firebase.initializeApp();
++    FlutterError.onError = (errorDetails) {
++      FirebaseCrashlytics.instance.recordFlutterFatalError(errorDetails);
++    };
++
++    PlatformDispatcher.instance.onError = (error, stack) {
++      FirebaseCrashlytics.instance.recordError(error, stack, fatal: true);
++      return true;
++    };
++  }
++
++  if (Platform.isLinux || Platform.isWindows || Platform.isMacOS) {
++    sqfliteFfiInit();
++    databaseFactory = databaseFactoryFfi;
++  }
++
+   await inicializarBancoComDadosPadrao();
+ 
+   runApp(
+@@ -30,7 +51,7 @@ void main() async {
+         localizationsDelegates: const [GlobalMaterialLocalizations.delegate, GlobalWidgetsLocalizations.delegate, GlobalCupertinoLocalizations.delegate],
+         locale: const Locale('pt', 'BR'),
+         supportedLocales: const [Locale('pt', 'BR')],
+-        home: LoginScreen(),
++        home: BuildResponsivo(desktop: LoginScreenDesktop(), mobile: LoginScreen(), tablet: LoginScreen()),
+         title: 'Login',
+         theme: ThemeData(
+           useMaterial3: true,
+diff --git a/lib/screens/configuracao_screen.dart b/lib/screens/configuracao_screen.dart
+deleted file mode 100644
+index 3840796..0000000
+--- a/lib/screens/configuracao_screen.dart
++++ /dev/null
+@@ -1,45 +0,0 @@
+-import 'package:db_sqlite/screens/finan_categoria_screen.dart';
+-import 'package:db_sqlite/screens/finan_tipo_screen.dart';
+-import 'package:db_sqlite/screens/usuario_screen.dart';
+-import 'package:db_sqlite/utils/routes_context_transations.dart';
+-import 'package:flutter/material.dart';
+-
+-class ConfigScreen extends StatelessWidget {
+-  const ConfigScreen({super.key});
+-
+-  @override
+-  Widget build(BuildContext context) {
+-    return Scaffold(
+-      appBar: AppBar(title: const Text('Configurações')),
+-      body: ListView(
+-        children: [
+-          ListTile(
+-            leading: const Icon(Icons.person),
+-            title: const Text('Usuários'),
+-            subtitle: const Text('Gerencie os usuários do sistema'),
+-            trailing: const Icon(Icons.arrow_forward_ios),
+-            onTap: () => context.pushRtL(const UsuarioScreen()),
+-          ),
+-          const Divider(),
+-
+-          ListTile(
+-            leading: const Icon(Icons.category),
+-            title: const Text('Categorias Financeiras'),
+-            subtitle: const Text('Cadastrar e editar categorias'),
+-            trailing: const Icon(Icons.arrow_forward_ios),
+-            onTap: () => context.pushRtL(const FinanCategoriaScreen()),
+-          ),
+-          const Divider(),
+-
+-          ListTile(
+-            leading: const Icon(Icons.label),
+-            title: const Text('Tipos Financeiros'),
+-            subtitle: const Text('Cadastrar e editar tipos'),
+-            trailing: const Icon(Icons.arrow_forward_ios),
+-            onTap: () => context.pushRtL(const FinanTipoScreen()),
+-          ),
+-        ],
+-      ),
+-    );
+-  }
+-}
+diff --git a/lib/screens/finan_categoria_screen.dart b/lib/screens/finan_categoria_screen.dart
+deleted file mode 100644
+index 59defa0..0000000
+--- a/lib/screens/finan_categoria_screen.dart
++++ /dev/null
+@@ -1,228 +0,0 @@
+-import 'package:db_sqlite/store/finan_categoria_store.dart';
+-import 'package:db_sqlite/utils/routes_context_transations.dart';
+-import 'package:db_sqlite/widgets/finan_categoria_form.dart';
+-import 'package:flutter/material.dart';
+-import 'package:provider/provider.dart';
+-
+-class FinanCategoriaScreen extends StatefulWidget {
+-  const FinanCategoriaScreen({super.key});
+-
+-  @override
+-  State<FinanCategoriaScreen> createState() => _FinanCategoriaScreenState();
+-}
+-
+-class _FinanCategoriaScreenState extends State<FinanCategoriaScreen> {
+-  @override
+-  void initState() {
+-    super.initState();
+-    WidgetsBinding.instance.addPostFrameCallback((_) {
+-      Provider.of<FinanCategoriaStore>(context, listen: false).carregarCategorias();
+-    });
+-  }
+-
+-  @override
+-  Widget build(BuildContext context) {
+-    final store = Provider.of<FinanCategoriaStore>(context);
+-
+-    // Exibe snackbar se houver erro
+-    if (store.estado == EstadoFinanCategoria.erro && store.mensagemErro != null) {
+-      WidgetsBinding.instance.addPostFrameCallback((_) {
+-        ScaffoldMessenger.of(context).showSnackBar(
+-          SnackBar(
+-            content: Text(store.mensagemErro!),
+-            backgroundColor: Colors.red,
+-            showCloseIcon: true,
+-            // width: Material, // Width of the SnackBar.
+-            padding: const EdgeInsets.symmetric(
+-              horizontal: 8.0, // Inner padding for SnackBar content.
+-            ),
+-            behavior: SnackBarBehavior.floating,
+-            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(5.0)),
+-            elevation: 10,
+-            dismissDirection: DismissDirection.horizontal,
+-            animation: CurvedAnimation(parent: const AlwaysStoppedAnimation(1.5), curve: Curves.easeIn),
+-          ),
+-        );
+-        store.limparErro();
+-      });
+-    }
+-
+-    if (store.estado == EstadoFinanCategoria.deletado) {
+-      WidgetsBinding.instance.addPostFrameCallback((_) {
+-        ScaffoldMessenger.of(context).showSnackBar(
+-          SnackBar(
+-            content: Text('Deletado'),
+-
+-            backgroundColor: Colors.green,
+-            showCloseIcon: true,
+-            // width: Material, // Width of the SnackBar.
+-            padding: const EdgeInsets.symmetric(
+-              horizontal: 8.0, // Inner padding for SnackBar content.
+-            ),
+-            behavior: SnackBarBehavior.floating,
+-            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(5.0)),
+-            elevation: 10,
+-            dismissDirection: DismissDirection.horizontal,
+-            animation: CurvedAnimation(parent: const AlwaysStoppedAnimation(1.5), curve: Curves.easeIn),
+-          ),
+-        );
+-        store.limparErro();
+-      });
+-    }
+-
+-    if (store.estado == EstadoFinanCategoria.incluido) {
+-      WidgetsBinding.instance.addPostFrameCallback((_) {
+-        ScaffoldMessenger.of(context).showSnackBar(
+-          SnackBar(
+-            content: Text('Cadastrado.'),
+-            backgroundColor: Colors.green,
+-            showCloseIcon: true,
+-            // width: Material, // Width of the SnackBar.
+-            padding: const EdgeInsets.symmetric(
+-              horizontal: 8.0, // Inner padding for SnackBar content.
+-            ),
+-            behavior: SnackBarBehavior.floating,
+-            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(5.0)),
+-            elevation: 10,
+-            dismissDirection: DismissDirection.horizontal,
+-            animation: CurvedAnimation(parent: const AlwaysStoppedAnimation(1.5), curve: Curves.easeIn),
+-          ),
+-        );
+-        store.limparErro();
+-      });
+-    }
+-
+-    if (store.estado == EstadoFinanCategoria.alterado) {
+-      WidgetsBinding.instance.addPostFrameCallback((_) {
+-        ScaffoldMessenger.of(context).showSnackBar(
+-          SnackBar(
+-            content: Text('Alterado.'),
+-            backgroundColor: Colors.green,
+-            showCloseIcon: true,
+-            // width: Material, // Width of the SnackBar.
+-            padding: const EdgeInsets.symmetric(
+-              horizontal: 8.0, // Inner padding for SnackBar content.
+-            ),
+-            behavior: SnackBarBehavior.floating,
+-            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(5.0)),
+-            elevation: 10,
+-            dismissDirection: DismissDirection.horizontal,
+-            animation: CurvedAnimation(parent: const AlwaysStoppedAnimation(1.5), curve: Curves.easeIn),
+-          ),
+-        );
+-        store.limparErro();
+-      });
+-    }
+-
+-    Widget corpo;
+-
+-    switch (store.estado) {
+-      case EstadoFinanCategoria.carregando:
+-        corpo = Center(child: CircularProgressIndicator(semanticsLabel: 'Carregando...'));
+-        break;
+-      case EstadoFinanCategoria.deletando:
+-        corpo = Center(child: CircularProgressIndicator(semanticsLabel: 'Deletando...'));
+-        break;
+-      case EstadoFinanCategoria.incluindo:
+-        corpo = Center(child: CircularProgressIndicator(semanticsLabel: 'Incluindo...'));
+-        break;
+-      case EstadoFinanCategoria.alterando:
+-        corpo = Center(child: CircularProgressIndicator(semanticsLabel: 'Alterando...'));
+-        break;
+-      case EstadoFinanCategoria.carregado:
+-        corpo = ListView.builder(
+-          padding: EdgeInsets.all(8),
+-          itemCount: store.finanCategorias.length,
+-          itemBuilder: (_, index) {
+-            final cat = store.finanCategorias[index];
+-            return Padding(
+-              padding: const EdgeInsets.all(2.0),
+-              child: ListTile(
+-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10), side: BorderSide(color: Colors.blueGrey, width: 0.5)),
+-                isThreeLine: false,
+-                dense: true,
+-                leading: CircleAvatar(
+-                  backgroundColor: Colors.black,
+-                  foregroundColor: Colors.white,
+-                  child: cat.id != null ? Text(cat.id.toString()) : Icon(Icons.playlist_add_check_circle_sharp),
+-                ),
+-                title: Text(cat.descricao ?? ''),
+-                trailing: Container(
+-                   height: MediaQuery.of(context).size.height * 0.04,
+-                  decoration: BoxDecoration(
+-                    color: Colors.black,
+-                    borderRadius: BorderRadius.circular(6),
+-                    boxShadow: [BoxShadow(color: Colors.black26, blurRadius: 4, offset: Offset(0, 2))],
+-                  ),
+-                  child: Row(
+-                    mainAxisSize: MainAxisSize.min,
+-                    children: [
+-                      IconButton(
+-                        icon: const Icon(Icons.edit_square, color: Colors.blue, size: 16),
+-                        onPressed: () => context.pushRtL(FormularioFinanCategoria(categoria: cat)),
+-                      ),
+-                      VerticalDivider(),
+-                      IconButton(icon: Icon(Icons.delete_forever, color: Colors.red, size: 16), onPressed: () => _confirmarExclusaoCategoria(context, cat.id!)),
+-                    ],
+-                  ),
+-                ),
+-              ),
+-            );
+-          },
+-        );
+-        break;
+-      default:
+-        corpo = Center(child: CircularProgressIndicator(semanticsLabel: 'Padrão...'));
+-    }
+-    return Scaffold(
+-      appBar: AppBar(
+-        title: Text('Categoria de Finanças'),
+-        actions: [
+-          IconButton(
+-            icon: const Icon(Icons.add_box_rounded, color: Colors.black, applyTextScaling: true, size: 35),
+-            onPressed: () => context.pushRtL(FormularioFinanCategoria()),
+-          ),
+-        ],
+-      ),
+-      body: corpo,
+-    );
+-  }
+-
+-  void _confirmarExclusaoCategoria(BuildContext context, int id) {
+-    final store = Provider.of<FinanCategoriaStore>(context, listen: false);
+-
+-    showDialog(
+-      context: context,
+-      builder:
+-          (_) => AlertDialog(
+-            title: Text('Excluir Categoria'),
+-            content: Text('Deseja realmente excluir a Categoria?'),
+-            actions: [
+-              TextButton(
+-                onPressed: () => Navigator.of(context).pop(),
+-                style: ButtonStyle(
+-                  backgroundColor: WidgetStatePropertyAll(Colors.transparent),
+-                  foregroundColor: WidgetStatePropertyAll(Colors.blue),
+-                  shape: WidgetStatePropertyAll(RoundedRectangleBorder(borderRadius: BorderRadius.circular(10))),
+-                ),
+-                child: Text('Cancelar'),
+-              ),
+-              TextButton(
+-                onPressed: () async {
+-                  await store.removerCategoria(id);
+-                  WidgetsBinding.instance.addPostFrameCallback((_) {
+-                    Navigator.of(context).pop();
+-                  });
+-                },
+-                style: ButtonStyle(
+-                  backgroundColor: WidgetStatePropertyAll(Colors.red),
+-                  foregroundColor: WidgetStatePropertyAll(Colors.white),
+-                  shape: WidgetStatePropertyAll(RoundedRectangleBorder(borderRadius: BorderRadius.circular(10))),
+-                ),
+-                child: const Text('Excluir'),
+-              ),
+-            ],
+-          ),
+-    );
+-  }
+-}
+diff --git a/lib/screens/finan_lancamento_screen.dart b/lib/screens/finan_lancamento_screen.dart
+deleted file mode 100644
+index e034dcb..0000000
+--- a/lib/screens/finan_lancamento_screen.dart
++++ /dev/null
+@@ -1,252 +0,0 @@
+-import 'package:db_sqlite/screens/finan_lancamento_screen_todos.dart';
+-import 'package:db_sqlite/store/finan_lancamento_store.dart';
+-import 'package:db_sqlite/utils/routes_context_transations.dart';
+-import 'package:db_sqlite/widgets/finan_lancamento_form.dart';
+-import 'package:flutter/material.dart';
+-import 'package:intl/intl.dart';
+-import 'package:provider/provider.dart';
+-
+-class FinanLancamentoScreen extends StatefulWidget {
+-  const FinanLancamentoScreen({super.key});
+-
+-  @override
+-  State<FinanLancamentoScreen> createState() => _FinanLancamentoScreenState();
+-}
+-
+-class _FinanLancamentoScreenState extends State<FinanLancamentoScreen> {
+-  @override
+-  void initState() {
+-    super.initState();
+-    WidgetsBinding.instance.addPostFrameCallback((_) {
+-      Provider.of<FinanLancamentoStore>(context, listen: false).carregarLancamentosMes();
+-    });
+-  }
+-
+-  @override
+-  Widget build(BuildContext context) {
+-    final store = Provider.of<FinanLancamentoStore>(context);
+-
+-    // Mostra erro caso ocorra
+-    if (store.estado == EstadoLancamento.erro && store.mensagemErro != null) {
+-      WidgetsBinding.instance.addPostFrameCallback((_) {
+-        ScaffoldMessenger.of(context).showSnackBar(
+-          SnackBar(
+-            content: Text(store.mensagemErro!),
+-            backgroundColor: Colors.red,
+-            showCloseIcon: true,
+-            // width: Material, // Width of the SnackBar.
+-            padding: const EdgeInsets.symmetric(
+-              horizontal: 8.0, // Inner padding for SnackBar content.
+-            ),
+-            behavior: SnackBarBehavior.floating,
+-            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(5.0)),
+-            elevation: 10,
+-            dismissDirection: DismissDirection.horizontal,
+-            animation: CurvedAnimation(parent: const AlwaysStoppedAnimation(1.5), curve: Curves.easeIn),
+-          ),
+-        );
+-        store.limparErro();
+-      });
+-    }
+-
+-    if (store.estado == EstadoLancamento.deletado) {
+-      WidgetsBinding.instance.addPostFrameCallback((_) {
+-        ScaffoldMessenger.of(context).showSnackBar(
+-          SnackBar(
+-            content: Text('Deletado'),
+-            backgroundColor: Colors.green,
+-            showCloseIcon: true,
+-            // width: Material, // Width of the SnackBar.
+-            padding: const EdgeInsets.symmetric(
+-              horizontal: 8.0, // Inner padding for SnackBar content.
+-            ),
+-            behavior: SnackBarBehavior.floating,
+-            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(5.0)),
+-            elevation: 10,
+-            dismissDirection: DismissDirection.horizontal,
+-            animation: CurvedAnimation(parent: const AlwaysStoppedAnimation(1.5), curve: Curves.easeIn),
+-          ),
+-        );
+-        store.limparErro();
+-      });
+-    }
+-
+-    if (store.estado == EstadoLancamento.incluido) {
+-      WidgetsBinding.instance.addPostFrameCallback((_) {
+-        ScaffoldMessenger.of(context).showSnackBar(
+-          SnackBar(
+-            content: Text('Cadastrado.'),
+-            backgroundColor: Colors.green,
+-            showCloseIcon: true,
+-            // width: Material, // Width of the SnackBar.
+-            padding: const EdgeInsets.symmetric(
+-              horizontal: 8.0, // Inner padding for SnackBar content.
+-            ),
+-            behavior: SnackBarBehavior.floating,
+-            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(5.0)),
+-            elevation: 10,
+-            dismissDirection: DismissDirection.horizontal,
+-            animation: CurvedAnimation(parent: const AlwaysStoppedAnimation(1.5), curve: Curves.easeIn),
+-          ),
+-        );
+-        store.limparErro();
+-      });
+-    }
+-
+-    if (store.estado == EstadoLancamento.alterado) {
+-      WidgetsBinding.instance.addPostFrameCallback((_) {
+-        ScaffoldMessenger.of(context).showSnackBar(
+-          SnackBar(
+-            content: Text('Alterado.'),
+-            backgroundColor: Colors.green,
+-            showCloseIcon: true,
+-            // width: Material, // Width of the SnackBar.
+-            padding: const EdgeInsets.symmetric(
+-              horizontal: 8.0, // Inner padding for SnackBar content.
+-            ),
+-            behavior: SnackBarBehavior.floating,
+-            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(5.0)),
+-            elevation: 10,
+-            dismissDirection: DismissDirection.horizontal,
+-            animation: CurvedAnimation(parent: const AlwaysStoppedAnimation(1.5), curve: Curves.easeIn),
+-          ),
+-        );
+-        store.limparErro();
+-      });
+-    }
+-
+-    Widget corpo;
+-
+-    switch (store.estado) {
+-      case EstadoLancamento.carregando:
+-        corpo = Center(child: CircularProgressIndicator(semanticsLabel: 'Carregando...'));
+-        break;
+-      case EstadoLancamento.deletando:
+-        corpo = Center(child: CircularProgressIndicator(semanticsLabel: 'Deletando...'));
+-        break;
+-      case EstadoLancamento.incluindo:
+-        corpo = Center(child: CircularProgressIndicator(semanticsLabel: 'Incluindo...'));
+-        break;
+-      case EstadoLancamento.alterando:
+-        corpo = Center(child: CircularProgressIndicator(semanticsLabel: 'Alterando...'));
+-        break;
+-      case EstadoLancamento.carregado:
+-        corpo = ListView.builder(
+-          padding: EdgeInsets.all(8),
+-          itemCount: store.lancamentosMes.length,
+-          itemBuilder: (_, index) {
+-            final lanc = store.lancamentosMes[index];
+-            return Padding(
+-              padding: const EdgeInsets.all(2.0),
+-              child: ListTile(
+-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10), side: BorderSide(color: Colors.blueGrey, width: 0.5)),
+-                isThreeLine: false,
+-                dense: true,
+-                leading: CircleAvatar(backgroundColor: Colors.black, maxRadius: MediaQuery.of(context).size.width * 0.07, 
+-                child: Text(lanc.tipoDescricao.toString(), softWrap: true,  
+-                style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, overflow: TextOverflow.ellipsis, color: Colors.white)),),
+-                title: Text('R\$ ${lanc.valor.toStringAsFixed(2)}', style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold,)),
+-                subtitle: Text(
+-                  '${lanc.categoriaDescricao.toString()} - ${DateFormat('dd/MM/yyyy').format(lanc.data as DateTime)} \n'
+-                  '${lanc.descricao.toString()}',
+-                  style: TextStyle(fontSize: 12, color: Colors.black54),
+-                ),
+-                trailing: Container(
+-                  height: MediaQuery.of(context).size.height * 0.04,
+-                  decoration: BoxDecoration(
+-                    color: Colors.black,
+-                    borderRadius: BorderRadius.circular(6),
+-                    boxShadow: [BoxShadow(color: Colors.black26, blurRadius: 4, offset: Offset(0, 2))],
+-                  ),
+-                  child: Row(
+-                    mainAxisSize: MainAxisSize.min,
+-                    children: [
+-                      IconButton(
+-                        icon: const Icon(Icons.edit_square, color: Colors.blue, size: 16),
+-                        onPressed: () => context.pushRtL(FinanLancamentoForm(lancamento: lanc)),
+-                      ),
+-                      VerticalDivider(),
+-                      IconButton(icon: const Icon(Icons.delete_forever, color: Colors.red, size: 16), onPressed: () => _confirmarExclusao(context, lanc.id!)),
+-                    ],
+-                  ),
+-                ),
+-              ),
+-            );
+-          },
+-        );
+-        break;
+-      default:
+-        corpo = Center(child: CircularProgressIndicator(semanticsLabel: 'Padrão...'));
+-    }
+-
+-    return Scaffold(
+-      appBar: AppBar(
+-        title: const Text('Lançamentos Financeiros do mês', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+-        actions: [
+-          IconButton(
+-            icon: const Icon(Icons.add_box_rounded, color: Colors.black, applyTextScaling: true, size: 35),
+-            onPressed: () => context.pushRtL(FinanLancamentoForm()),
+-          ),
+-        ],
+-      ),
+-      body: corpo,
+-      floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
+-      floatingActionButton: Container(
+-        padding: const EdgeInsets.only(left: 20, right: 20),
+-        height: MediaQuery.of(context).size.height * 0.05,
+-        width: MediaQuery.of(context).size.width * 1,
+-        child: FloatingActionButton.extended(
+-          label: Row(
+-            children: [
+-              Text('Ver todos os lançamentos       ', style: TextStyle(fontSize: 16, color: Colors.white)),
+-              Icon(Icons.keyboard_double_arrow_right_outlined, applyTextScaling: true, color: Colors.green, size: 35),
+-            ],
+-          ),
+-          onPressed: () => context.pushRtL(FinanLancamentoScreenTodos()),
+-          isExtended: true,
+-          backgroundColor: Colors.black,
+-          tooltip: 'Ver todos os lançamentos',
+-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(6)),
+-        ),
+-      ),
+-    );
+-  }
+-
+-  void _confirmarExclusao(BuildContext context, int id) {
+-    final store = Provider.of<FinanLancamentoStore>(context, listen: false);
+-
+-    showDialog(
+-      context: context,
+-      builder:
+-          (_) => AlertDialog(
+-            title: const Text('Confirmar exclusão'),
+-            content: const Text('Deseja realmente excluir este lançamento?'),
+-            actions: [
+-              TextButton(
+-                onPressed: () => Navigator.of(context).pop(),
+-                style: ButtonStyle(
+-                  backgroundColor: WidgetStatePropertyAll(Colors.transparent),
+-                  foregroundColor: WidgetStatePropertyAll(Colors.blue),
+-                  shape: WidgetStatePropertyAll(RoundedRectangleBorder(borderRadius: BorderRadius.circular(10))),
+-                ),
+-                child: Text('Cancelar'),
+-              ),
+-              TextButton(
+-                style: ButtonStyle(
+-                  backgroundColor: WidgetStatePropertyAll(Colors.red),
+-                  foregroundColor: WidgetStatePropertyAll(Colors.white),
+-                  shape: WidgetStatePropertyAll(RoundedRectangleBorder(borderRadius: BorderRadius.circular(10))),
+-                ),
+-                onPressed: () async {
+-                  await store.removerLancamento(id);
+-                  WidgetsBinding.instance.addPostFrameCallback((_) {
+-                    Navigator.of(context).pop();
+-                  });
+-                },
+-                child: const Text('Excluir'),
+-              ),
+-            ],
+-          ),
+-    );
+-  }
+-}
+diff --git a/lib/screens/finan_lancamento_screen_todos.dart b/lib/screens/finan_lancamento_screen_todos.dart
+deleted file mode 100644
+index b3df5be..0000000
+--- a/lib/screens/finan_lancamento_screen_todos.dart
++++ /dev/null
+@@ -1,232 +0,0 @@
+-import 'package:db_sqlite/store/finan_lancamento_store.dart';
+-import 'package:db_sqlite/utils/routes_context_transations.dart';
+-import 'package:db_sqlite/widgets/finan_lancamento_form.dart';
+-import 'package:flutter/material.dart';
+-import 'package:intl/intl.dart';
+-import 'package:provider/provider.dart';
+-
+-class FinanLancamentoScreenTodos extends StatefulWidget {
+-  const FinanLancamentoScreenTodos({super.key});
+-
+-  @override
+-  State<FinanLancamentoScreenTodos> createState() => _FinanLancamentoScreenTodosState();
+-}
+-
+-class _FinanLancamentoScreenTodosState extends State<FinanLancamentoScreenTodos> {
+-  @override
+-  void initState() {
+-    super.initState();
+-    WidgetsBinding.instance.addPostFrameCallback((_) {
+-      Provider.of<FinanLancamentoStore>(context, listen: false).carregarLancamentos();
+-    });
+-  }
+-
+-  @override
+-  Widget build(BuildContext context) {
+-    final store = Provider.of<FinanLancamentoStore>(context);
+-
+-    // Mostra erro caso ocorra
+-    if (store.estado == EstadoLancamento.erro && store.mensagemErro != null) {
+-      WidgetsBinding.instance.addPostFrameCallback((_) {
+-        ScaffoldMessenger.of(context).showSnackBar(
+-          SnackBar(
+-            content: Text(store.mensagemErro!),
+-            backgroundColor: Colors.red,
+-            showCloseIcon: true,
+-            // width: Material, // Width of the SnackBar.
+-            padding: const EdgeInsets.symmetric(
+-              horizontal: 8.0, // Inner padding for SnackBar content.
+-            ),
+-            behavior: SnackBarBehavior.floating,
+-            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(5.0)),
+-            elevation: 10,
+-            dismissDirection: DismissDirection.horizontal,
+-            animation: CurvedAnimation(parent: const AlwaysStoppedAnimation(1.5), curve: Curves.easeIn),
+-          ),
+-        );
+-        store.limparErro();
+-      });
+-    }
+-
+-    if (store.estado == EstadoLancamento.deletado) {
+-      WidgetsBinding.instance.addPostFrameCallback((_) {
+-        ScaffoldMessenger.of(context).showSnackBar(
+-          SnackBar(
+-            content: Text('Deletado'),
+-            backgroundColor: Colors.green,
+-            showCloseIcon: true,
+-            // width: Material, // Width of the SnackBar.
+-            padding: const EdgeInsets.symmetric(
+-              horizontal: 8.0, // Inner padding for SnackBar content.
+-            ),
+-            behavior: SnackBarBehavior.floating,
+-            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(5.0)),
+-            elevation: 10,
+-            dismissDirection: DismissDirection.horizontal,
+-            animation: CurvedAnimation(parent: const AlwaysStoppedAnimation(1.5), curve: Curves.easeIn),
+-          ),
+-        );
+-        store.limparErro();
+-      });
+-    }
+-
+-    if (store.estado == EstadoLancamento.incluido) {
+-      WidgetsBinding.instance.addPostFrameCallback((_) {
+-        ScaffoldMessenger.of(context).showSnackBar(
+-          SnackBar(
+-            content: Text('Cadastrado.'),
+-            backgroundColor: Colors.green,
+-            showCloseIcon: true,
+-            // width: Material, // Width of the SnackBar.
+-            padding: const EdgeInsets.symmetric(
+-              horizontal: 8.0, // Inner padding for SnackBar content.
+-            ),
+-            behavior: SnackBarBehavior.floating,
+-            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(5.0)),
+-            elevation: 10,
+-            dismissDirection: DismissDirection.horizontal,
+-            animation: CurvedAnimation(parent: const AlwaysStoppedAnimation(1.5), curve: Curves.easeIn),
+-          ),
+-        );
+-        store.limparErro();
+-      });
+-    }
+-
+-    if (store.estado == EstadoLancamento.alterado) {
+-      WidgetsBinding.instance.addPostFrameCallback((_) {
+-        ScaffoldMessenger.of(context).showSnackBar(
+-          SnackBar(
+-            content: Text('Alterado.'),
+-            backgroundColor: Colors.green,
+-            showCloseIcon: true,
+-            // width: Material, // Width of the SnackBar.
+-            padding: const EdgeInsets.symmetric(
+-              horizontal: 8.0, // Inner padding for SnackBar content.
+-            ),
+-            behavior: SnackBarBehavior.floating,
+-            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(5.0)),
+-            elevation: 10,
+-            dismissDirection: DismissDirection.horizontal,
+-            animation: CurvedAnimation(parent: const AlwaysStoppedAnimation(1.5), curve: Curves.easeIn),
+-          ),
+-        );
+-        store.limparErro();
+-      });
+-    }
+-
+-    Widget corpo;
+-
+-    switch (store.estado) {
+-      case EstadoLancamento.carregando:
+-        corpo = Center(child: CircularProgressIndicator(semanticsLabel: 'Carregando...'));
+-        break;
+-      case EstadoLancamento.deletando:
+-        corpo = Center(child: CircularProgressIndicator(semanticsLabel: 'Deletando...'));
+-        break;
+-      case EstadoLancamento.incluindo:
+-        corpo = Center(child: CircularProgressIndicator(semanticsLabel: 'Incluindo...'));
+-        break;
+-      case EstadoLancamento.alterando:
+-        corpo = Center(child: CircularProgressIndicator(semanticsLabel: 'Alterando...'));
+-        break;
+-      case EstadoLancamento.carregado:
+-        corpo = ListView.builder(
+-          padding: EdgeInsets.all(8),          
+-          itemCount: store.lancamentos.length,
+-          itemBuilder: (_, index) {
+-            final lanc = store.lancamentos[index];
+-            return Padding(
+-              padding: const EdgeInsets.all(2.0),
+-              child: ListTile(                
+-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10), side: BorderSide(color: Colors.blueGrey, width: 0.5)),
+-                isThreeLine: false,
+-                dense: true,
+-                leading: CircleAvatar(backgroundColor: Colors.black, maxRadius: MediaQuery.of(context).size.width * 0.07, 
+-                child: Text(lanc.tipoDescricao.toString(), softWrap: true,  
+-                style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, overflow: TextOverflow.ellipsis, color: Colors.white)),),
+-                title: Text('R\$ ${lanc.valor.toStringAsFixed(2)}', style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold)),
+-                subtitle: Text(
+-                  '${lanc.categoriaDescricao.toString()} - ${DateFormat('dd/MM/yyyy').format(lanc.data as DateTime)} \n'
+-                  '${lanc.descricao.toString()}',
+-                  style: TextStyle(fontSize: 12, color: Colors.black54),
+-                ),
+-                trailing: Container(
+-                  height: MediaQuery.of(context).size.height * 0.04,
+-                  decoration: BoxDecoration(
+-                    color: Colors.black,
+-                    borderRadius: BorderRadius.circular(6),
+-                    boxShadow: [BoxShadow(color: Colors.black26, blurRadius: 4, offset: Offset(0, 2))],
+-                  ),
+-                  child: Row(
+-                    mainAxisSize: MainAxisSize.min,
+-                    children: [
+-                      IconButton(
+-                        icon: const Icon(Icons.edit_square, color: Colors.blue, size: 16),
+-                        onPressed: () => context.pushRtL(FinanLancamentoForm(lancamento: lanc)),
+-                      ),
+-                      VerticalDivider(),
+-                      IconButton(icon: const Icon(Icons.delete_forever, color: Colors.red, size: 16), onPressed: () => _confirmarExclusao(context, lanc.id!)),
+-                    ],
+-                  ),
+-                ),
+-              ),
+-            );
+-          },
+-        );
+-        break;
+-      default:
+-        corpo = Center(child: CircularProgressIndicator(semanticsLabel: 'Padrão...'));
+-    }
+-
+-    return Scaffold(
+-      appBar: AppBar(
+-        title: const Text('Lançamentos Financeiros', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+-        actions: [
+-          IconButton(
+-            icon: const Icon(Icons.add_box_rounded, color: Colors.black, applyTextScaling: true, size: 35),
+-            onPressed: () => context.pushRtL(FinanLancamentoForm()),
+-          ),
+-        ],
+-      ),
+-      body: corpo,
+-    );
+-  }
+-
+-  void _confirmarExclusao(BuildContext context, int id) {
+-    final store = Provider.of<FinanLancamentoStore>(context, listen: false);
+-
+-    showDialog(
+-      context: context,
+-      builder:
+-          (_) => AlertDialog(
+-            title: const Text('Confirmar exclusão'),
+-            content: const Text('Deseja realmente excluir este lançamento?'),
+-            actions: [
+-              TextButton(
+-                onPressed: () => Navigator.of(context).pop(),
+-                style: ButtonStyle(
+-                  backgroundColor: WidgetStatePropertyAll(Colors.transparent),
+-                  foregroundColor: WidgetStatePropertyAll(Colors.blue),
+-                  shape: WidgetStatePropertyAll(RoundedRectangleBorder(borderRadius: BorderRadius.circular(10))),
+-                ),
+-                child: Text('Cancelar'),
+-              ),
+-              TextButton(
+-                style: ButtonStyle(
+-                  backgroundColor: WidgetStatePropertyAll(Colors.red),
+-                  foregroundColor: WidgetStatePropertyAll(Colors.white),
+-                  shape: WidgetStatePropertyAll(RoundedRectangleBorder(borderRadius: BorderRadius.circular(10))),
+-                ),
+-                onPressed: () async {
+-                  await store.removerLancamento(id);
+-                  WidgetsBinding.instance.addPostFrameCallback((_) {
+-                    Navigator.of(context).pop();
+-                  });
+-                },
+-                child: const Text('Excluir'),
+-              ),
+-            ],
+-          ),
+-    );
+-  }
+-}
+diff --git a/lib/screens/finan_tipo_screen.dart b/lib/screens/finan_tipo_screen.dart
+deleted file mode 100644
+index 3f56fcb..0000000
+--- a/lib/screens/finan_tipo_screen.dart
++++ /dev/null
+@@ -1,245 +0,0 @@
+-import 'package:db_sqlite/store/finan_tipo_store.dart';
+-import 'package:db_sqlite/utils/routes_context_transations.dart';
+-import 'package:db_sqlite/widgets/finan_tipo_form.dart';
+-import 'package:flutter/material.dart';
+-import 'package:provider/provider.dart';
+-
+-class FinanTipoScreen extends StatefulWidget {
+-  const FinanTipoScreen({super.key});
+-
+-  @override
+-  State<FinanTipoScreen> createState() => _FinanTipoScreenState();
+-}
+-
+-class _FinanTipoScreenState extends State<FinanTipoScreen> {
+-  final ScrollController _scrollController = ScrollController();
+-
+-  @override
+-  void initState() {
+-    super.initState();
+-    WidgetsBinding.instance.addPostFrameCallback((_) {
+-      Provider.of<FinanTipoStore>(context, listen: false).carregarTipos();
+-    });
+-    _scrollController.addListener(_onScroll);
+-  }
+-
+-  @override
+-  void dispose() {
+-    // 4. Remover o listener e dispor o controller
+-    _scrollController.removeListener(_onScroll);
+-    _scrollController.dispose();
+-    super.dispose();
+-  }
+-
+-  void _onScroll() {
+-    final store = Provider.of<FinanTipoStore>(context, listen: false);
+-    // Verifica se a posição atual de rolagem é maior ou igual à máxima
+-    // e se o estado atual não é de carregamento.
+-    if (_scrollController.position.pixels >= _scrollController.position.maxScrollExtent - 200 &&
+-        store.estado != EstadoFinanTipo.carregando &&
+-        store.estado != EstadoFinanTipo.carregandoMais &&
+-        store.hasMoreItems) {
+-      store.carregarMaisTipos();
+-    }
+-  }
+-
+-  @override
+-  Widget build(BuildContext context) {
+-    final store = Provider.of<FinanTipoStore>(context);
+-
+-    // Exibe snackbar se houver erro
+-    if (store.estado == EstadoFinanTipo.erro && store.mensagemErro != null) {
+-      WidgetsBinding.instance.addPostFrameCallback((_) {
+-        ScaffoldMessenger.of(context).showSnackBar(
+-          SnackBar(
+-            content: Text(store.mensagemErro!),
+-            backgroundColor: Colors.red,
+-            showCloseIcon: true,
+-            // width: Material, // Width of the SnackBar.
+-            padding: const EdgeInsets.symmetric(
+-              horizontal: 8.0, // Inner padding for SnackBar content.
+-            ),
+-            behavior: SnackBarBehavior.floating,
+-            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(5.0)),
+-          ),
+-        );
+-        store.limparErro();
+-      });
+-    }
+-
+-    if (store.estado == EstadoFinanTipo.deletado) {
+-      WidgetsBinding.instance.addPostFrameCallback((_) {
+-        ScaffoldMessenger.of(context).showSnackBar(
+-          SnackBar(
+-            content: Text('Deletado'),
+-            backgroundColor: Colors.green,
+-            showCloseIcon: true,
+-            // width: Material, // Width of the SnackBar.
+-            padding: const EdgeInsets.symmetric(
+-              horizontal: 8.0, // Inner padding for SnackBar content.
+-            ),
+-            behavior: SnackBarBehavior.floating,
+-            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(5.0)),
+-          ),
+-        );
+-        store.limparErro();
+-      });
+-    }
+-
+-    if (store.estado == EstadoFinanTipo.incluido) {
+-      WidgetsBinding.instance.addPostFrameCallback((_) {
+-        ScaffoldMessenger.of(context).showSnackBar(
+-          SnackBar(
+-            content: Text('Cadastrado.'),
+-            backgroundColor: Colors.green,
+-            showCloseIcon: true,
+-            // width: Material, // Width of the SnackBar.
+-            padding: const EdgeInsets.symmetric(
+-              horizontal: 8.0, // Inner padding for SnackBar content.
+-            ),
+-            behavior: SnackBarBehavior.floating,
+-            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(5.0)),
+-          ),
+-        );
+-        store.limparErro();
+-      });
+-    }
+-
+-    if (store.estado == EstadoFinanTipo.alterado) {
+-      WidgetsBinding.instance.addPostFrameCallback((_) {
+-        ScaffoldMessenger.of(context).showSnackBar(
+-          SnackBar(
+-            content: Text('Alterado.'),
+-            backgroundColor: Colors.green,
+-            showCloseIcon: true,
+-            // width: Material, // Width of the SnackBar.
+-            padding: const EdgeInsets.symmetric(
+-              horizontal: 8.0, // Inner padding for SnackBar content.
+-            ),
+-            behavior: SnackBarBehavior.floating,
+-            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(5.0)),
+-          ),
+-        );
+-        store.limparErro();
+-      });
+-    }
+-
+-    Widget corpo;
+-
+-    // 6. Ajustar a lógica de exibição para lidar com o novo estado
+-    if (store.estado == EstadoFinanTipo.carregando && store.finanTipos.isEmpty) {
+-      corpo = const Center(child: CircularProgressIndicator());
+-    } else if (store.finanTipos.isEmpty && !store.hasMoreItems) {
+-      // Condição para quando não há itens
+-      corpo = const Center(child: Text('Nenhum tipo encontrado.'));
+-    } else {
+-      // 7. Modificar o ListView.builder para suportar o lazy loading
+-      corpo = RefreshIndicator(
+-        onRefresh: store.carregarTipos, // Permite "puxar para recarregar"
+-        child: ListView.builder(
+-          controller: _scrollController,
+-          padding: const EdgeInsets.all(8),
+-          itemCount: store.finanTipos.length + (store.hasMoreItems ? 1 : 0),
+-          itemBuilder: (_, index) {
+-            // Se o index for o último, exibe o indicador de carregamento
+-            if (index == store.finanTipos.length) {
+-              return const Padding(
+-                padding: EdgeInsets.all(0),
+-                child: Center(child: Column(children: [Text("Arrasta para cima e carregue mais Tipos..."), LinearProgressIndicator(), SizedBox(height: 40)])),
+-              );
+-            }
+-            // Caso contrário, exibe o item normalmente
+-            final tipo = store.finanTipos[index];
+-            return Padding(
+-              padding: const EdgeInsets.all(2.0),
+-              child: ListTile(
+-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10), side: const BorderSide(color: Colors.blueGrey, width: 0.5)),
+-                isThreeLine: false,
+-                contentPadding: const EdgeInsets.only(left: 10, right: 10, top: 2, bottom: 1),
+-                dense: true,
+-                leading: CircleAvatar(
+-                  backgroundColor: Colors.black,
+-                  foregroundColor: Colors.white,
+-                  child: tipo.id != null ? Text(tipo.id.toString()) : const Icon(Icons.playlist_add_check_circle_sharp),
+-                ),
+-                title: Text(tipo.descricao ?? ''),
+-                trailing: Container(
+-                  height: MediaQuery.of(context).size.height * 0.04,
+-                  decoration: BoxDecoration(
+-                    color: Colors.black,
+-                    borderRadius: BorderRadius.circular(6),
+-                    boxShadow: const [BoxShadow(color: Colors.black26, blurRadius: 4, offset: Offset(0, 2))],
+-                  ),
+-                  child: Row(
+-                    mainAxisSize: MainAxisSize.min,
+-                    children: [
+-                      IconButton(
+-                        icon: const Icon(Icons.edit_square, color: Colors.blue, size: 16),
+-                        onPressed: () => context.pushRtL(FormularioFinanTipo(tipo: tipo)),
+-                      ),
+-                      const VerticalDivider(),
+-                      IconButton(
+-                        icon: const Icon(Icons.delete_forever, color: Colors.red, size: 16),
+-                        onPressed: () => _confirmarExclusaoTipo(context, tipo.id!),
+-                      ),
+-                    ],
+-                  ),
+-                ),
+-              ),
+-            );
+-          },
+-        ),
+-      );
+-    }
+-    return Scaffold(
+-      appBar: AppBar(
+-        title: Text('Tipos de Finanças'),
+-        actions: [
+-          IconButton(
+-            icon: const Icon(Icons.add_box_rounded, color: Colors.black, applyTextScaling: true, size: 35),
+-            onPressed: () => context.pushRtL(FormularioFinanTipo()),
+-          ),
+-        ],
+-      ),
+-      body: corpo,
+-    );
+-  }
+-
+-  void _confirmarExclusaoTipo(BuildContext context, int id) {
+-    final store = Provider.of<FinanTipoStore>(context, listen: false);
+-
+-    showDialog(
+-      context: context,
+-      builder:
+-          (_) => AlertDialog(
+-            title: Text('Excluir Tipo'),
+-            content: Text('Deseja realmente excluir o Tipo?'),
+-            actions: [
+-              TextButton(
+-                onPressed: () => Navigator.of(context).pop(),
+-                style: ButtonStyle(
+-                  backgroundColor: WidgetStatePropertyAll(Colors.transparent),
+-                  foregroundColor: WidgetStatePropertyAll(Colors.blue),
+-                  shape: WidgetStatePropertyAll(RoundedRectangleBorder(borderRadius: BorderRadius.circular(10))),
+-                ),
+-                child: Text('Cancelar'),
+-              ),
+-              TextButton(
+-                onPressed: () async {
+-                  await store.removerTipo(id);
+-                  WidgetsBinding.instance.addPostFrameCallback((_) {
+-                    Navigator.of(context).pop();
+-                  });
+-                },
+-                style: ButtonStyle(
+-                  backgroundColor: WidgetStatePropertyAll(Colors.red),
+-                  foregroundColor: WidgetStatePropertyAll(Colors.white),
+-                  shape: WidgetStatePropertyAll(RoundedRectangleBorder(borderRadius: BorderRadius.circular(10))),
+-                ),
+-                child: Text('Excluir'),
+-              ),
+-            ],
+-          ),
+-    );
+-  }
+-}
+diff --git a/lib/screens/home.dart b/lib/screens/home.dart
+deleted file mode 100644
+index dff7eba..0000000
+--- a/lib/screens/home.dart
++++ /dev/null
+@@ -1,42 +0,0 @@
+-import 'package:db_sqlite/screens/configuracao_screen.dart';
+-import 'package:db_sqlite/screens/finan_lancamento_screen.dart';
+-import 'package:db_sqlite/widgets/finan_painel.dart';
+-import 'package:flutter/material.dart';
+-
+-class HomePage extends StatefulWidget {
+-  const HomePage({super.key});
+-
+-  @override
+-  State<HomePage> createState() => _HomePageState();
+-}
+-
+-class _HomePageState extends State<HomePage> {
+-  int paginaAtual = 0;
+-
+-  final List<Widget> paginas = [
+-    const PainelFinanceiro(),
+-    const FinanLancamentoScreen(),
+-    const ConfigScreen(), // ou alguma outra tela
+-  ];
+-
+-  @override
+-  Widget build(BuildContext context) {
+-    return Scaffold(
+-      appBar: AppBar(
+-        leading: IconButton.filled(onPressed: () {}, icon: Icon(Icons.person_2_outlined)),
+-        title: const Text('Controle Financeiro'),
+-        centerTitle: true,
+-      ),
+-      body: paginas[paginaAtual],
+-      bottomNavigationBar: BottomNavigationBar(
+-        currentIndex: paginaAtual,
+-        onTap: (index) => setState(() => paginaAtual = index),
+-        items: const [
+-          BottomNavigationBarItem(icon: Icon(Icons.pie_chart), label: 'Painel'),
+-          BottomNavigationBarItem(icon: Icon(Icons.monetization_on_outlined), label: 'Lançamentos'),
+-          BottomNavigationBarItem(icon: Icon(Icons.settings), label: 'Configuração'),
+-        ],
+-      ),
+-    );
+-  }
+-}
+diff --git a/lib/screens/login_screen.dart b/lib/screens/login_screen.dart
+deleted file mode 100644
+index 4105a94..0000000
+--- a/lib/screens/login_screen.dart
++++ /dev/null
+@@ -1,117 +0,0 @@
+-import 'package:db_sqlite/screens/home.dart';
+-import 'package:flutter/material.dart';
+-import 'package:provider/provider.dart';
+-import '../store/auth_store.dart';
+-
+-class LoginScreen extends StatelessWidget {
+-  final _userController = TextEditingController();
+-  final _senhaController = TextEditingController();
+-  final _formKey = GlobalKey<FormState>();
+-
+-  LoginScreen({super.key});
+-
+-  @override
+-  Widget build(BuildContext context) {
+-    final store = Provider.of<AuthStore>(context);
+-
+-    if (store.estadoAuth == EstadoAuth.erro && store.mensagemErro != null) {
+-      WidgetsBinding.instance.addPostFrameCallback((_) {
+-        ScaffoldMessenger.of(context).showSnackBar(
+-          SnackBar(
+-            content: Text(store.mensagemErro!),
+-            backgroundColor: Colors.red,
+-            showCloseIcon: true,
+-            // width: Material, // Width of the SnackBar.
+-            padding: const EdgeInsets.symmetric(
+-              horizontal: 8.0, // Inner padding for SnackBar content.
+-            ),
+-            behavior: SnackBarBehavior.floating,
+-            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(5.0)),
+-            elevation: 10,
+-            dismissDirection: DismissDirection.horizontal,
+-            animation: CurvedAnimation(parent: const AlwaysStoppedAnimation(1.5), curve: Curves.easeIn),
+-          ),
+-        );
+-        store.limparErro();
+-      });
+-    } else if (store.estadoAuth == EstadoAuth.logado) {
+-      WidgetsBinding.instance.addPostFrameCallback((_) {
+-        Navigator.pushReplacement(context, MaterialPageRoute(builder: (_) => HomePage()));
+-      });
+-    } else if (store.estadoAuth == EstadoAuth.logando) {
+-      return Center(child: CircularProgressIndicator());
+-    }
+-
+-    return Scaffold(
+-      body: Container(
+-        decoration: const BoxDecoration(
+-          gradient: LinearGradient(colors: [Color(0xFF0f2027), Color(0xFF203A43), Color(0xFF2c5364)], begin: Alignment.topLeft, end: Alignment.bottomRight),
+-        ),
+-        width: double.infinity,
+-        padding: const EdgeInsets.symmetric(horizontal: 24),
+-        child: Center(
+-          child: SingleChildScrollView(
+-            child: Column(
+-              mainAxisAlignment: MainAxisAlignment.center,
+-              children: [
+-                const Icon(Icons.account_balance_wallet_rounded, size: 80, color: Colors.white),
+-                const SizedBox(height: 16),
+-                const Text('ESTUDO DO TIAGO', style: TextStyle(fontSize: 32, fontWeight: FontWeight.bold, color: Colors.white, letterSpacing: 1.5)),
+-                const SizedBox(height: 8),
+-                const Text('Controle seus gastos de forma inteligente', style: TextStyle(fontSize: 16, color: Colors.white70)),
+-                const SizedBox(height: 32),
+-                Card(
+-                  elevation: 10,
+-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+-                  child: Padding(
+-                    padding: const EdgeInsets.all(24.0),
+-                    child: Form(
+-                      key: _formKey,
+-                      child: Column(
+-                        mainAxisSize: MainAxisSize.min,
+-                        children: [
+-                          TextFormField(
+-                            controller: _userController,
+-                            decoration: const InputDecoration(prefixIcon: Icon(Icons.email), labelText: 'Usuário', border: OutlineInputBorder()),
+-                            validator: (value) => value!.isEmpty ? 'Informe o usuário' : null,
+-                          ),
+-                          const SizedBox(height: 16),
+-                          TextFormField(
+-                            controller: _senhaController,
+-                            decoration: const InputDecoration(prefixIcon: Icon(Icons.lock), labelText: 'Senha', border: OutlineInputBorder()),
+-                            obscureText: true,
+-                            validator: (value) => value!.isEmpty ? 'Informe a senha' : null,
+-                          ),
+-                          const SizedBox(height: 24),
+-                          SizedBox(
+-                            width: double.infinity,
+-                            child: ElevatedButton.icon(
+-                              onPressed: () async {
+-                                if (!_formKey.currentState!.validate()) return;
+-                                await store.login(_userController.text, _senhaController.text);
+-                              },
+-                              icon: const Icon(Icons.login),
+-                              label: const Text('Entrar'),
+-                              style: ElevatedButton.styleFrom(
+-                                backgroundColor: const Color(0xFF1DB954),
+-                                padding: const EdgeInsets.symmetric(vertical: 16),
+-                                textStyle: const TextStyle(fontSize: 16),
+-                                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+-                              ),
+-                            ),
+-                          ),
+-                          const SizedBox(height: 8),
+-                          TextButton(onPressed: () {}, child: const Text('Esqueci minha senha')),
+-                        ],
+-                      ),
+-                    ),
+-                  ),
+-                ),
+-              ],
+-            ),
+-          ),
+-        ),
+-      ),
+-    );
+-  }
+-}
+diff --git a/lib/screens/usuario_screen.dart b/lib/screens/usuario_screen.dart
+deleted file mode 100644
+index b4532d7..0000000
+--- a/lib/screens/usuario_screen.dart
++++ /dev/null
+@@ -1,230 +0,0 @@
+-import 'package:db_sqlite/store/usuario_store.dart';
+-import 'package:db_sqlite/utils/routes_context_transations.dart';
+-import 'package:db_sqlite/widgets/usuario_form.dart';
+-import 'package:flutter/material.dart';
+-import 'package:provider/provider.dart';
+-
+-class UsuarioScreen extends StatefulWidget {
+-  const UsuarioScreen({super.key});
+-
+-  @override
+-  State<UsuarioScreen> createState() => _UsuarioScreenState();
+-}
+-
+-class _UsuarioScreenState extends State<UsuarioScreen> {
+-  @override
+-  void initState() {
+-    super.initState();
+-    WidgetsBinding.instance.addPostFrameCallback((_) {
+-      Provider.of<UsuarioStore>(context, listen: false).carregarUsuarios();
+-    });
+-  }
+-
+-  @override
+-  Widget build(BuildContext context) {
+-    final store = Provider.of<UsuarioStore>(context);
+-
+-    // Exibe snackbar se houver erro
+-    if (store.estado == EstadoUsuario.erro && store.mensagemErro != null) {
+-      WidgetsBinding.instance.addPostFrameCallback((_) {
+-        ScaffoldMessenger.of(context).showSnackBar(
+-          SnackBar(
+-            content: Text(store.mensagemErro!),
+-            backgroundColor: Colors.red,
+-            showCloseIcon: true,
+-            // width: Material, // Width of the SnackBar.
+-            padding: const EdgeInsets.symmetric(
+-              horizontal: 8.0, // Inner padding for SnackBar content.
+-            ),
+-            behavior: SnackBarBehavior.floating,
+-            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(5.0)),
+-            elevation: 10,
+-            dismissDirection: DismissDirection.horizontal,
+-            animation: CurvedAnimation(parent: const AlwaysStoppedAnimation(1.5), curve: Curves.easeIn),
+-          ),
+-        );
+-        store.limparErro();
+-      });
+-    }
+-
+-    if (store.estado == EstadoUsuario.deletado) {
+-      WidgetsBinding.instance.addPostFrameCallback((_) {
+-        ScaffoldMessenger.of(context).showSnackBar(
+-          SnackBar(
+-            content: Text('Deletado'),
+-
+-            backgroundColor: Colors.green,
+-            showCloseIcon: true,
+-            // width: Material, // Width of the SnackBar.
+-            padding: const EdgeInsets.symmetric(
+-              horizontal: 8.0, // Inner padding for SnackBar content.
+-            ),
+-            behavior: SnackBarBehavior.floating,
+-            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(5.0)),
+-            elevation: 10,
+-            dismissDirection: DismissDirection.horizontal,
+-            animation: CurvedAnimation(parent: const AlwaysStoppedAnimation(1.5), curve: Curves.easeIn),
+-          ),
+-        );
+-        store.limparErro();
+-      });
+-    }
+-
+-    if (store.estado == EstadoUsuario.incluido) {
+-      WidgetsBinding.instance.addPostFrameCallback((_) {
+-        ScaffoldMessenger.of(context).showSnackBar(
+-          SnackBar(
+-            content: Text('Cadastrado.'),
+-            backgroundColor: Colors.green,
+-            showCloseIcon: true,
+-            // width: Material, // Width of the SnackBar.
+-            padding: const EdgeInsets.symmetric(
+-              horizontal: 8.0, // Inner padding for SnackBar content.
+-            ),
+-            behavior: SnackBarBehavior.floating,
+-            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(5.0)),
+-            elevation: 10,
+-            dismissDirection: DismissDirection.horizontal,
+-            animation: CurvedAnimation(parent: const AlwaysStoppedAnimation(1.5), curve: Curves.easeIn),
+-          ),
+-        );
+-        store.limparErro();
+-      });
+-    }
+-
+-    if (store.estado == EstadoUsuario.alterado) {
+-      WidgetsBinding.instance.addPostFrameCallback((_) {
+-        ScaffoldMessenger.of(context).showSnackBar(
+-          SnackBar(
+-            content: Text('Alterado.'),
+-            backgroundColor: Colors.green,
+-            showCloseIcon: true,
+-            // width: Material, // Width of the SnackBar.
+-            padding: const EdgeInsets.symmetric(
+-              horizontal: 8.0, // Inner padding for SnackBar content.
+-            ),
+-            behavior: SnackBarBehavior.floating,
+-            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(5.0)),
+-            elevation: 10,
+-            dismissDirection: DismissDirection.horizontal,
+-            animation: CurvedAnimation(parent: const AlwaysStoppedAnimation(1.5), curve: Curves.easeIn),
+-          ),
+-        );
+-        store.limparErro();
+-      });
+-    }
+-
+-    Widget corpo;
+-
+-    switch (store.estado) {
+-      case EstadoUsuario.carregando:
+-        corpo = Center(child: CircularProgressIndicator(semanticsLabel: 'Carregando...'));
+-        break;
+-      case EstadoUsuario.deletando:
+-        corpo = Center(child: CircularProgressIndicator(semanticsLabel: 'Deletando...'));
+-        break;
+-      case EstadoUsuario.incluindo:
+-        corpo = Center(child: CircularProgressIndicator(semanticsLabel: 'Incluindo...'));
+-        break;
+-      case EstadoUsuario.alterando:
+-        corpo = Center(child: CircularProgressIndicator(semanticsLabel: 'Alterando...'));
+-        break;
+-      case EstadoUsuario.carregado:
+-        corpo = ListView.builder(
+-          padding: EdgeInsets.all(8),
+-          itemCount: store.usuarios.length,
+-          itemBuilder: (_, index) {
+-            final usuario = store.usuarios[index];
+-            return Padding(
+-              padding: const EdgeInsets.all(2.0),
+-              child: ListTile(
+-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10), side: BorderSide(color: Colors.blueGrey, width: 0.5)),
+-                isThreeLine: false,
+-                dense: true,
+-                leading: CircleAvatar(
+-                  backgroundColor: Colors.black,
+-                  foregroundColor: Colors.white,
+-                  child: usuario.id != null ? Text(usuario.id.toString()) : Icon(Icons.person),
+-                ),
+-                title: Text(usuario.nome),               
+-                trailing: Container(
+-                  height: MediaQuery.of(context).size.height * 0.04,
+-                  decoration: BoxDecoration(
+-                    color: Colors.black,
+-                    borderRadius: BorderRadius.circular(6),
+-                    boxShadow: [BoxShadow(color: Colors.black26, blurRadius: 4, offset: Offset(0, 2))],
+-                  ),
+-                  child: Row(
+-                    mainAxisSize: MainAxisSize.min,
+-                    children: [
+-                      IconButton(
+-                        icon: const Icon(Icons.edit_square, color: Colors.blue, size: 16),
+-                        onPressed: () {
+-                          Navigator.push(context, MaterialPageRoute(builder: (context) => FormularioUsuario(usuario: usuario)));
+-                        },
+-                      ),
+-                      VerticalDivider(),
+-                      IconButton(
+-                        icon: Icon(Icons.delete_forever, color: Colors.red, size: 16),
+-                        onPressed: () => _confirmarExclusaoUsuario(context, usuario.id!),
+-                      ),
+-                    ],
+-                  ),
+-                ),
+-              ),
+-            );
+-          },
+-        );
+-        break;
+-      default:
+-        corpo = Center(child: CircularProgressIndicator(semanticsLabel: 'Padrão...'));
+-    }
+-
+-    return Scaffold(
+-      appBar: AppBar(
+-        title: Text('Usuários'),
+-        actions: [
+-          IconButton(
+-            icon: const Icon(Icons.add_box_rounded, color: Colors.black, applyTextScaling: true, size: 35),
+-            onPressed: () => context.pushRtL(FormularioUsuario()),
+-          ),
+-        ],
+-      ),
+-      body: corpo,
+-    );
+-  }
+-
+-  void _confirmarExclusaoUsuario(BuildContext context, int id) {
+-    showDialog(
+-      context: context,
+-      builder:
+-          (_) => AlertDialog(
+-            title: Text('Excluir usuário'),
+-            content: Text('Deseja realmente excluir o usuário?'),
+-            actions: [
+-              TextButton(
+-                onPressed: () => Navigator.of(context).pop(),
+-                style: ButtonStyle(
+-                  backgroundColor: WidgetStatePropertyAll(Colors.transparent),
+-                  foregroundColor: WidgetStatePropertyAll(Colors.blue),
+-                  shape: WidgetStatePropertyAll(RoundedRectangleBorder(borderRadius: BorderRadius.circular(10))),
+-                ),
+-                child: Text('Cancelar'),
+-              ),
+-              TextButton(
+-                onPressed: () {
+-                  Provider.of<UsuarioStore>(context, listen: false).removerUsuario(id);
+-                  Navigator.of(context).pop();
+-                },
+-                style: ButtonStyle(
+-                  backgroundColor: WidgetStatePropertyAll(Colors.red),
+-                  foregroundColor: WidgetStatePropertyAll(Colors.white),
+-                  shape: WidgetStatePropertyAll(RoundedRectangleBorder(borderRadius: BorderRadius.circular(10))),
+-                ),
+-                child: Text('Excluir'),
+-              ),
+-            ],
+-          ),
+-    );
+-  }
+-}
+diff --git a/lib/store/auth_store.dart b/lib/store/auth_store.dart
+index 4800705..a3ba695 100644
+--- a/lib/store/auth_store.dart
++++ b/lib/store/auth_store.dart
+@@ -1,6 +1,9 @@
++import 'dart:io';
++
+ import 'package:db_sqlite/data/services/auth_service.dart';
+ import 'package:db_sqlite/data/model/usuario.dart';
+-import 'package:flutter/material.dart';
++import 'package:firebase_crashlytics/firebase_crashlytics.dart';
++import 'package:flutter/foundation.dart';
+ 
+ enum EstadoAuth { inicial, logando, logado, erro }
+ 
+@@ -25,10 +28,23 @@ class AuthStore extends ChangeNotifier {
+       } else {
+         _estado = EstadoAuth.erro;
+         _mensagemErro = 'Usuário ou senha inválidos';
++        if (Platform.isAndroid || Platform.isIOS) {
++          await FirebaseCrashlytics.instance.recordError(
++            Exception('Usuário ou senha inválidos'),
++            StackTrace.current,
++            reason: 'erro não fatal',
++            information: [_mensagemErro.toString(), _estado, 'Login falhou'],
++            printDetails: true,
++            fatal: false,
++          );
++        }
+       }
+-    } catch (e) {
++    } catch (e, stack) {
+       _estado = EstadoAuth.erro;
+       _mensagemErro = 'Erro ao realizar login: $e';
++      if (Platform.isAndroid || Platform.isIOS) {
++        await FirebaseCrashlytics.instance.recordError(e, stack);
++      }
+     }
+     notifyListeners();
+   }
+diff --git a/lib/store/usuario_store.dart b/lib/store/usuario_store.dart
+index 576a7cf..f63fb4e 100644
+--- a/lib/store/usuario_store.dart
++++ b/lib/store/usuario_store.dart
+@@ -1,5 +1,7 @@
++import 'dart:io';
+ import 'package:db_sqlite/data/model/usuario.dart';
+ import 'package:db_sqlite/data/services/usuario_service.dart';
++import 'package:firebase_crashlytics/firebase_crashlytics.dart';
+ import 'package:flutter/material.dart';
+ 
+ enum EstadoUsuario { inicial, carregando, carregado, erro, deletando, deletado, incluindo, incluido, alterando, alterado }
+@@ -66,9 +68,14 @@ class UsuarioStore extends ChangeNotifier {
+       await _service.deletarUsuario(id);
+       _estado = EstadoUsuario.deletado;
+       notifyListeners();
+-    } catch (e) {
++    } catch (e, stack) {
+       _estado = EstadoUsuario.erro;
+       _mensagemErro = "Erro ao remover usuário: $e";
++      if (Platform.isAndroid || Platform.isIOS) {
++        await FirebaseCrashlytics.instance.log('Tentativa de deletar usuário falhou: $id');
++        await FirebaseCrashlytics.instance.recordError(e, stack);
++      }
++
+       notifyListeners();
+     }
+   }
+diff --git a/pubspec.lock b/pubspec.lock
+index 749994b..2ee2cf4 100644
+--- a/pubspec.lock
++++ b/pubspec.lock
+@@ -1,6 +1,14 @@
+ # Generated by pub
+ # See https://dart.dev/tools/pub/glossary#lockfile
+ packages:
++  _flutterfire_internals:
++    dependency: transitive
++    description:
++      name: _flutterfire_internals
++      sha256: bb84ee51e527053dd8e25ecc9f97a6abfdc19130fb4d883e4e8585e23e7e6dd8
++      url: "https://pub.dev"
++    source: hosted
++    version: "1.3.60"
+   async:
+     dependency: transitive
+     description:
+@@ -81,6 +89,70 @@ packages:
+       url: "https://pub.dev"
+     source: hosted
+     version: "2.1.4"
++  firebase_analytics:
++    dependency: "direct main"
++    description:
++      name: firebase_analytics
++      sha256: "07146e89e11302c6b07e3465c2c556ebcdd0053a3c5b1aa9bfd3203b778e5b4c"
++      url: "https://pub.dev"
++    source: hosted
++    version: "12.0.0"
++  firebase_analytics_platform_interface:
++    dependency: transitive
++    description:
++      name: firebase_analytics_platform_interface
++      sha256: "27e81a0efc821bec6cba64abc1083b91c8ddbad28eeb4c6f6b7c78a59d06f259"
++      url: "https://pub.dev"
++    source: hosted
++    version: "5.0.0"
++  firebase_analytics_web:
++    dependency: transitive
++    description:
++      name: firebase_analytics_web
++      sha256: "7d87f47462042a7d9125e3123db2783bc72917d85e2719d4cb6aeaec209605e1"
++      url: "https://pub.dev"
++    source: hosted
++    version: "0.6.0"
++  firebase_core:
++    dependency: "direct main"
++    description:
++      name: firebase_core
++      sha256: "6b343e6f7b72a4f32d7ce8df8c9a28d8f54b4ac20d7c6500f3e8b3969afca457"
++      url: "https://pub.dev"
++    source: hosted
++    version: "4.0.0"
++  firebase_core_platform_interface:
++    dependency: transitive
++    description:
++      name: firebase_core_platform_interface
++      sha256: "5dbc900677dcbe5873d22ad7fbd64b047750124f1f9b7ebe2a33b9ddccc838eb"
++      url: "https://pub.dev"
++    source: hosted
++    version: "6.0.0"
++  firebase_core_web:
++    dependency: transitive
++    description:
++      name: firebase_core_web
++      sha256: "5d28b14dd32282fb7ce2b22b897362453755b6b8541d491127dc72b755bb7b16"
++      url: "https://pub.dev"
++    source: hosted
++    version: "3.0.0"
++  firebase_crashlytics:
++    dependency: "direct main"
++    description:
++      name: firebase_crashlytics
++      sha256: "95b6871850b1a7e3b09c284c59a0c71fafcad3eee8ac1b6f06aaf8979290cbb8"
++      url: "https://pub.dev"
++    source: hosted
++    version: "5.0.0"
++  firebase_crashlytics_platform_interface:
++    dependency: transitive
++    description:
++      name: firebase_crashlytics_platform_interface
++      sha256: ba5b7a916f1ebedc6db35b33abdc618f202fc25e0792088dfba698e19fec9c09
++      url: "https://pub.dev"
++    source: hosted
++    version: "3.8.11"
+   fl_chart:
+     dependency: "direct main"
+     description:
+@@ -120,6 +192,11 @@ packages:
+     description: flutter
+     source: sdk
+     version: "0.0.0"
++  flutter_web_plugins:
++    dependency: transitive
++    description: flutter
++    source: sdk
++    version: "0.0.0"
+   http:
+     dependency: "direct main"
+     description:
+@@ -333,6 +410,14 @@ packages:
+       url: "https://pub.dev"
+     source: hosted
+     version: "2.5.5"
++  sqflite_common_ffi:
++    dependency: "direct main"
++    description:
++      name: sqflite_common_ffi
++      sha256: "9faa2fedc5385ef238ce772589f7718c24cdddd27419b609bb9c6f703ea27988"
++      url: "https://pub.dev"
++    source: hosted
++    version: "2.3.6"
+   sqflite_darwin:
+     dependency: transitive
+     description:
+@@ -349,6 +434,14 @@ packages:
+       url: "https://pub.dev"
+     source: hosted
+     version: "2.4.0"
++  sqlite3:
++    dependency: transitive
++    description:
++      name: sqlite3
++      sha256: dd806fff004a0aeb01e208b858dbc649bc72104670d425a81a6dd17698535f6e
++      url: "https://pub.dev"
++    source: hosted
++    version: "2.8.0"
+   stack_trace:
+     dependency: transitive
+     description:
+diff --git a/pubspec.yaml b/pubspec.yaml
+index af64f60..27f45cd 100644
+--- a/pubspec.yaml
++++ b/pubspec.yaml
+@@ -46,6 +46,10 @@ dependencies:
+   page_transition: ^2.2.1
+   flutter_localizations:
+     sdk: flutter
++  sqflite_common_ffi: ^2.3.6
++  firebase_core: ^4.0.0
++  firebase_crashlytics: ^5.0.0
++  firebase_analytics: ^12.0.0
+ 
+ dev_dependencies:
+   flutter_test:

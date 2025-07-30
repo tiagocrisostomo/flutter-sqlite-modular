@@ -1,5 +1,5 @@
-import 'package:db_sqlite/screens/configuracao_screen.dart';
-import 'package:db_sqlite/screens/finan_lancamento_screen.dart';
+import 'package:db_sqlite/screens/mobile/configuracao_screen.dart';
+import 'package:db_sqlite/screens/mobile/finan_lancamento_screen.dart';
 import 'package:db_sqlite/widgets/finan_painel.dart';
 import 'package:flutter/material.dart';
 
@@ -23,7 +23,12 @@ class _HomePageState extends State<HomePage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        leading: IconButton.filled(onPressed: () {}, icon: Icon(Icons.person_2_outlined)),
+        leading: IconButton.filled(
+          onPressed: () {
+            debugPrint('Botão de menu pressionado');
+          },
+          icon: Icon(Icons.person_2_outlined),
+        ),
         title: const Text('Controle Financeiro'),
         centerTitle: true,
       ),

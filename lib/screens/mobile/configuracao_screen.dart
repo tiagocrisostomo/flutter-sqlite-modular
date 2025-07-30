@@ -1,6 +1,6 @@
-import 'package:db_sqlite/screens/finan_categoria_screen.dart';
-import 'package:db_sqlite/screens/finan_tipo_screen.dart';
-import 'package:db_sqlite/screens/usuario_screen.dart';
+import 'package:db_sqlite/screens/mobile/finan_categoria_screen.dart';
+import 'package:db_sqlite/screens/mobile/finan_tipo_screen.dart';
+import 'package:db_sqlite/screens/mobile/usuario_screen.dart';
 import 'package:db_sqlite/utils/routes_context_transations.dart';
 import 'package:flutter/material.dart';
 

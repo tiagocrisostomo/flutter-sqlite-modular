@@ -1,7 +1,9 @@
-import 'package:db_sqlite/screens/home.dart';
+import 'package:db_sqlite/screens/mobile/home.dart';
+import 'package:db_sqlite/widgets/recuperacao_senha.dart';
+// import 'package:firebase_crashlytics/firebase_crashlytics.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import '../store/auth_store.dart';
+import '../../store/auth_store.dart';
 
 class LoginScreen extends StatelessWidget {
   final _userController = TextEditingController();
@@ -96,12 +98,17 @@ class LoginScreen extends StatelessWidget {
                                 backgroundColor: const Color(0xFF1DB954),
                                 padding: const EdgeInsets.symmetric(vertical: 16),
                                 textStyle: const TextStyle(fontSize: 16),
-                                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
                               ),
                             ),
                           ),
-                          const SizedBox(height: 8),
-                          TextButton(onPressed: () {}, child: const Text('Esqueci minha senha')),
+                          // const SizedBox(height: 8),
+                          TextButton(
+                            onPressed: () => showDialog(context: context, builder: (context) => RecuperacaoSenha()),
+                            // onPressed: () => FirebaseCrashlytics.instance.crash(),
+                            // child: const Text('Forçar erro de crash...'),
+                            child: const Text('Recuperar senha', style: TextStyle(color: Colors.blue)),
+                          ),
                         ],
                       ),
                     ),

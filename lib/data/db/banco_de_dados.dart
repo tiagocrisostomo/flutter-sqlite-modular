@@ -1,3 +1,4 @@
+import 'package:flutter/material.dart';
 import 'package:path/path.dart';
 import 'package:sqflite/sqflite.dart';
 
@@ -13,7 +14,7 @@ class BancoDeDados {
   static Future<Database> _iniciarBanco() async {
     final caminho = await getDatabasesPath();
     final caminhoCompleto = join(caminho, 'app.db');
-    //debugPrint('Caminho do banco de dados: $caminhoCompleto');
+    debugPrint('Caminho do banco de dados: $caminhoCompleto');
 
     return openDatabase(
       caminhoCompleto,
