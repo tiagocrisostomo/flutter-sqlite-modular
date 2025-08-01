@@ -1,6 +1,7 @@
 import 'dart:io';
 import 'package:db_sqlite/data/model/usuario.dart';
 import 'package:db_sqlite/data/services/usuario_service.dart';
+import 'package:db_sqlite/utils/enviar_msg_discord.dart';
 import 'package:firebase_crashlytics/firebase_crashlytics.dart';
 import 'package:flutter/material.dart';
 
@@ -68,12 +69,21 @@ class UsuarioStore extends ChangeNotifier {
       await _service.deletarUsuario(id);
       _estado = EstadoUsuario.deletado;
       notifyListeners();
-    } catch (e, stack) {
+    } catch (e) {
       _estado = EstadoUsuario.erro;
       _mensagemErro = "Erro ao remover usuário: $e";
       if (Platform.isAndroid || Platform.isIOS) {
-        await FirebaseCrashlytics.instance.log('Tentativa de deletar usuário falhou: $id');
-        await FirebaseCrashlytics.instance.recordError(e, stack);
+        // Registra o erro no Firebase Crashlytics
+        await FirebaseCrashlytics.instance.recordError(
+          e,
+          StackTrace.current,
+          reason: "Erro ao remover usuário",
+          information: ["ID do usuário: $id", "Mensagem de erro: $_mensagemErro"],
+          fatal: false,
+        );
+
+        //envia o alerta para o Discord
+        await enviarMensagemDiscord(e, StackTrace.current, reason: "Erro ao remover usuário", fatal: false);
       }
 
       notifyListeners();

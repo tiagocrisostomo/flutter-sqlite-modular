@@ -1,6 +1,6 @@
 import 'package:db_sqlite/screens/desktop/finan_categoria_screen_desktop.dart';
 import 'package:db_sqlite/screens/desktop/finan_tipo_screen_desktop.dart';
-import 'package:db_sqlite/screens/mobile/usuario_screen.dart';
+import 'package:db_sqlite/screens/desktop/usuario_screen%20desktop.dart';
 import 'package:db_sqlite/utils/routes_context_transations.dart';
 import 'package:flutter/material.dart';
 
@@ -34,7 +34,7 @@ class ConfigScreenDesktop extends StatelessWidget {
             title: const Text('Usuários', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
             subtitle: const Text('Gerencie os usuários do sistema'),
             trailing: const Icon(Icons.arrow_forward_ios),
-            onTap: () => context.pushRtL(const UsuarioScreen()),
+            onTap: () => context.pushRtL(const UsuarioScreenDesktop()),
           ),
           const Divider(),
 

@@ -135,7 +135,9 @@ class _FinanTipoScreenDesktopState extends State<FinanTipoScreenDesktop> {
     } else {
       // 7. Modificar o ListView.builder para suportar o lazy loading
       corpo = RefreshIndicator(
-        onRefresh: store.carregarTipos, // Permite "puxar para recarregar"
+        onRefresh: () async {
+          await store.carregarTipos();
+        }, // Permite "puxar para recarregar"
         child: ListView.builder(
           controller: _scrollController,
           padding: const EdgeInsets.all(8),
@@ -155,11 +157,11 @@ class _FinanTipoScreenDesktopState extends State<FinanTipoScreenDesktop> {
             // Caso contrário, exibe o item normalmente
             final tipo = store.finanTipos[index];
             return Container(
-              padding: const EdgeInsets.all(2.0),
+              padding: const EdgeInsets.all(2),
               child: ListTile(
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10), side: const BorderSide(color: Colors.blueGrey, width: 0.5)),
-                isThreeLine: false,
                 contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10), side: BorderSide(color: Colors.blueGrey, width: 0.5)),
+                isThreeLine: false,
                 dense: true,
                 leading: CircleAvatar(
                   backgroundColor: Colors.black,
@@ -179,7 +181,7 @@ class _FinanTipoScreenDesktopState extends State<FinanTipoScreenDesktop> {
                     children: [
                       IconButton(
                         icon: const Icon(Icons.edit_square, color: Colors.blue, size: 16),
-                        onPressed: () => context.pushRtL(FormularioFinanTipo(tipo: tipo)),
+                        onPressed: () => context.pushBtTModal(FormularioFinanTipo(tipo: tipo)),
                       ),
                       const VerticalDivider(),
                       IconButton(

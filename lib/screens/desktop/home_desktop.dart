@@ -1,5 +1,5 @@
 import 'package:db_sqlite/screens/desktop/configuracao_screen_desktop.dart';
-import 'package:db_sqlite/screens/mobile/finan_lancamento_screen.dart';
+import 'package:db_sqlite/screens/desktop/finan_lancamento_screen_desktop.dart';
 import 'package:db_sqlite/widgets/finan_painel.dart';
 import 'package:flutter/material.dart';
 
@@ -15,7 +15,7 @@ class _HomePageDesktopState extends State<HomePageDesktop> {
 
   final List<Widget> paginas = [
     const PainelFinanceiro(),
-    const FinanLancamentoScreen(),
+    const FinanLancamentoScreenDesktop(),
     const ConfigScreenDesktop(), // ou alguma outra tela
   ];
 

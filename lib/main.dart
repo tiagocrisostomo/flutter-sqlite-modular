@@ -1,5 +1,6 @@
 import 'dart:io';
 import 'dart:ui';
+import 'package:db_sqlite/firebase_options.dart';
 import 'package:db_sqlite/screens/desktop/login_screen_desktop.dart';
 import 'package:db_sqlite/store/finan_lancamento_store.dart';
 import 'package:db_sqlite/widgets/build_responsivo.dart';
@@ -20,7 +21,7 @@ void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
   if (Platform.isAndroid || Platform.isIOS) {
-    await Firebase.initializeApp();
+    await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
     FlutterError.onError = (errorDetails) {
       FirebaseCrashlytics.instance.recordFlutterFatalError(errorDetails);
     };

@@ -1,31 +1,33 @@
-import 'package:db_sqlite/store/finan_categoria_store.dart';
+// ignore_for_file: file_names
+
 import 'package:db_sqlite/utils/routes_context_transations.dart';
-import 'package:db_sqlite/widgets/finan_categoria_form.dart';
+import 'package:db_sqlite/widgets/usuario_form.dart';
+import 'package:db_sqlite/store/usuario_store.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
-class FinanCategoriaScreenDesktop extends StatefulWidget {
-  const FinanCategoriaScreenDesktop({super.key});
+class UsuarioScreenDesktop extends StatefulWidget {
+  const UsuarioScreenDesktop({super.key});
 
   @override
-  State<FinanCategoriaScreenDesktop> createState() => _FinanCategoriaScreenDesktopState();
+  State<UsuarioScreenDesktop> createState() => _UsuarioScreenDesktopState();
 }
 
-class _FinanCategoriaScreenDesktopState extends State<FinanCategoriaScreenDesktop> {
+class _UsuarioScreenDesktopState extends State<UsuarioScreenDesktop> {
   @override
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      Provider.of<FinanCategoriaStore>(context, listen: false).carregarCategorias();
+      Provider.of<UsuarioStore>(context, listen: false).carregarUsuarios();
     });
   }
 
   @override
   Widget build(BuildContext context) {
-    final store = Provider.of<FinanCategoriaStore>(context);
+    final store = Provider.of<UsuarioStore>(context);
 
     // Exibe snackbar se houver erro
-    if (store.estado == EstadoFinanCategoria.erro && store.mensagemErro != null) {
+    if (store.estado == EstadoUsuario.erro && store.mensagemErro != null) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
@@ -47,7 +49,7 @@ class _FinanCategoriaScreenDesktopState extends State<FinanCategoriaScreenDeskto
       });
     }
 
-    if (store.estado == EstadoFinanCategoria.deletado) {
+    if (store.estado == EstadoUsuario.deletado) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
@@ -70,7 +72,7 @@ class _FinanCategoriaScreenDesktopState extends State<FinanCategoriaScreenDeskto
       });
     }
 
-    if (store.estado == EstadoFinanCategoria.incluido) {
+    if (store.estado == EstadoUsuario.incluido) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
@@ -92,7 +94,7 @@ class _FinanCategoriaScreenDesktopState extends State<FinanCategoriaScreenDeskto
       });
     }
 
-    if (store.estado == EstadoFinanCategoria.alterado) {
+    if (store.estado == EstadoUsuario.alterado) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
@@ -117,31 +119,31 @@ class _FinanCategoriaScreenDesktopState extends State<FinanCategoriaScreenDeskto
     Widget corpo;
 
     switch (store.estado) {
-      case EstadoFinanCategoria.carregando:
+      case EstadoUsuario.carregando:
         corpo = Center(child: CircularProgressIndicator(semanticsLabel: 'Carregando...'));
         break;
-      case EstadoFinanCategoria.deletando:
+      case EstadoUsuario.deletando:
         corpo = Center(child: CircularProgressIndicator(semanticsLabel: 'Deletando...'));
         break;
-      case EstadoFinanCategoria.incluindo:
+      case EstadoUsuario.incluindo:
         corpo = Center(child: CircularProgressIndicator(semanticsLabel: 'Incluindo...'));
         break;
-      case EstadoFinanCategoria.alterando:
+      case EstadoUsuario.alterando:
         corpo = Center(child: CircularProgressIndicator(semanticsLabel: 'Alterando...'));
         break;
-      case EstadoFinanCategoria.carregado:
+      case EstadoUsuario.carregado:
         corpo = RefreshIndicator(
           onRefresh: () async {
-            await store.carregarCategorias();
-          },
+            await store.carregarUsuarios();
+          }, // Permite "puxar para recarregar"
           child: ListView.builder(
             // controller: _scrollController,
             padding: EdgeInsets.all(8),
-            itemCount: store.finanCategorias.length,
+            itemCount: store.usuarios.length,
             itemBuilder: (_, index) {
-              final cat = store.finanCategorias[index];
+              final usuario = store.usuarios[index];
               return Container(
-                padding: const EdgeInsets.all(2),
+                padding: const EdgeInsets.all(2.0),
                 child: ListTile(
                   contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                   shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10), side: BorderSide(color: Colors.blueGrey, width: 0.5)),
@@ -150,9 +152,9 @@ class _FinanCategoriaScreenDesktopState extends State<FinanCategoriaScreenDeskto
                   leading: CircleAvatar(
                     backgroundColor: Colors.black,
                     foregroundColor: Colors.white,
-                    child: cat.id != null ? Text(cat.id.toString()) : Icon(Icons.playlist_add_check_circle_sharp),
+                    child: usuario.id != null ? Text(usuario.id.toString()) : Icon(Icons.person),
                   ),
-                  title: Text(cat.descricao ?? ''),
+                  title: Text(usuario.nome),
                   trailing: Container(
                     height: MediaQuery.of(context).size.height * 0.04,
                     decoration: BoxDecoration(
@@ -165,12 +167,12 @@ class _FinanCategoriaScreenDesktopState extends State<FinanCategoriaScreenDeskto
                       children: [
                         IconButton(
                           icon: const Icon(Icons.edit_square, color: Colors.blue, size: 16),
-                          onPressed: () => context.pushBtTModal(FormularioFinanCategoria(categoria: cat)),
+                          onPressed: () => context.pushBtTModal(FormularioUsuario(usuario: usuario)),
                         ),
                         VerticalDivider(),
                         IconButton(
                           icon: Icon(Icons.delete_forever, color: Colors.red, size: 16),
-                          onPressed: () => _confirmarExclusaoCategoria(context, cat.id!),
+                          onPressed: () => _confirmarExclusaoUsuario(context, usuario.id!),
                         ),
                       ],
                     ),
@@ -184,13 +186,14 @@ class _FinanCategoriaScreenDesktopState extends State<FinanCategoriaScreenDeskto
       default:
         corpo = Center(child: CircularProgressIndicator(semanticsLabel: 'Padrão...'));
     }
+
     return Scaffold(
       appBar: AppBar(
-        title: Text('Categoria de Finanças', style: TextStyle(fontSize: 32, fontWeight: FontWeight.bold)),
+        title: Text('Usuários'),
         actions: [
           IconButton(
             icon: const Icon(Icons.add_box_rounded, color: Colors.black, applyTextScaling: true, size: 35),
-            onPressed: () => context.pushRtL(FormularioFinanCategoria()),
+            onPressed: () => context.pushRtL(FormularioUsuario()),
           ),
         ],
       ),
@@ -198,15 +201,13 @@ class _FinanCategoriaScreenDesktopState extends State<FinanCategoriaScreenDeskto
     );
   }
 
-  void _confirmarExclusaoCategoria(BuildContext context, int id) {
-    final store = Provider.of<FinanCategoriaStore>(context, listen: false);
-
+  void _confirmarExclusaoUsuario(BuildContext context, int id) {
     showDialog(
       context: context,
       builder:
           (_) => AlertDialog(
-            title: Text('Excluir Categoria'),
-            content: Text('Deseja realmente excluir a Categoria?'),
+            title: Text('Excluir usuário'),
+            content: Text('Deseja realmente excluir o usuário?'),
             actions: [
               TextButton(
                 onPressed: () => Navigator.of(context).pop(),
@@ -218,18 +219,16 @@ class _FinanCategoriaScreenDesktopState extends State<FinanCategoriaScreenDeskto
                 child: Text('Cancelar'),
               ),
               TextButton(
-                onPressed: () async {
-                  await store.removerCategoria(id);
-                  WidgetsBinding.instance.addPostFrameCallback((_) {
-                    Navigator.of(context).pop();
-                  });
+                onPressed: () {
+                  Provider.of<UsuarioStore>(context, listen: false).removerUsuario(id);
+                  Navigator.of(context).pop();
                 },
                 style: ButtonStyle(
                   backgroundColor: WidgetStatePropertyAll(Colors.red),
                   foregroundColor: WidgetStatePropertyAll(Colors.white),
                   shape: WidgetStatePropertyAll(RoundedRectangleBorder(borderRadius: BorderRadius.circular(10))),
                 ),
-                child: const Text('Excluir'),
+                child: Text('Excluir'),
               ),
             ],
           ),

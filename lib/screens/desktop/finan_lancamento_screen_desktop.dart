@@ -1,31 +1,33 @@
-import 'package:db_sqlite/store/finan_categoria_store.dart';
+import 'package:db_sqlite/screens/mobile/finan_lancamento_screen_todos.dart';
+import 'package:db_sqlite/store/finan_lancamento_store.dart';
 import 'package:db_sqlite/utils/routes_context_transations.dart';
-import 'package:db_sqlite/widgets/finan_categoria_form.dart';
+import 'package:db_sqlite/widgets/finan_lancamento_form.dart';
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 
-class FinanCategoriaScreenDesktop extends StatefulWidget {
-  const FinanCategoriaScreenDesktop({super.key});
+class FinanLancamentoScreenDesktop extends StatefulWidget {
+  const FinanLancamentoScreenDesktop({super.key});
 
   @override
-  State<FinanCategoriaScreenDesktop> createState() => _FinanCategoriaScreenDesktopState();
+  State<FinanLancamentoScreenDesktop> createState() => _FinanLancamentoScreenDesktopState();
 }
 
-class _FinanCategoriaScreenDesktopState extends State<FinanCategoriaScreenDesktop> {
+class _FinanLancamentoScreenDesktopState extends State<FinanLancamentoScreenDesktop> {
   @override
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      Provider.of<FinanCategoriaStore>(context, listen: false).carregarCategorias();
+      Provider.of<FinanLancamentoStore>(context, listen: false).carregarLancamentosMes();
     });
   }
 
   @override
   Widget build(BuildContext context) {
-    final store = Provider.of<FinanCategoriaStore>(context);
+    final store = Provider.of<FinanLancamentoStore>(context);
 
-    // Exibe snackbar se houver erro
-    if (store.estado == EstadoFinanCategoria.erro && store.mensagemErro != null) {
+    // Mostra erro caso ocorra
+    if (store.estado == EstadoLancamento.erro && store.mensagemErro != null) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
@@ -47,12 +49,11 @@ class _FinanCategoriaScreenDesktopState extends State<FinanCategoriaScreenDeskto
       });
     }
 
-    if (store.estado == EstadoFinanCategoria.deletado) {
+    if (store.estado == EstadoLancamento.deletado) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text('Deletado'),
-
             backgroundColor: Colors.green,
             showCloseIcon: true,
             // width: Material, // Width of the SnackBar.
@@ -70,7 +71,7 @@ class _FinanCategoriaScreenDesktopState extends State<FinanCategoriaScreenDeskto
       });
     }
 
-    if (store.estado == EstadoFinanCategoria.incluido) {
+    if (store.estado == EstadoLancamento.incluido) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
@@ -92,7 +93,7 @@ class _FinanCategoriaScreenDesktopState extends State<FinanCategoriaScreenDeskto
       });
     }
 
-    if (store.estado == EstadoFinanCategoria.alterado) {
+    if (store.estado == EstadoLancamento.alterado) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
@@ -117,31 +118,30 @@ class _FinanCategoriaScreenDesktopState extends State<FinanCategoriaScreenDeskto
     Widget corpo;
 
     switch (store.estado) {
-      case EstadoFinanCategoria.carregando:
+      case EstadoLancamento.carregando:
         corpo = Center(child: CircularProgressIndicator(semanticsLabel: 'Carregando...'));
         break;
-      case EstadoFinanCategoria.deletando:
+      case EstadoLancamento.deletando:
         corpo = Center(child: CircularProgressIndicator(semanticsLabel: 'Deletando...'));
         break;
-      case EstadoFinanCategoria.incluindo:
+      case EstadoLancamento.incluindo:
         corpo = Center(child: CircularProgressIndicator(semanticsLabel: 'Incluindo...'));
         break;
-      case EstadoFinanCategoria.alterando:
+      case EstadoLancamento.alterando:
         corpo = Center(child: CircularProgressIndicator(semanticsLabel: 'Alterando...'));
         break;
-      case EstadoFinanCategoria.carregado:
+      case EstadoLancamento.carregado:
         corpo = RefreshIndicator(
           onRefresh: () async {
-            await store.carregarCategorias();
+            await store.carregarLancamentosMes();
           },
           child: ListView.builder(
-            // controller: _scrollController,
             padding: EdgeInsets.all(8),
-            itemCount: store.finanCategorias.length,
+            itemCount: store.lancamentosMes.length,
             itemBuilder: (_, index) {
-              final cat = store.finanCategorias[index];
+              final lanc = store.lancamentosMes[index];
               return Container(
-                padding: const EdgeInsets.all(2),
+                padding: const EdgeInsets.all(2.0),
                 child: ListTile(
                   contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                   shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10), side: BorderSide(color: Colors.blueGrey, width: 0.5)),
@@ -149,10 +149,19 @@ class _FinanCategoriaScreenDesktopState extends State<FinanCategoriaScreenDeskto
                   dense: true,
                   leading: CircleAvatar(
                     backgroundColor: Colors.black,
-                    foregroundColor: Colors.white,
-                    child: cat.id != null ? Text(cat.id.toString()) : Icon(Icons.playlist_add_check_circle_sharp),
+                    maxRadius: MediaQuery.of(context).size.width * 0.07,
+                    child: Text(
+                      lanc.tipoDescricao.toString(),
+                      softWrap: true,
+                      style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, overflow: TextOverflow.ellipsis, color: Colors.white),
+                    ),
                   ),
-                  title: Text(cat.descricao ?? ''),
+                  title: Text('R\$ ${lanc.valor.toStringAsFixed(2)}', style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold)),
+                  subtitle: Text(
+                    '${lanc.categoriaDescricao.toString()} - ${DateFormat('dd/MM/yyyy').format(lanc.data as DateTime)} \n'
+                    '${lanc.descricao.toString()}',
+                    style: TextStyle(fontSize: 12, color: Colors.black54),
+                  ),
                   trailing: Container(
                     height: MediaQuery.of(context).size.height * 0.04,
                     decoration: BoxDecoration(
@@ -165,13 +174,10 @@ class _FinanCategoriaScreenDesktopState extends State<FinanCategoriaScreenDeskto
                       children: [
                         IconButton(
                           icon: const Icon(Icons.edit_square, color: Colors.blue, size: 16),
-                          onPressed: () => context.pushBtTModal(FormularioFinanCategoria(categoria: cat)),
+                          onPressed: () => context.pushRtL(FinanLancamentoForm(lancamento: lanc)),
                         ),
                         VerticalDivider(),
-                        IconButton(
-                          icon: Icon(Icons.delete_forever, color: Colors.red, size: 16),
-                          onPressed: () => _confirmarExclusaoCategoria(context, cat.id!),
-                        ),
+                        IconButton(icon: const Icon(Icons.delete_forever, color: Colors.red, size: 16), onPressed: () => _confirmarExclusao(context, lanc.id!)),
                       ],
                     ),
                   ),
@@ -184,29 +190,55 @@ class _FinanCategoriaScreenDesktopState extends State<FinanCategoriaScreenDeskto
       default:
         corpo = Center(child: CircularProgressIndicator(semanticsLabel: 'Padrão...'));
     }
+
     return Scaffold(
       appBar: AppBar(
-        title: Text('Categoria de Finanças', style: TextStyle(fontSize: 32, fontWeight: FontWeight.bold)),
+        title: const Text('Lançamentos Financeiros do mês', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
         actions: [
-          IconButton(
-            icon: const Icon(Icons.add_box_rounded, color: Colors.black, applyTextScaling: true, size: 35),
-            onPressed: () => context.pushRtL(FormularioFinanCategoria()),
+          TextButton.icon(
+            style: ButtonStyle(
+              backgroundColor: WidgetStatePropertyAll(Colors.black),
+              foregroundColor: WidgetStatePropertyAll(Colors.white),
+              shape: WidgetStatePropertyAll(RoundedRectangleBorder(borderRadius: BorderRadius.circular(10))),
+            ),
+            label: Text("Adicionar Lançamento", style: TextStyle(fontSize: 16, color: Colors.white)),
+            icon: const Icon(Icons.add_box_rounded, color: Colors.white, applyTextScaling: true, size: 35),
+            onPressed: () => context.pushBtTModal(FinanLancamentoForm()),
           ),
         ],
       ),
       body: corpo,
+      floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
+      floatingActionButton: Container(
+        padding: const EdgeInsets.only(left: 20, right: 20),
+        height: MediaQuery.of(context).size.height * 0.05,
+        width: MediaQuery.of(context).size.width * 1,
+        child: FloatingActionButton.extended(
+          label: Row(
+            children: [
+              Text('Ver todos os lançamentos       ', style: TextStyle(fontSize: 16, color: Colors.white)),
+              Icon(Icons.keyboard_double_arrow_right_outlined, applyTextScaling: true, color: Colors.green, size: 35),
+            ],
+          ),
+          onPressed: () => context.pushRtL(FinanLancamentoScreenTodos()),
+          isExtended: true,
+          backgroundColor: Colors.black,
+          tooltip: 'Ver todos os lançamentos',
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(6)),
+        ),
+      ),
     );
   }
 
-  void _confirmarExclusaoCategoria(BuildContext context, int id) {
-    final store = Provider.of<FinanCategoriaStore>(context, listen: false);
+  void _confirmarExclusao(BuildContext context, int id) {
+    final store = Provider.of<FinanLancamentoStore>(context, listen: false);
 
     showDialog(
       context: context,
       builder:
           (_) => AlertDialog(
-            title: Text('Excluir Categoria'),
-            content: Text('Deseja realmente excluir a Categoria?'),
+            title: const Text('Confirmar exclusão'),
+            content: const Text('Deseja realmente excluir este lançamento?'),
             actions: [
               TextButton(
                 onPressed: () => Navigator.of(context).pop(),
@@ -218,17 +250,17 @@ class _FinanCategoriaScreenDesktopState extends State<FinanCategoriaScreenDeskto
                 child: Text('Cancelar'),
               ),
               TextButton(
-                onPressed: () async {
-                  await store.removerCategoria(id);
-                  WidgetsBinding.instance.addPostFrameCallback((_) {
-                    Navigator.of(context).pop();
-                  });
-                },
                 style: ButtonStyle(
                   backgroundColor: WidgetStatePropertyAll(Colors.red),
                   foregroundColor: WidgetStatePropertyAll(Colors.white),
                   shape: WidgetStatePropertyAll(RoundedRectangleBorder(borderRadius: BorderRadius.circular(10))),
                 ),
+                onPressed: () async {
+                  await store.removerLancamento(id);
+                  WidgetsBinding.instance.addPostFrameCallback((_) {
+                    Navigator.of(context).pop();
+                  });
+                },
                 child: const Text('Excluir'),
               ),
             ],
