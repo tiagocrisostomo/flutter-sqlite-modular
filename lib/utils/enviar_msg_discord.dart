@@ -10,7 +10,7 @@ Future<void> enviarMensagemDiscord(
   bool? printDetails,
   bool fatal = false,
 }) async {
-  const String webhookUrl = 'https://discord.com/api/webhooks/1400529302105100319/tMGV7bAwZjbP_AYdNzGk2LLMaaKf-h7UiYQG12EMgdgMDfSFaG6IDa7Y36bAalzNA4x9';
+  const String webhookUrl = '<SUA WEBHOOK URL AQUI>';
 
   final String mensagem = '''
 🔴🔴🔴🔴🔴🔴🔴
